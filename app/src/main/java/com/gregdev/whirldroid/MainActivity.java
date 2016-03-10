@@ -2,7 +2,9 @@ package com.gregdev.whirldroid;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +16,7 @@ import android.widget.ListView;
 import android.support.v7.app.ActionBarDrawerToggle;
 
 import com.gregdev.whirldroid.fragments.ForumListFragment;
+import com.gregdev.whirldroid.fragments.LoginFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,10 +66,32 @@ public class MainActivity extends AppCompatActivity {
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-        Fragment fragment = new ForumListFragment();
 
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+        // choose which fragment to display initially
+        if (Whirldroid.getApi().getApiKey() == null) {
+            switchFragment("Login");
+
+        } else {
+            switchFragment("ForumList");
+        }
+
+    }
+
+    public void switchFragment(String fragmentName) {
+        Fragment fragment;
+
+        try {
+            fragment = (Fragment) Class.forName("com.gregdev.whirldroid.fragments." + fragmentName + "Fragment").newInstance();
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+        } catch (ClassNotFoundException e) {
+            Whirldroid.log("Fragment " + fragmentName + " not found");
+        } catch (InstantiationException e) {
+            Whirldroid.log("Error instantiating fragment " + fragmentName);
+        } catch (IllegalAccessException e) {
+            Whirldroid.log("Illegal access to fragment " + fragmentName);
+        }
     }
 
     /* The click listner for ListView in the navigation drawer */

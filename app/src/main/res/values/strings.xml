@@ -2,4 +2,10 @@
     <string name="app_name">Whirldroid</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+
+    <!-- Login -->
+    <string name="welcome_login">Welcome to Whirldroid.\n\nEnter your Whirlpool API key to continue.</string>
+    <string name="login_btn">Log me in</string>
+    <string name="api_key_where">You can find your API key by logging in to Whirlpool and going to your account settings:\nhttp://whirlpool.net.au/profile/</string>
+    <string name="api_key_default">XXXXXX-XXXXXX-XXX</string>
 </resources>
