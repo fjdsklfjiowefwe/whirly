@@ -194,7 +194,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     public void onBackPressed() {
         FragmentManager fragmentManager = getFragmentManager();
 
-        if (fragmentManager.getBackStackEntryCount() != 0) {
+        if (mDrawerLayout.isDrawerOpen(mDrawerList)) {
+            mDrawerLayout.closeDrawer(mDrawerList);
+        } else if (fragmentManager.getBackStackEntryCount() != 0) {
             fragmentManager.popBackStack();
         } else {
             super.onBackPressed();
