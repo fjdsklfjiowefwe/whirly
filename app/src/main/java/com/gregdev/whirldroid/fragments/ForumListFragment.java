@@ -1,5 +1,7 @@
 package com.gregdev.whirldroid.fragments;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -33,6 +35,9 @@ public class ForumListFragment extends ListFragment {
     private RetrieveForumsTask task;
     private int list_position;
     private ListView forum_listview;
+    private View rootView;
+
+    private int listIndex = -1;
 
     private class RetrieveForumsTask extends AsyncTask<String, Void, ArrayList<Forum>> {
 
@@ -175,11 +180,14 @@ public class ForumListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.forum_list, container, false);
+        rootView = inflater.inflate(R.layout.forum_list, container, false);
+        forum_listview = (ListView) rootView.findViewById(android.R.id.list);
 
         getActivity().setTitle("Forums");
 
-        getForums(false);
+        if (forum_listview.getAdapter() == null || forum_listview.getAdapter().getCount() == 0) {
+            getForums(false);
+        }
 
         return rootView;
     }
@@ -189,16 +197,49 @@ public class ForumListFragment extends ListFragment {
         super.onListItemClick(l, v, position, id);
         Forum forum = (Forum) forum_adapter.getItem(position);
 
-        //Intent forum_intent = new Intent(getActivity().getApplicationContext(), ThreadList.class);
-        Toast.makeText(getActivity(), "Forum clicked: " + forum.getId(), Toast.LENGTH_SHORT).show();
+        Fragment fragment = new ThreadListFragment();
 
-        // pass the forum ID and forum name to the new activity
-        /*Bundle bundle = new Bundle();
+        Bundle bundle = new Bundle();
         bundle.putInt("forum_id", forum.getId());
         bundle.putString("forum_name", forum.getTitle());
-        forum_intent.putExtras(bundle);
 
-        startActivity(forum_intent); // display the thread list*/
+        fragment.setArguments(bundle);
+
+        getFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
+                .replace(R.id.content_frame, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Whirldroid.log("Whirldroidm onResume");
+
+        if (listIndex != -1){
+            forum_listview.setSelection(listIndex);
+            Whirldroid.log("Whirldroidm test1: " + listIndex);
+        } else {
+            Whirldroid.log("Whirldroidm test2");
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+
+        Whirldroid.log("Whirldroidm onPause");
+
+        super.onPause();
+        try {
+            listIndex = forum_listview.getFirstVisiblePosition();
+            Whirldroid.log("Whirldroidm listIndex " + listIndex);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

@@ -8,4 +8,5 @@
     android:paddingRight="16dp"
     android:textColor="#3D3327"
     android:background="?android:attr/activatedBackgroundIndicator"
-    android:minHeight="?android:attr/listPreferredItemHeightSmall"/>
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
+    android:drawablePadding="16dp" />

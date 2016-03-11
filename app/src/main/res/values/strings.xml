@@ -3,9 +3,83 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
 
+    <!-- Menus -->
+    <string name="menu_settings">Settings</string>
+    <string name="menu_about">About</string>
+    <string name="menu_refresh">Refresh</string>
+    <string name="menu_watch">Watch</string>
+    <string name="menu_markread">Mark as read</string>
+    <string name="menu_goto_forum">Go to forum</string>
+    <string name="menu_browser">Open in browser</string>
+    <string name="menu_page">Jump to page…</string>
+    <string name="menu_feedback">Send feedback</string>
+    <string name="menu_nav_prev">Previous page</string>
+    <string name="menu_nav_next">Next page</string>
+    <string name="menu_goto_last">Go to last page</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_replythread">Reply to OP</string>
+    <string name="menu_newthread">New thread</string>
+
+    <string name="menu_whim_markread">Mark as read</string>
+    <string name="menu_whim_openbrowser">Open in browser</string>
+    <string name="menu_whim_reply">Reply in browser</string>
+
+    <!-- Context Menu Titles -->
+    <string name="ctxmenu_forum">Forum Options</string>
+    <string name="ctxmenu_thread">Thread Options</string>
+    <string name="ctxmenu_watched_thread">Thread Options</string>
+    <string name="ctxmenu_whim">Whim Options</string>
+    <string name="ctxmenu_post">Post Options</string>
+
+    <!-- Context Menu Items -->
+    <string name="ctxmenu_reply_in_browser">Reply in browser</string>
+    <string name="ctxmenu_open_in_browser">Open in browser</string>
+    <string name="ctxmenu_mark_as_read">Mark as read</string>
+    <string name="ctxmenu_unwatch">Unwatch</string>
+    <string name="ctxmenu_watch_thread">Watch thread</string>
+    <string name="ctxmenu_go_to_last_post">Go to last post</string>
+    <string name="ctxmenu_go_to_forum">Go to forum</string>
+    <string name="ctxmenu_user_info">View user info</string>
+
+    <!-- Dashboard Icon Titles -->
+    <string name="btn_news">News</string>
+    <string name="btn_whims">Whims</string>
+    <string name="btn_forums">Forums</string>
+    <string name="btn_contacts">Contacts</string>
+    <string name="btn_watched">Watched\nThreads</string>
+    <string name="btn_recent">Recent\nThreads</string>
+    <string name="btn_popular">Popular\nThreads</string>
+
+    <!-- Threads -->
+    <string name="op_text">OP</string>
+    <string name="edited_text">Post edited</string>
+    <string name="no_threads">No threads.</string>
+    <string name="no_threads_unread">No unread watched threads.</string>
+
+    <string name="no_whims">No recent whims.</string>
+
     <!-- Login -->
     <string name="welcome_login">Welcome to Whirldroid.\n\nEnter your Whirlpool API key to continue.</string>
     <string name="login_btn">Log me in</string>
     <string name="api_key_where">You can find your API key by logging in to Whirlpool and going to your account settings:\nhttp://whirlpool.net.au/profile/</string>
     <string name="api_key_default">XXXXXX-XXXXXX-XXX</string>
+
+    <!-- About -->
+    <string name="version_info">Version %s</string>
+    <string name="gregdev_web">http://gregdev.com.au</string>
+	<string name="about_content">
+		Developed by Greg Smith.
+
+		\n\nPlease send any bug reports, suggestions, constructive criticism or hate mail to
+		greg@gregdev.com.au. This is my first attempt at an Android app, and is just a hobby, so please be nice!
+
+		\n\nPlease note that, due to limitations in how posts are downloaded, threads in private forums (In the News, The Pool Room, Feedback, etc.) will open in a browser window rather than within Whirldroid. Private forums will open within Whirldroid, but only \"recent\" threads will be displayed. An Open In Browser menu item is provided so you can easily open the forum in a Web browser to view the remaining threads.
+	</string>
+
+    <!-- Preferences -->
+    <string name="pref_notifications_title">Notifications</string>
+    <string name="pref_threadoptions_title">Thread Settings</string>
+    <string name="pref_recentthreadoptions_title">Recent Thread Settings</string>
+    <string name="pref_watchedthreadoptions_title">Watched Thread Settings</string>
+    <string name="pref_whimoptions_title">Whim Settings</string>
 </resources>

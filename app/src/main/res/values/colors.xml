@@ -3,4 +3,39 @@
     <color name="colorPrimary">#3A437B</color>
     <color name="colorPrimaryDark">#29326a</color>
     <color name="colorAccent">#616CA3</color>
+
+    <color name="custom_theme_colour">#ffffff</color>
+    <color name="url_colour">#0077cc</color>
+    <color name="widget_background">#aa000000</color>
+    <color name="list_subtext_colour">#949494</color>
+
+    <color name="other_quote_colour">#9F6E19</color>
+
+    <color name="panel_background">#8e8e8e</color>
+
+    <!--  Light Theme Colours -->
+    <color name="background_colour_light">#ffffff</color>
+    <color name="dashboard_text_colour_light">#5A4A38</color>
+    <color name="list_header_colour_light">#808080</color>
+    <color name="list_header_background_light">#f6f1eb</color>
+    <color name="selected_colour_light">#96c120</color>
+    <color name="sticky_list_item_background_light">#ffeee2</color>
+    <color name="list_item_background_light">#ffffff</color>
+    <color name="list_faded_colour_light">#c7c7c7</color>
+    <color name="highlight_colour_light">#d4ed8e</color>
+    <color name="list_closed_background_light">#e3e3e3</color>
+    <color name="user_quote_colour_light">#4455AA</color>
+
+    <!-- Dark Theme Colours -->
+    <color name="background_colour_dark">#131518</color>
+    <color name="list_item_background_dark">#131518</color>
+    <color name="dashboard_text_colour_dark">#999999</color>
+    <color name="list_header_colour_dark">#e1e1e1</color>
+    <color name="list_header_background_dark">#333840</color>
+    <color name="selected_colour_dark">#297997</color>
+    <color name="sticky_list_item_background_dark">#2d3e4e</color>
+    <color name="list_faded_colour_dark">#5c5c5c</color>
+    <color name="highlight_colour_dark">#2c325e</color>
+    <color name="list_closed_background_dark">#30313b</color>
+    <color name="user_quote_colour_dark">#5569cc</color>
 </resources>

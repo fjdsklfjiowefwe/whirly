@@ -2,12 +2,16 @@ package com.gregdev.whirldroid;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,9 +20,13 @@ import android.widget.ListView;
 import android.support.v7.app.ActionBarDrawerToggle;
 
 import com.gregdev.whirldroid.fragments.ForumListFragment;
+import com.gregdev.whirldroid.layout.IconArrayAdapter;
 import com.gregdev.whirldroid.fragments.LoginFragment;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
@@ -26,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mTitle;
 
-    private String[] menuItems = {"test1", "test2"};
+    private ArrayList<Pair<String, Integer>> menuItems = new ArrayList<Pair<String, Integer>>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,8 +69,15 @@ public class MainActivity extends AppCompatActivity {
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
+        menuItems.add(Pair.create("Industry News"   , R.drawable.ic_newspaper_black_24dp));
+        menuItems.add(Pair.create("Whims"           , R.drawable.ic_chat_black_24dp));
+        menuItems.add(Pair.create("Recent Threads"  , R.drawable.ic_today_black_24dp));
+        menuItems.add(Pair.create("Watched Threads" , R.drawable.ic_visibility_black_24dp));
+        menuItems.add(Pair.create("Popular Threads" , R.drawable.ic_show_chart_black_24dp));
+        menuItems.add(Pair.create("Forums"          , R.drawable.ic_question_answer_black_24dp));
+
         // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, menuItems));
+        mDrawerList.setAdapter(new IconArrayAdapter(this, menuItems, 80));
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
@@ -144,5 +159,45 @@ public class MainActivity extends AppCompatActivity {
         // Handle your other action bar items...
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public boolean onQueryTextSubmit(String query) {
+        Intent search_intent;
+
+        // private forums can't be searched, so open the browser
+        /*if (!WhirlpoolApi.isPublicForum(forum_id)) {
+            String search_url = WhirlpoolApi.buildSearchUrl(forum_id, -1, query);
+            search_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(search_url));
+        }
+        else {
+            search_intent = new Intent(this, ThreadList.class);
+
+            Bundle bundle = new Bundle();
+            bundle.putInt("forum_id", WhirlpoolApi.SEARCH_RESULTS);
+            bundle.putString("search_query", query);
+            bundle.putInt("search_forum", forum_id);
+            bundle.putInt("search_group", -1);
+
+            search_intent.putExtras(bundle);
+        }
+
+        startActivity(search_intent);*/
+
+        return true;
+    }
+
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        FragmentManager fragmentManager = getFragmentManager();
+
+        if (fragmentManager.getBackStackEntryCount() != 0) {
+            fragmentManager.popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }
