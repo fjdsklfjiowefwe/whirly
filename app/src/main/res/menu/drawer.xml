@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/menu_top"
+        android:checkableBehavior="single">
+        <item
+            android:checked="true"
+            android:id="@+id/drawer_item_news"
+            android:icon="@drawable/ic_newspaper_black_24dp"
+            android:title="Industry News"/>
+        <item
+            android:id="@+id/drawer_item_whims"
+            android:icon="@drawable/ic_chat_black_24dp"
+            android:title="Whims"/>
+        <item
+            android:id="@+id/drawer_item_recent"
+            android:icon="@drawable/ic_today_black_24dp"
+            android:title="Recent Threads"/>
+        <item
+            android:id="@+id/drawer_item_watched"
+            android:icon="@drawable/ic_visibility_black_24dp"
+            android:title="Watched Threads"/>
+        <item
+            android:id="@+id/drawer_item_popular"
+            android:icon="@drawable/ic_show_chart_black_24dp"
+            android:title="Popular Threads"/>
+        <item
+            android:id="@+id/drawer_item_forums"
+            android:icon="@drawable/ic_question_answer_black_24dp"
+            android:title="Forums"/>
+    </group>
+
+    <group
+        android:id="@+id/menu_bottom"
+        android:checkableBehavior="none">
+
+        <item
+            android:id="@+id/drawer_item_settings"
+            android:icon="@drawable/ic_settings_black_24dp"
+            android:title="Settings" >
+        </item>
+        <item
+            android:id="@+id/drawer_item_about"
+            android:icon="@drawable/ic_info_black_24dp"
+            android:title="About" >
+        </item>
+        <item
+            android:id="@+id/drawer_item_feedback"
+            android:icon="@drawable/ic_thumbs_up_down_black_24dp"
+            android:title="Send Feedback" >
+        </item>
+    </group>
+</menu>

@@ -181,15 +181,14 @@ public class ForumListFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.forum_list, container, false);
-        forum_listview = (ListView) rootView.findViewById(android.R.id.list);
-
-        getActivity().setTitle("Forums");
-
-        if (forum_listview.getAdapter() == null || forum_listview.getAdapter().getCount() == 0) {
-            getForums(false);
-        }
-
         return rootView;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        forum_listview = getListView();
+        getActivity().setTitle("Forums");
+        getForums(false);
     }
 
     @Override
