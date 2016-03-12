@@ -8,9 +8,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.widget.PopupMenu;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -166,10 +172,33 @@ public class ForumListFragment extends ListFragment {
             }
 
             ImageButton btn = (ImageButton) v.findViewById(R.id.menu_button);
+            registerForContextMenu(btn);
+
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(getActivity(), "Forum menu clicked: " + forum.getId(), Toast.LENGTH_SHORT).show();
+                    PopupMenu popupMenu = new PopupMenu(getContext(), v);
+                    popupMenu.inflate(R.menu.forum_list_item);
+
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.menu_add_favourite:
+                                    DatabaseHandler db = new DatabaseHandler(getActivity());
+                                    db.addFavouriteForum(forum);
+                                    getForums(false);
+                                    return true;
+                                case R.id.menu_new_thread:
+                                    Toast.makeText(getActivity(), "New thread in " + forum.getId(), Toast.LENGTH_SHORT).show();
+                                    return true;
+                                default:
+                                    return false;
+                            }
+                        }
+                    });
+
+                    popupMenu.show();
                 }
             });
 
@@ -188,7 +217,9 @@ public class ForumListFragment extends ListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         forum_listview = getListView();
         getActivity().setTitle("Forums");
-        getForums(false);
+        if (forum_listview.getCount() == 0) {
+            getForums(false);
+        }
     }
 
     @Override
@@ -215,29 +246,19 @@ public class ForumListFragment extends ListFragment {
     public void onResume() {
         super.onResume();
 
-        Whirldroid.log("Whirldroidm onResume");
-
         if (listIndex != -1){
             forum_listview.setSelection(listIndex);
-            Whirldroid.log("Whirldroidm test1: " + listIndex);
-        } else {
-            Whirldroid.log("Whirldroidm test2");
         }
 
     }
 
     @Override
     public void onPause() {
-
-        Whirldroid.log("Whirldroidm onPause");
-
         super.onPause();
+
         try {
             listIndex = forum_listview.getFirstVisiblePosition();
-            Whirldroid.log("Whirldroidm listIndex " + listIndex);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { }
 
     }
 

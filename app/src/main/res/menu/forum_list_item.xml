@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_add_favourite"
+        android:icon="@drawable/ic_refresh_white_24dp"
+        android:title="Add to Favourites" />
+
+    <item
+        android:id="@+id/menu_new_thread"
+        android:icon="@drawable/ic_add_box_white_24dp"
+        android:title="@string/menu_newthread" />
+
+    <item
+        android:id="@+id/menu_open_browser"
+        android:icon="@drawable/ic_open_in_browser_white_24dp"
+        android:title="@string/menu_browser" />
+</menu>
