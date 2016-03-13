@@ -1,0 +1,57 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="6dp" >
+
+    <View android:id="@+id/strut"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:id="@+id/top_left_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@id/strut"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/top_right_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/bottom_text"
+        android:gravity="right"
+        android:textColor="@color/list_subtext_colour"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/middle_left_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@id/strut"
+        android:layout_below="@id/top_left_text"
+        android:textColor="@color/list_subtext_colour" />
+
+    <TextView
+        android:id="@+id/middle_right_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/bottom_text"
+        android:layout_below="@id/top_right_text"
+        android:gravity="right"
+        android:textColor="@color/list_subtext_colour" />
+
+    <TextView
+        android:id="@+id/bottom_text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/middle_left_text"
+        android:layout_marginTop="10dp"
+        android:textSize="@dimen/post_font_size_normal" />
+
+</RelativeLayout>

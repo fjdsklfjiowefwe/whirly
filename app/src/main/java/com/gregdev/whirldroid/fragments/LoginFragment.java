@@ -88,7 +88,7 @@ public class LoginFragment extends Fragment {
                         //Intent intent = new Intent(Login.this, Dashboard.class);
                         //finish();
                         //startActivity(intent);
-                        ((MainActivity) getActivity()).switchFragment("ForumList");
+                        ((MainActivity) getActivity()).switchFragment("ForumList", false);
                     }
 
                     // no data, API key is probably invalid (or error on Whirlpool side)

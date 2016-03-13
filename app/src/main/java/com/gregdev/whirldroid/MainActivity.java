@@ -2,6 +2,7 @@ package com.gregdev.whirldroid;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.design.widget.NavigationView;
@@ -12,11 +13,7 @@ import android.support.v7.widget.SearchView;
 import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.support.v7.app.ActionBarDrawerToggle;
-
-import com.gregdev.whirldroid.fragments.ForumListFragment;
 
 import java.util.ArrayList;
 
@@ -52,10 +49,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
                 switch (item.getItemId()) {
                     case R.id.drawer_item_forums:
-                        Fragment fragment = new ForumListFragment();
+                        switchFragment("ForumList", true);
+                        break;
 
-                        FragmentManager fragmentManager = getFragmentManager();
-                        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    case R.id.drawer_item_news:
+                        switchFragment("NewsList", true);
                         break;
 
                 }
@@ -87,21 +85,30 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         // choose which fragment to display initially
         if (Whirldroid.getApi().getApiKey() == null) {
-            switchFragment("Login");
+            switchFragment("Login", false);
 
         } else {
-            switchFragment("ForumList");
+            //switchFragment("ForumList", false);
+            switchFragment("NewsList", false);
         }
 
     }
 
-    public void switchFragment(String fragmentName) {
+    public void switchFragment(String fragmentName, boolean addToBackStack) {
         Fragment fragment;
 
         try {
             fragment = (Fragment) Class.forName("com.gregdev.whirldroid.fragments." + fragmentName + "Fragment").newInstance();
-            FragmentManager fragmentManager = getFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+            FragmentTransaction transaction = getFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
+                    .replace(R.id.content_frame, fragment);
+
+            if (addToBackStack) {
+                transaction.addToBackStack(null);
+            }
+
+            transaction.commit();
 
         } catch (ClassNotFoundException e) {
             Whirldroid.log("Fragment " + fragmentName + " not found");

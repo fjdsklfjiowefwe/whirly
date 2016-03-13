@@ -3,14 +3,15 @@
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical"
-	android:padding="6dip" >
+	android:padding="18dip" >
 	
 	<TextView
 	    android:id="@+id/top_text"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:gravity="center_vertical"
-	    android:textSize="18sp" />
+	    android:textSize="18sp"
+		android:paddingBottom="10dip" />
 	
 	<TextView
 	    android:id="@+id/bottom_text"

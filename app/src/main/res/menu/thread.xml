@@ -1,0 +1,48 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/menu_prev"
+        android:icon="@drawable/ic_navigate_before_white_24dp"
+        android:title="@string/menu_nav_prev"
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_next"
+        android:icon="@drawable/ic_navigate_next_white_24dp"
+        android:title="@string/menu_nav_next"
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_refresh"
+        android:icon="@drawable/ic_refresh_white_24dp"
+        android:title="@string/menu_refresh"
+        android:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_goto_last"
+        android:title="@string/menu_goto_last"
+        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_watch"
+        android:icon="@drawable/ic_visibility_white_24dp"
+        android:title="@string/menu_watch"
+        android:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_markread"
+        android:icon="@drawable/ic_done_white_24dp"
+        android:title="@string/menu_markread"
+        android:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_replythread"
+        android:icon="@drawable/ic_reply_white_24dp"
+        android:title="@string/menu_replythread"
+        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_open_browser"
+        android:icon="@drawable/ic_open_in_browser_white_24dp"
+        android:title="@string/menu_browser"
+        android:showAsAction="never" />
+</menu>
