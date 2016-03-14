@@ -32,6 +32,7 @@ import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.WhirlpoolApiException;
 import com.gregdev.whirldroid.layout.SeparatedListAdapter;
+import com.gregdev.whirldroid.models.Forum;
 import com.gregdev.whirldroid.models.NewsArticle;
 
 /**
@@ -46,6 +47,7 @@ public class NewsListFragment extends ListFragment {
     private ProgressDialog progress_dialog;
     private RetrieveNewsTask task;
     private View rootView;
+    private ListView newsListView;
 
     /**
      * Private class to retrieve news in the background
@@ -126,48 +128,25 @@ public class NewsListFragment extends ListFragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View v = convertView;
-
-            if (v == null) {
+            if (convertView == null) {
                 LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                v = vi.inflate(R.layout.list_row, null);
+                convertView = vi.inflate(R.layout.list_row, null);
             }
 
             final NewsArticle article = news_articles.get(position);
 
             if (article != null) {
-                TextView tt = (TextView) v.findViewById(R.id.top_text);
-                TextView bt = (TextView) v.findViewById(R.id.bottom_text);
+                TextView tt = (TextView) convertView.findViewById(R.id.top_text);
+                TextView bt = (TextView) convertView.findViewById(R.id.bottom_text);
                 if (tt != null) {
                     tt.setText(article.getTitle());
                 }
                 if (bt != null){
                     bt.setText(article.getBlurb());
                 }
-
-                v.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String news_url = "http://whirlpool.net.au/news/go.cfm?article=" + article.getId();
-
-                        Intent news_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(news_url));
-
-                        if (Build.VERSION.SDK_INT >= 18) {
-                            final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
-                            final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
-
-                            Bundle extras = new Bundle();
-                            extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
-                            news_intent.putExtras(extras);
-                            news_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
-                        }
-
-                        startActivity(news_intent);
-                    }
-                });
             }
 
-            return v;
+            return convertView;
         }
 
     }
@@ -200,6 +179,7 @@ public class NewsListFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         getActivity().setTitle("News");
+        newsListView = getListView();
         getNews(false);
     }
 
@@ -280,6 +260,28 @@ public class NewsListFragment extends ListFragment {
             default:
                 return null;
         }
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        NewsArticle article = (NewsArticle) sla.getItem(position);
+
+        String news_url = "http://whirlpool.net.au/news/go.cfm?article=" + article.getId();
+
+        Intent news_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(news_url));
+
+        if (Build.VERSION.SDK_INT >= 18) {
+            final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+            final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+
+            Bundle extras = new Bundle();
+            extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+            news_intent.putExtras(extras);
+            news_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+        }
+
+        startActivity(news_intent);
     }
 
     @Override
