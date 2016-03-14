@@ -3,6 +3,10 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
 
+    <!-- Colours -->
+    <string name="user_quote_colour_light">#4455aa</string>
+    <string name="user_quote_colour_dark">#7885c4</string>
+
     <!-- Menus -->
     <string name="menu_settings">Settings</string>
     <string name="menu_about">About</string>
