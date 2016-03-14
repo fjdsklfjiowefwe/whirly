@@ -56,6 +56,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         switchFragment("NewsList", true);
                         break;
 
+                    case R.id.drawer_item_popular:
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("forum_id", WhirlpoolApi.POPULAR_THREADS);
+
+                        switchFragment("ThreadList", true, bundle);
+                        break;
+
                 }
 
                 return false;
@@ -88,17 +95,24 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             switchFragment("Login", false);
 
         } else {
-            //switchFragment("ForumList", false);
-            switchFragment("NewsList", false);
+            switchFragment("ForumList", false);
         }
 
     }
 
     public void switchFragment(String fragmentName, boolean addToBackStack) {
+        switchFragment(fragmentName, addToBackStack, null);
+    }
+
+    public void switchFragment(String fragmentName, boolean addToBackStack, Bundle bundle) {
         Fragment fragment;
 
         try {
             fragment = (Fragment) Class.forName("com.gregdev.whirldroid.fragments." + fragmentName + "Fragment").newInstance();
+
+            if (bundle != null) {
+                fragment.setArguments(bundle);
+            }
 
             FragmentTransaction transaction = getFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
@@ -106,6 +120,16 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
             if (addToBackStack) {
                 transaction.addToBackStack(null);
+            }
+
+            switch (fragmentName) {
+                case "NewsList":
+                    mNavigationView.getMenu().findItem(R.id.drawer_item_news).setChecked(true);
+                    break;
+
+                case "ForumList":
+                    mNavigationView.getMenu().findItem(R.id.drawer_item_forums).setChecked(true);
+                    break;
             }
 
             transaction.commit();
