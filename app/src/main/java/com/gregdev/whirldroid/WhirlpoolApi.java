@@ -391,10 +391,10 @@ public class WhirlpoolApi extends Activity {
 
             else if (td_classes.contains("newest")) {
                 try {
-                    last_poster = td.child(0).text();
+                    last_poster = td.child(0).child(0).text();
                 } catch (Exception e) {}
 
-                last_post_date = td.ownText();
+                last_post_date = td.child(0).ownText();
             }
 
             else if (td_classes.contains("oldest")) {
