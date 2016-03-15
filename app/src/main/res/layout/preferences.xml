@@ -1,0 +1,173 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+    <EditTextPreference
+        android:name="Whirlpool API Key"
+        android:summary="Your Whirlpool API key"
+        android:title="API Key"
+        android:maxLength="18"
+        android:key="pref_apikey" />
+
+    <ListPreference
+        android:title="Whirldroid Theme"
+        android:summary="Select a colour theme"
+        android:key="pref_theme"
+        android:entries="@array/array_pref_theme"
+        android:entryValues="@array/values_pref_theme"
+        android:defaultValue="0" />
+
+    <ListPreference
+        android:title="Post Font Size"
+        android:summary="Adjust the font size of posts"
+        android:key="pref_postfontsize"
+        android:entries="@array/array_pref_postfontsize"
+        android:entryValues="@array/values_pref_postfontsize"
+        android:defaultValue="0" />
+
+    <PreferenceCategory
+        android:title="@string/pref_notifications_title"
+        android:key="pref_key_notification_settings">
+
+        <PreferenceScreen
+            android:key="notification_screen_pref"
+            android:title="Notification Settings"
+            android:summary="Enable whim or watched thread notifications and manage how you get notified">
+
+            <CheckBoxPreference
+                android:title="New whim alerts"
+                android:defaultValue="false"
+                android:summary="Notify me when somebody sends me a Whim"
+                android:key="pref_whimnotify" />
+
+            <CheckBoxPreference
+                android:title="Watched thread alerts"
+                android:defaultValue="false"
+                android:summary="Notify me when somebody replies to a thread I'm watching"
+                android:key="pref_watchednotify" />
+
+            <ListPreference
+                android:title="Notify interval"
+                android:summary="How often to check for new whims or watched thread replies"
+                android:key="pref_notifyfreq"
+                android:entries="@array/array_pref_notifyfreq"
+                android:entryValues="@array/values_pref_notifyfreq" />
+
+            <RingtonePreference
+                android:title="Notification tone"
+                android:summary="Sound to play on incoming notifications"
+                android:key="pref_notifytone"
+                android:showSilent="true"
+                android:showDefault="true"
+                android:ringtoneType="notification" />
+
+            <CheckBoxPreference
+                android:title="Vibrate"
+                android:summary="Vibrate on incoming notifications"
+                android:key="pref_notifyvibrate"
+                android:defaultValue="false" />
+
+            <CheckBoxPreference
+                android:title="Flash LED"
+                android:summary="Flash phone LED (if available) on incoming notifications"
+                android:key="pref_notifyled"
+                android:defaultValue="false" />
+
+        </PreferenceScreen>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_threadoptions_title"
+        android:key="pref_key_thread_options">
+
+        <CheckBoxPreference
+            android:title="Open threads in browser"
+            android:defaultValue="false"
+            android:summary="Open threads in a browser window rather than within Whirldroid"
+            android:key="pref_openthreadsinbrowser" />
+
+        <CheckBoxPreference
+            android:title="Load public threads at bottom"
+            android:defaultValue="false"
+            android:summary="Load threads in public forums at the last post"
+            android:key="pref_loadpublicatbottom" />
+
+        <CheckBoxPreference
+            android:title="Load private threads at bottom"
+            android:defaultValue="false"
+            android:summary="Load threads in private forums (In the News, TPR, etc) at the last post"
+            android:key="pref_loadprivateatbottom" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_recentthreadoptions_title"
+        android:key="pref_key_thread_options">
+
+        <ListPreference
+            android:title="Recent thread history"
+            android:summary="Age range of your recent thread history"
+            android:key="pref_recenthistory"
+            android:entries="@array/array_pref_recenthistory"
+            android:entryValues="@array/values_pref_recenthistory"
+            android:defaultValue="7" />
+
+        <CheckBoxPreference
+            android:title="Load recent threads at top"
+            android:defaultValue="false"
+            android:summary="Load recent threads at the first post rather than at the last post"
+            android:key="pref_loadattop" />
+
+        <CheckBoxPreference
+            android:title="Ignore own replies"
+            android:defaultValue="false"
+            android:summary="Hide recent threads where I was the last poster"
+            android:key="pref_ignoreownrepliesrecent" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_watchedthreadoptions_title"
+        android:key="pref_key_thread_options">
+
+        <CheckBoxPreference
+            android:title="Load watched threads at top"
+            android:defaultValue="false"
+            android:summary="Load watched threads at the first post rather than at the last read post"
+            android:key="pref_loadwatchedattop" />
+
+        <CheckBoxPreference
+            android:title="Hide read watched threads"
+            android:defaultValue="true"
+            android:summary="Hide watched threads which do not have any unread posts"
+            android:key="pref_hidewatchedunread" />
+
+        <CheckBoxPreference
+            android:title="Ignore own replies"
+            android:defaultValue="false"
+            android:summary="Don't highlight or notify for watched threads where I was the last poster"
+            android:key="pref_ignoreownreplies" />
+
+        <CheckBoxPreference
+            android:title="Auto mark as read"
+            android:defaultValue="false"
+            android:summary="Automatically mark watched threads as read when viewed"
+            android:key="pref_watchedautomarkasread"
+            android:widgetLayout="@layout/multiline_checkbox_preference" />
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="@string/pref_whimoptions_title"
+        android:key="pref_key_thread_options">
+
+        <CheckBoxPreference
+            android:title="Auto mark as read"
+            android:defaultValue="true"
+            android:summary="Automatically mark a whim as read when viewed"
+            android:key="pref_whimautomarkasread" />
+
+    </PreferenceCategory>
+</PreferenceScreen>
