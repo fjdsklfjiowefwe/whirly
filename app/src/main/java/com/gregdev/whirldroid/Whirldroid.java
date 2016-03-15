@@ -16,7 +16,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.gregdev.whirldroid.models.Thread;
+import com.gregdev.whirldroid.model.Thread;
 
 /*import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;*/

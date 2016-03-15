@@ -7,5 +7,6 @@
     <dimen name="actionbar_height">55dp</dimen>
 
     <dimen name="post_font_size_normal">17sp</dimen>
-    <dimen name="post_font_size_larger">19sp</dimen>
+    <dimen name="post_font_size_large">18sp</dimen>
+    <dimen name="post_font_size_even_larger">19sp</dimen>
 </resources>

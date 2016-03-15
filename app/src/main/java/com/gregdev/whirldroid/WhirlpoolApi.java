@@ -31,12 +31,12 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.gregdev.whirldroid.models.Forum;
-import com.gregdev.whirldroid.models.NewsArticle;
-import com.gregdev.whirldroid.models.Post;
-import com.gregdev.whirldroid.models.Thread;
-import com.gregdev.whirldroid.models.User;
-import com.gregdev.whirldroid.models.Whim;
+import com.gregdev.whirldroid.model.Forum;
+import com.gregdev.whirldroid.model.NewsArticle;
+import com.gregdev.whirldroid.model.Post;
+import com.gregdev.whirldroid.model.Thread;
+import com.gregdev.whirldroid.model.User;
+import com.gregdev.whirldroid.model.Whim;
 import com.gregdev.whirldroid.services.HttpFetch;
 
 /**
@@ -392,17 +392,15 @@ public class WhirlpoolApi extends Activity {
             else if (td_classes.contains("newest")) {
                 try {
                     last_poster = td.child(0).child(0).text();
-                } catch (Exception e) {}
-
-                last_post_date = td.child(0).ownText();
+                    last_post_date = td.child(0).ownText();
+                } catch (Exception e) { }
             }
 
             else if (td_classes.contains("oldest")) {
                 try {
                     first_poster = td.child(0).text();
+                    first_post_date = td.ownText();
                 } catch (Exception e) {}
-
-                first_post_date = td.ownText();
             }
         }
 

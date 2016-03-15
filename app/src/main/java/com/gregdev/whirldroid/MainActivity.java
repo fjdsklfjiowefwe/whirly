@@ -63,6 +63,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         switchFragment("ThreadList", true, bundle);
                         break;
 
+                    case R.id.drawer_item_settings:
+                        switchFragment("Settings", true);
+                        break;
+
                 }
 
                 return false;
@@ -108,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         Fragment fragment;
 
         try {
-            fragment = (Fragment) Class.forName("com.gregdev.whirldroid.fragments." + fragmentName + "Fragment").newInstance();
+            fragment = (Fragment) Class.forName("com.gregdev.whirldroid.fragment." + fragmentName + "Fragment").newInstance();
 
             if (bundle != null) {
                 fragment.setArguments(bundle);
