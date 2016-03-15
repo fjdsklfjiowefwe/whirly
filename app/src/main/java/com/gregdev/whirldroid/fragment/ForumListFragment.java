@@ -1,24 +1,19 @@
-package com.gregdev.whirldroid.fragments;
+package com.gregdev.whirldroid.fragment;
 
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -26,9 +21,10 @@ import android.widget.Toast;
 
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
+import com.gregdev.whirldroid.WhirlpoolApi;
 import com.gregdev.whirldroid.WhirlpoolApiException;
 import com.gregdev.whirldroid.layout.SeparatedListAdapter;
-import com.gregdev.whirldroid.models.Forum;
+import com.gregdev.whirldroid.model.Forum;
 import com.gregdev.whirldroid.services.DatabaseHandler;
 
 import java.util.ArrayList;
@@ -92,7 +88,7 @@ public class ForumListFragment extends ListFragment {
                     if (result != null) {
                         setForums(forum_list); // display the forums in the list
                     } else {
-                        Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), "Error: " + error_message, Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -210,6 +206,7 @@ public class ForumListFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.forum_list, container, false);
+        setHasOptionsMenu(true);
         return rootView;
     }
 
@@ -260,6 +257,29 @@ public class ForumListFragment extends ListFragment {
             listIndex = forum_listview.getFirstVisiblePosition();
         } catch (Exception e) { }
 
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.refresh, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_refresh:
+                long now = System.currentTimeMillis() / 1000;
+                // don't refresh too often
+                if (now - Whirldroid.getApi().getNewsLastUpdated() > WhirlpoolApi.REFRESH_INTERVAL) {
+                    getForums(true);
+                }
+                else {
+                    Toast.makeText(getActivity(), "Wait " + WhirlpoolApi.REFRESH_INTERVAL + " seconds before refreshing", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+        }
+        return false;
     }
 
 }

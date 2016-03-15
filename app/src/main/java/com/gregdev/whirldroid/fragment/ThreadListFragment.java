@@ -1,4 +1,4 @@
-package com.gregdev.whirldroid.fragments;
+package com.gregdev.whirldroid.fragment;
 
 import android.app.ListFragment;
 import android.app.ProgressDialog;
@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.method.DigitsKeyListener;
-import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,21 +22,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.WhirlpoolApi;
 import com.gregdev.whirldroid.WhirlpoolApiException;
 import com.gregdev.whirldroid.layout.SeparatedListAdapter;
-import com.gregdev.whirldroid.models.Forum;
-import com.gregdev.whirldroid.models.Thread;
+import com.gregdev.whirldroid.model.Forum;
+import com.gregdev.whirldroid.model.Thread;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -330,7 +328,7 @@ public class ThreadListFragment extends ListFragment {
 
         @Override
         public View getView(int position, View convert_view, ViewGroup parent) {
-            Thread thread = thread_items.get(position);
+            final Thread thread = thread_items.get(position);
             int type = getItemViewType(position);
 
             if (convert_view == null) {
@@ -391,7 +389,15 @@ public class ThreadListFragment extends ListFragment {
                         lastpost_textview.setText(thread.getLastDateText() + " by " + thread.getLastPoster());
                     }
                 }
+
+                convert_view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        openThread(thread, 1, false);
+                    }
+                });
             }
+
             return convert_view;
         }
     }
@@ -438,9 +444,6 @@ public class ThreadListFragment extends ListFragment {
         final View rootView = inflater.inflate(R.layout.thread_list, container, false);
 
         no_threads = (TextView) rootView.findViewById(R.id.no_threads);
-
-        // save reference to listview
-        thread_listview = (ListView) rootView.findViewById(android.R.id.list);
 
         Bundle bundle = getArguments();
 
@@ -496,6 +499,11 @@ public class ThreadListFragment extends ListFragment {
         return rootView;
     }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        thread_listview = getListView();
+    }
+
     public void markThreadAsWatched(int thread_id) {
         progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Watching thread...", true, true);
         //progress_dialog.setOnCancelListener(new CancelTaskOnCancelListener(task));
@@ -543,11 +551,11 @@ public class ThreadListFragment extends ListFragment {
         if (WhirlpoolApi.isPublicForum(forum_id) || forum_id == WhirlpoolApi.POPULAR_THREADS
                 || forum_id == WhirlpoolApi.RECENT_THREADS || forum_id == WhirlpoolApi.WATCHED_THREADS) {
             if (last_updated < 10) { // updated less than 10 seconds ago
-                getActivity().getActionBar().setSubtitle("Updated just a moment ago");
+                //getActivity().getActionBar().setSubtitle("Updated just a moment ago");
             }
             else {
                 String ago = Whirldroid.getTimeSince(last_updated);
-                getActivity().getActionBar().setSubtitle("Updated " + ago + " ago");
+                //getActivity().getActionBar().setSubtitle("Updated " + ago + " ago");
             }
         }
 
@@ -629,7 +637,7 @@ public class ThreadListFragment extends ListFragment {
     }
 
     private void openThreadInApp(Thread thread, int page_number, boolean bottom, int goto_post) {
-        /*Intent thread_intent = new Intent(getActivity().getApplicationContext(), getActivity());
+        Bundle bundle = new Bundle();
 
         if (goto_post != 0) {
             goto_post = (goto_post % WhirlpoolApi.POSTS_PER_PAGE) - 1;
@@ -637,17 +645,14 @@ public class ThreadListFragment extends ListFragment {
                 goto_post = WhirlpoolApi.POSTS_PER_PAGE;
             }
         }
-
-        Bundle bundle = new Bundle();
         bundle.putInt("thread_id", thread.getId());
         bundle.putString("thread_title", thread.getTitle());
         bundle.putInt("page_number", page_number);
         bundle.putBoolean("bottom", bottom);
         bundle.putInt("goto_num", goto_post);
         bundle.putInt("from_forum", forum_id);
-        thread_intent.putExtras(bundle);
 
-        startActivity(thread_intent);*/
+        ((MainActivity) getActivity()).switchFragment("ThreadView", true, bundle);
     }
 
     private void openThreadInBrowser(Thread thread, int page_number, boolean bottom, int goto_post) {

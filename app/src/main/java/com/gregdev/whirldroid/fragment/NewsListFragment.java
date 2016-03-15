@@ -1,4 +1,4 @@
-package com.gregdev.whirldroid.fragments;
+package com.gregdev.whirldroid.fragment;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -32,8 +32,7 @@ import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.WhirlpoolApiException;
 import com.gregdev.whirldroid.layout.SeparatedListAdapter;
-import com.gregdev.whirldroid.models.Forum;
-import com.gregdev.whirldroid.models.NewsArticle;
+import com.gregdev.whirldroid.model.NewsArticle;
 
 /**
  * Displays the latest Whirlpool news in a nice list format

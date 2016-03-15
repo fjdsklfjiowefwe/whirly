@@ -1,4 +1,4 @@
-package com.gregdev.whirldroid.fragments;
+package com.gregdev.whirldroid.fragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +9,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -31,13 +33,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.WhirlpoolApi;
 import com.gregdev.whirldroid.WhirlpoolApiException;
-import com.gregdev.whirldroid.models.Post;
-import com.gregdev.whirldroid.models.Thread;
+import com.gregdev.whirldroid.model.Post;
+import com.gregdev.whirldroid.model.Thread;
 
 /**
  * Displays the latest Whirlpool whims in a nice list format
@@ -61,6 +62,7 @@ public class ThreadViewFragment extends ListFragment {
     private PageAdapter page_adapter;
     private boolean pages_loaded = false;
     private boolean no_page_select = true;
+    private String font_size_option = "0";
 
     /**
      * Private class to retrieve threads in the background
@@ -82,8 +84,7 @@ public class ThreadViewFragment extends ListFragment {
                     try {
                         progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Loading thread...", true, true);
                         progress_dialog.setOnCancelListener(new CancelTaskOnCancelListener(task));
-                    } catch (BadTokenException e) {
-                    }
+                    } catch (BadTokenException e) { }
                 }
             });
 
@@ -214,7 +215,13 @@ public class ThreadViewFragment extends ListFragment {
                 top_left_text.setText(post.getUser().getName());
                 top_right_text.setText(post.getPostedTime());
 
-                //bottom_text.setTextSize(getResources().getDimension(R.dimen.post_font_size_larger));
+                Whirldroid.log("Whirldroidm est " + font_size_option);
+
+                if (font_size_option.equals("1")) {
+                    bottom_text.setTextSize(20);
+                } if (font_size_option.equals("2")) {
+                    bottom_text.setTextSize(22);
+                }
 
                 if (post.isOp()) {
                     middle_left_text.setText("OP / " + post.getUser().getGroup());
@@ -371,16 +378,16 @@ public class ThreadViewFragment extends ListFragment {
         if (bundle != null) {
             thread_id = bundle.getInt("thread_id");
             thread_title = bundle.getString("thread_title");
-            if (thread_title == null) {
-                getActivity().setTitle("Thread");
-            }
-            else {
-                getActivity().setTitle(thread_title);
-            }
             current_page = bundle.getInt("page_number");
             bottom = bundle.getBoolean("bottom");
             goto_num = bundle.getInt("goto_num");
             from_forum = bundle.getInt("from_forum");
+
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
+            font_size_option = settings.getString("pref_postfontsize", "0");
+
+            // thread title is set using PageAdapter, so set this to nothing
+            getActivity().setTitle("");
         }
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();

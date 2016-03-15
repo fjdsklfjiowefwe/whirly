@@ -1,4 +1,4 @@
-package com.gregdev.whirldroid.models;
+package com.gregdev.whirldroid.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;

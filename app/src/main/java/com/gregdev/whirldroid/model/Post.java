@@ -1,4 +1,4 @@
-package com.gregdev.whirldroid.models;
+package com.gregdev.whirldroid.model;
 
 public class Post {
 	
