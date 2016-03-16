@@ -138,12 +138,6 @@
             android:key="pref_loadwatchedattop" />
 
         <CheckBoxPreference
-            android:title="Hide read watched threads"
-            android:defaultValue="true"
-            android:summary="Hide watched threads which do not have any unread posts"
-            android:key="pref_hidewatchedunread" />
-
-        <CheckBoxPreference
             android:title="Ignore own replies"
             android:defaultValue="false"
             android:summary="Don't highlight or notify for watched threads where I was the last poster"

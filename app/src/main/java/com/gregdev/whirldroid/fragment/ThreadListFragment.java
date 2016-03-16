@@ -64,6 +64,7 @@ public class ThreadListFragment extends ListFragment {
     private TextView no_threads;
     private GroupAdapter group_adapter;
     private Map<String, Integer> groups;
+    private boolean hide_read = false;
 
     private int search_forum = -1;
     private int search_group = -1;
@@ -240,7 +241,7 @@ public class ThreadListFragment extends ListFragment {
                         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
 
                         if (thread_list != null && thread_list.size() == 0) {
-                            boolean hide_read = settings.getBoolean("pref_hidewatchedunread", true);
+
                             if (forum_id == WhirlpoolApi.WATCHED_THREADS && hide_read) {
                                 no_threads.setText(getActivity().getResources().getText(R.string.no_threads_unread));
                             } else {
@@ -274,7 +275,6 @@ public class ThreadListFragment extends ListFragment {
 
         private List<Thread> thread_items;
         boolean ignore_own;
-        boolean hide_read;
 
         public ThreadAdapter(Context context, int textViewResourceId, List<Thread> thread_items) {
             super(context, textViewResourceId, thread_items);
@@ -282,7 +282,6 @@ public class ThreadListFragment extends ListFragment {
 
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
             ignore_own = settings.getBoolean("pref_ignoreownreplies", false);
-            hide_read = settings.getBoolean("pref_hidewatchedunread", true);
         }
 
         /**
@@ -323,7 +322,7 @@ public class ThreadListFragment extends ListFragment {
          * eg. sticky + unread + normal = 3, so return 3
          */
         public int getViewTypeCount() {
-            return 6;
+            return 5;
         }
 
         @Override
@@ -337,9 +336,6 @@ public class ThreadListFragment extends ListFragment {
                 switch (type) {
                     case 1:
                         convert_view = vi.inflate(R.layout.list_row_sticky, null);
-                        break;
-                    case 2:
-                        convert_view = vi.inflate(R.layout.list_row_highlighted, null);
                         break;
                     case 3:
                         convert_view = vi.inflate(R.layout.list_row_deleted, null);
@@ -449,6 +445,7 @@ public class ThreadListFragment extends ListFragment {
 
         if (bundle != null) {
             forum_id = bundle.getInt("forum_id");
+            hide_read = bundle.getBoolean("hide_read", false);
 
             switch(forum_id) {
                 case WhirlpoolApi.WATCHED_THREADS:
@@ -562,6 +559,20 @@ public class ThreadListFragment extends ListFragment {
         if (thread_list == null || thread_list.size() == 0) { // no threads found
             setListAdapter(null);
             return;
+        }
+
+        if (hide_read) {
+
+            List<Thread> copy = new ArrayList<Thread>(thread_list);
+
+
+            for (Thread thread : thread_list) {
+                if (!thread.hasUnreadPosts()) {
+                    copy.remove(thread);
+                }
+            }
+
+            thread_list = copy;
         }
 
         threads_adapter = new SeparatedListAdapter(getActivity());

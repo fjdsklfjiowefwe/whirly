@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:paddingTop="10dp"
-    android:paddingRight="18dp"
+    android:paddingRight="0dp"
     android:paddingBottom="10dp"
     android:paddingLeft="18dp"
     >
@@ -13,6 +13,19 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
 	    android:textSize="18sp" />
+
+    <ImageButton
+        android:id="@+id/menu_button"
+        android:background="?android:selectableItemBackgroundBorderless"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:padding="10dip"
+        android:paddingRight="14dip"
+        android:layout_marginTop="-8dip"
+        android:gravity="right"
+        style="?attr/MenuButton"
+        android:alpha="0.5" />
     
     <TextView
         android:id="@+id/bottom_left_text"
@@ -26,6 +39,7 @@
     <TextView
         android:id="@+id/bottom_right_text"
         android:layout_width="40dp"
+        android:paddingRight="14dip"
         android:layout_height="wrap_content"
         android:layout_below="@id/top_text"
         android:layout_alignParentRight="true"

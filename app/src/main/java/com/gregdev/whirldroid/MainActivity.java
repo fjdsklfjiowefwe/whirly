@@ -59,6 +59,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         switchFragment("NewsList", true);
                         break;
 
+                    case R.id.drawer_item_watched:
+                        switchFragment("WatchedThreads", true);
+                        break;
+
                     case R.id.drawer_item_popular:
                         Bundle bundle = new Bundle();
                         bundle.putInt("forum_id", WhirlpoolApi.POPULAR_THREADS);

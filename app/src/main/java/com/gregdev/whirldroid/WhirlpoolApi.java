@@ -954,14 +954,7 @@ public class WhirlpoolApi extends Activity {
         Map<String, String> params = new HashMap<String, String>();
 
         get.add("watched");
-
-        boolean hide_read = settings.getBoolean("pref_hidewatchedunread", true);
-        if (hide_read) {
-            params.put("watchedmode", "0");
-        }
-        else {
-            params.put("watchedmode", "1");
-        }
+        params.put("watchedmode", "1");
 
         if (mark_thread_as_read != 0) {
             params.put("watchedread", mark_thread_as_read + "");
@@ -1130,11 +1123,10 @@ public class WhirlpoolApi extends Activity {
         ArrayList<Thread> new_watched_threads = new ArrayList<Thread>();
 
         boolean ignore_own = settings.getBoolean("pref_ignoreownreplies", true);
-        boolean hide_read = settings.getBoolean("pref_hidewatchedunread", true);
 
         int dont_ignore_counter = 0;
         for (Thread t : watched_threads) {
-            if (hide_read && ignore_own && t.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId())) {
+            if (ignore_own && t.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId())) {
 
             }
             else {
