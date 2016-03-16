@@ -19,13 +19,14 @@ android:descendantFocusability="blocksDescendants">
 
 <ImageButton
     android:id="@+id/menu_button"
-    android:src="@drawable/ic_more_vert_black"
     android:background="?android:selectableItemBackgroundBorderless"
     android:layout_width="40dp"
     android:layout_height="wrap_content"
     android:layout_alignParentRight="true"
     android:padding="10dip"
     android:paddingRight="14dip"
-    android:gravity="right" />
+    android:gravity="right"
+    style="?attr/MenuButton"
+    android:alpha="0.5" />
 
 </RelativeLayout>

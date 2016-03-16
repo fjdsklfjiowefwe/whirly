@@ -1,4 +1,11 @@
 <resources>
 
+    <style name="MenuButtonLight">
+        <item name="android:src">@drawable/ic_more_vert_black_24dp</item>
+    </style>
+
+    <style name="MenuButtonDark">
+        <item name="android:src">@drawable/ic_more_vert_white_24dp</item>
+    </style>
 
 </resources>
