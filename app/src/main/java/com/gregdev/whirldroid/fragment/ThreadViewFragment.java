@@ -215,8 +215,6 @@ public class ThreadViewFragment extends ListFragment {
                 top_left_text.setText(post.getUser().getName());
                 top_right_text.setText(post.getPostedTime());
 
-                Whirldroid.log("Whirldroidm est " + font_size_option);
-
                 if (font_size_option.equals("1")) {
                     bottom_text.setTextSize(20);
                 } if (font_size_option.equals("2")) {
@@ -225,15 +223,13 @@ public class ThreadViewFragment extends ListFragment {
 
                 if (post.isOp()) {
                     middle_left_text.setText("OP / " + post.getUser().getGroup());
-                }
-                else {
+                } else {
                     middle_left_text.setText(post.getUser().getGroup());
                 }
 
                 if (post.isEdited()) {
                     middle_right_text.setText(R.string.edited_text);
-                }
-                else {
+                } else {
                     middle_right_text.setText("");
                 }
 

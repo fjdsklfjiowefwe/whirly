@@ -30,6 +30,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setTheme(Whirldroid.getCurrentTheme());
+
         setContentView(R.layout.activity_main);
 
         mTitle = mDrawerTitle = getTitle();

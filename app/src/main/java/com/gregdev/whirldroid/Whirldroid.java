@@ -45,10 +45,6 @@ public class Whirldroid extends Application {
 
         // set up Whirlpool API
         whirlpool_api = new WhirlpoolApi();
-
-        // set current theme
-        setCurrentTheme(false);
-        setTheme(current_theme); // I don't know if this even does anything
     }
 
     /**
@@ -75,65 +71,28 @@ public class Whirldroid extends Application {
     }
 
     /**
-     * Sets the current theme based on the user's preference
-     *
-     * Called when the app first starts so as to reduce the reading of shared
-     * preferences, which can be slow.
-     *
-     * @param update Whether the theme has changed between Activities
-     */
-    public static void setCurrentTheme(boolean update) {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
-        current_theme_id = Integer.parseInt(settings.getString("pref_theme", "0"));
-
-        /*int new_theme;
-        switch (current_theme_id) {
-            case DARK_THEME:
-                new_theme = R.style.WhirldroidDarkTheme;
-                break;
-            case LIGHT_THEME:
-            default:
-                new_theme = R.style.WhirldroidLightTheme;
-                break;
-        }
-
-        // theme changed
-        if (new_theme != current_theme) {
-            current_theme = new_theme;
-            setThemeChanged(update);
-        }*/
-    }
-
-    /**
-     * Gets the ID of the current theme
-     * @return Theme ID
-     */
-    public static int getCurrentThemeId() {
-        return current_theme_id;
-    }
-
-    /**
      * Gets the current theme
      * @return Current theme
      */
-    public static int getWhirldroidTheme() {
+    public static int getCurrentTheme() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
+        current_theme_id = Integer.parseInt(settings.getString("pref_theme", "0"));
+
+        switch (current_theme_id) {
+            case DARK_THEME:
+                current_theme = R.style.WhirldroidDarkTheme;
+                break;
+            case LIGHT_THEME:
+            default:
+                current_theme = R.style.WhirldroidLightTheme;
+                break;
+        }
+
         return current_theme;
     }
 
-    /**
-     * Checks if the theme has changed between activities
-     * @return True if theme has changed
-     */
-    public static boolean hasThemeChanged() {
-        return theme_changed;
-    }
-
-    /**
-     * Sets the theme changed variable
-     * @param changed
-     */
-    public static void setThemeChanged(boolean changed) {
-        theme_changed = changed;
+    public static int getCurrentThemeId() {
+        return current_theme_id;
     }
 
     /**
