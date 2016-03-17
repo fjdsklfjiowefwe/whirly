@@ -18,6 +18,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((MainActivity) getActivity()).selectMenuItem("Settings");
 
         addPreferencesFromResource(R.xml.preferences);
 

@@ -74,6 +74,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         switchFragment("Settings", true);
                         break;
 
+                    case R.id.drawer_item_about:
+                        switchFragment("About", true);
+                        break;
+
                 }
 
                 return false;
@@ -131,16 +135,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
             if (addToBackStack) {
                 transaction.addToBackStack(null);
-            }
-
-            switch (fragmentName) {
-                case "NewsList":
-                    mNavigationView.getMenu().findItem(R.id.drawer_item_news).setChecked(true);
-                    break;
-
-                case "ForumList":
-                    mNavigationView.getMenu().findItem(R.id.drawer_item_forums).setChecked(true);
-                    break;
             }
 
             transaction.commit();
@@ -225,5 +219,43 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         } else {
             super.onBackPressed();
         }
+    }
+
+    public boolean selectMenuItem(String item) {
+        switch (item) {
+            case "NewsList":
+                mNavigationView.getMenu().findItem(R.id.drawer_item_news).setChecked(true);
+                return true;
+
+            case "WhimList":
+                mNavigationView.getMenu().findItem(R.id.drawer_item_whims).setChecked(true);
+                return true;
+
+            case "RecentList":
+                mNavigationView.getMenu().findItem(R.id.drawer_item_recent).setChecked(true);
+                return true;
+
+            case "WatchedList":
+                mNavigationView.getMenu().findItem(R.id.drawer_item_watched).setChecked(true);
+                return true;
+
+            case "PopularList":
+                mNavigationView.getMenu().findItem(R.id.drawer_item_popular).setChecked(true);
+                return true;
+
+            case "ForumList":
+                mNavigationView.getMenu().findItem(R.id.drawer_item_forums).setChecked(true);
+                return true;
+
+            case "Settings":
+                mNavigationView.getMenu().findItem(R.id.drawer_item_settings).setChecked(true);
+                return true;
+
+            case "About":
+                mNavigationView.getMenu().findItem(R.id.drawer_item_about).setChecked(true);
+                return true;
+        }
+
+        return false;
     }
 }

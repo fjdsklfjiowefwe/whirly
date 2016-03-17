@@ -2,7 +2,7 @@
     <style name="WhirldroidDarkTheme" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorAccentDark</item>
 
         <item name="MenuButton">@style/MenuButtonDark</item>
     </style>
