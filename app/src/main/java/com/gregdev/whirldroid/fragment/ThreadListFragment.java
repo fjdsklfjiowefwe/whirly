@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.method.DigitsKeyListener;
@@ -322,7 +324,7 @@ public class ThreadListFragment extends ListFragment {
          * eg. sticky + unread + normal = 3, so return 3
          */
         public int getViewTypeCount() {
-            return 5;
+            return 6;
         }
 
         @Override
@@ -438,7 +440,7 @@ public class ThreadListFragment extends ListFragment {
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.thread_list, container, false);
-
+        setHasOptionsMenu(true);
         no_threads = (TextView) rootView.findViewById(R.id.no_threads);
 
         Bundle bundle = getArguments();
@@ -499,6 +501,10 @@ public class ThreadListFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         thread_listview = getListView();
+
+        ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
+        MenuBuilder menuBuilder = (MenuBuilder) actionMenuView.getMenu();
+        getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
     }
 
     public void markThreadAsWatched(int thread_id) {
@@ -680,26 +686,23 @@ public class ThreadListFragment extends ListFragment {
         startActivity(thread_intent);
     }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getActivity().getMenuInflater();
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (isActualForum()) {
             inflater.inflate(R.menu.forum, menu);
-            if (android.os.Build.VERSION.SDK_INT >= 8) {
-                //Create the search view
-                SearchView search_view = new SearchView(getActivity().getActionBar().getThemedContext());
-                search_view.setQueryHint("Search for threads…");
-                //search_view.setOnQueryTextListener(getActivity());
+            //Create the search view
+            SearchView search_view = new SearchView(((MainActivity) getActivity()).getSupportActionBar().getThemedContext());
+            search_view.setQueryHint("Search for threads…");
+            search_view.setOnQueryTextListener((MainActivity) getActivity());
 
-                menu.add("Search")
-                        /*.setIcon(R.drawable.abs__ic_search)*/
-                        .setActionView(search_view)
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-            }
+            menu.add("Search")
+                    .setIcon(R.drawable.ic_search_white_24dp)
+                    .setActionView(search_view)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         }
         else {
             inflater.inflate(R.menu.refresh, menu);
         }
-        return true;
     }
 
     @Override

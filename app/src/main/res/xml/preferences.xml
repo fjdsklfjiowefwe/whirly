@@ -10,6 +10,14 @@
         android:key="pref_apikey" />
 
     <ListPreference
+        android:title="Home Page"
+        android:summary="Default to your favourite section"
+        android:key="pref_homepage"
+        android:entries="@array/array_pref_homepage"
+        android:entryValues="@array/values_pref_homepage"
+        android:defaultValue="ForumList" />
+
+    <ListPreference
         android:title="Whirldroid Theme"
         android:summary="Select a colour theme"
         android:key="pref_theme"

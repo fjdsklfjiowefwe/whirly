@@ -21,12 +21,13 @@ public class AboutFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.about, container, false);
         setHasOptionsMenu(true);
-        ((MainActivity) getActivity()).selectMenuItem("About");
         return rootView;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        getActivity().setTitle("About");
+
         TextView version_info = (TextView) view.findViewById(R.id.version_info);
         TextView gregdev_url = (TextView) view.findViewById(R.id.gregdev_web);
 

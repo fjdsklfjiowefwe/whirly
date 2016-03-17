@@ -7,6 +7,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -265,6 +266,15 @@ public class ForumListFragment extends ListFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.refresh, menu);
         super.onCreateOptionsMenu(menu, inflater);
+        //Create the search view
+        SearchView search_view = new SearchView(((MainActivity) getActivity()).getSupportActionBar().getThemedContext());
+        search_view.setQueryHint("Search for threads…");
+        search_view.setOnQueryTextListener((MainActivity) getActivity());
+
+        menu.add("Search")
+                .setIcon(R.drawable.ic_search_white_24dp)
+                .setActionView(search_view)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
     }
 
     @Override

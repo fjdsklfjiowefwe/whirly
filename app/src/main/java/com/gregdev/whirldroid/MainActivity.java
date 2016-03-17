@@ -10,12 +10,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.app.ActionBarDrawerToggle;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -24,8 +21,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private CharSequence mDrawerTitle;
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mTitle;
-
-    private ArrayList<Pair<String, Integer>> menuItems = new ArrayList<Pair<String, Integer>>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,8 +40,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                if (item.isChecked()) item.setChecked(!item.isChecked());
-
                 //Closing drawer on item click
                 mDrawerLayout.closeDrawers();
 
@@ -138,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
 
             transaction.commit();
+            selectMenuItem(fragmentName);
 
         } catch (ClassNotFoundException e) {
             Whirldroid.log("Fragment " + fragmentName + " not found");
@@ -224,35 +218,35 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     public boolean selectMenuItem(String item) {
         switch (item) {
             case "NewsList":
-                mNavigationView.getMenu().findItem(R.id.drawer_item_news).setChecked(true);
+                mNavigationView.setCheckedItem(R.id.drawer_item_news);
                 return true;
 
             case "WhimList":
-                mNavigationView.getMenu().findItem(R.id.drawer_item_whims).setChecked(true);
+                mNavigationView.setCheckedItem(R.id.drawer_item_whims);
                 return true;
 
             case "RecentList":
-                mNavigationView.getMenu().findItem(R.id.drawer_item_recent).setChecked(true);
+                mNavigationView.setCheckedItem(R.id.drawer_item_recent);
                 return true;
 
-            case "WatchedList":
-                mNavigationView.getMenu().findItem(R.id.drawer_item_watched).setChecked(true);
+            case "WatchedThreads":
+                mNavigationView.setCheckedItem(R.id.drawer_item_watched);
                 return true;
 
             case "PopularList":
-                mNavigationView.getMenu().findItem(R.id.drawer_item_popular).setChecked(true);
+                mNavigationView.setCheckedItem(R.id.drawer_item_popular);
                 return true;
 
             case "ForumList":
-                mNavigationView.getMenu().findItem(R.id.drawer_item_forums).setChecked(true);
+                mNavigationView.setCheckedItem(R.id.drawer_item_forums);
                 return true;
 
             case "Settings":
-                mNavigationView.getMenu().findItem(R.id.drawer_item_settings).setChecked(true);
+                mNavigationView.setCheckedItem(R.id.drawer_item_settings);
                 return true;
 
             case "About":
-                mNavigationView.getMenu().findItem(R.id.drawer_item_about).setChecked(true);
+                mNavigationView.setCheckedItem(R.id.drawer_item_about);
                 return true;
         }
 

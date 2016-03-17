@@ -82,4 +82,22 @@
         <item>2</item>
     </string-array>
 
+    <string-array name="array_pref_homepage">
+        <item>Industry News</item>
+        <item>Whims</item>
+        <item>Recent Threads</item>
+        <item>Watched Threads</item>
+        <item>Popular Threads</item>
+        <item>Forums</item>
+    </string-array>
+
+    <string-array name="values_pref_homepage">
+        <item>NewsList</item>
+        <item>WhimList</item>
+        <item>RecentThreads</item>
+        <item>WatchedList</item>
+        <item>PopularThreads</item>
+        <item>ForumList</item>
+    </string-array>
+
 </resources>
