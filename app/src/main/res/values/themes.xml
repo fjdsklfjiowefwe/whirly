@@ -5,7 +5,7 @@
         <item name="colorAccent">@color/colorAccentDark</item>
 
         <item name="MenuButton">@style/MenuButtonDark</item>
-        <item name="StickyThreadBackground">#474057</item>
+        <item name="StickyThreadBackground">#414559</item>
     </style>
 
     <style name="WhirldroidLightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
