@@ -95,7 +95,7 @@
         <item>NewsList</item>
         <item>WhimList</item>
         <item>RecentThreads</item>
-        <item>WatchedList</item>
+        <item>WatchedThreads</item>
         <item>PopularThreads</item>
         <item>ForumList</item>
     </string-array>

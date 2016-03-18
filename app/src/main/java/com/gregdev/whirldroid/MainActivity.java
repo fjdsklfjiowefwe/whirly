@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             public boolean onNavigationItemSelected(MenuItem item) {
                 // Closing drawer on item click
                 mDrawerLayout.closeDrawers();
+                Bundle bundle;
 
                 switch (item.getItemId()) {
                     case R.id.drawer_item_forums:
@@ -52,14 +54,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         switchFragment("NewsList", true);
                         break;
 
+                    case R.id.drawer_item_recent:
+                        bundle = new Bundle();
+                        bundle.putInt("forum_id", WhirlpoolApi.RECENT_THREADS);
+                        switchFragment("ThreadList", true, bundle);
+                        break;
+
                     case R.id.drawer_item_watched:
                         switchFragment("WatchedThreads", true);
                         break;
 
                     case R.id.drawer_item_popular:
-                        Bundle bundle = new Bundle();
+                        bundle = new Bundle();
                         bundle.putInt("forum_id", WhirlpoolApi.POPULAR_THREADS);
-
                         switchFragment("ThreadList", true, bundle);
                         break;
 
@@ -103,7 +110,33 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             switchFragment("Login", false);
 
         } else {
-            switchFragment("ForumList", false);
+
+            Bundle bundle;
+
+            switch (PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext()).getString("pref_homepage", "ForumList")) {
+                case "NewsList":
+                    switchFragment("NewsList", false);
+                    break;
+                case "WhimList":
+                    break;
+                case "RecentThreads":
+                    bundle = new Bundle();
+                    bundle.putInt("forum_id", WhirlpoolApi.RECENT_THREADS);
+                    switchFragment("ThreadList", false, bundle);
+                    break;
+                case "WatchedThreads":
+                    switchFragment("WatchedThreads", false);
+                    break;
+                case "PopularThreads":
+                    bundle = new Bundle();
+                    bundle.putInt("forum_id", WhirlpoolApi.POPULAR_THREADS);
+                    switchFragment("ThreadList", true, bundle);
+                    break;
+                case "ForumList":
+                default:
+                    switchFragment("ForumList", false);
+                    break;
+            }
         }
 
     }

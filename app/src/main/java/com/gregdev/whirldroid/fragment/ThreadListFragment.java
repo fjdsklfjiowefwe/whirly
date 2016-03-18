@@ -504,22 +504,24 @@ public class ThreadListFragment extends ListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         thread_listview = getListView();
 
-        ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
-        MenuBuilder menuBuilder = (MenuBuilder) actionMenuView.getMenu();
+        if (this.isActualForum()) {
+            ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
+            MenuBuilder menuBuilder = (MenuBuilder) actionMenuView.getMenu();
 
-        menuBuilder.setCallback(new MenuBuilder.Callback() {
-            @Override
-            public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
-                return onOptionsItemSelected(menuItem);
-            }
+            menuBuilder.setCallback(new MenuBuilder.Callback() {
+                @Override
+                public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+                    return onOptionsItemSelected(menuItem);
+                }
 
-            @Override
-            public void onMenuModeChange(MenuBuilder menuBuilder) {
+                @Override
+                public void onMenuModeChange(MenuBuilder menuBuilder) {
 
-            }
-        });
+                }
+            });
 
-        getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
+            getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
+        }
     }
 
     public void markThreadAsWatched(int thread_id) {
