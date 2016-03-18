@@ -16,7 +16,8 @@
 	<ListView
 		android:id="@+id/android:list"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" />
+		android:layout_height="wrap_content"
+        android:paddingBottom="48dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
