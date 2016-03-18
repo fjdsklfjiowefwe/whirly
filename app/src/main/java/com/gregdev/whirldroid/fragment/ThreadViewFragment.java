@@ -16,6 +16,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.widget.ActionMenuView;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.ContextMenu;
@@ -33,6 +35,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.WhirlpoolApi;
@@ -140,7 +143,7 @@ public class ThreadViewFragment extends ListFragment {
                         // select the current page
                         if (current_page != 1) {
                             no_page_select = true;
-                            getActivity().getActionBar().setSelectedNavigationItem(current_page - 1);
+                            ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(current_page - 1);
                             no_page_select = false;
                         }
 
@@ -384,6 +387,23 @@ public class ThreadViewFragment extends ListFragment {
 
             // thread title is set using PageAdapter, so set this to nothing
             getActivity().setTitle("");
+
+            ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
+            MenuBuilder menuBuilder = (MenuBuilder) actionMenuView.getMenu();
+
+            menuBuilder.setCallback(new MenuBuilder.Callback() {
+                @Override
+                public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+                    return onOptionsItemSelected(menuItem);
+                }
+
+                @Override
+                public void onMenuModeChange(MenuBuilder menuBuilder) {
+
+                }
+            });
+
+            getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
         }
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
@@ -496,7 +516,7 @@ public class ThreadViewFragment extends ListFragment {
             case R.id.menu_next:
                 if (current_page < thread.getPageCount()) {
                     current_page++;
-                    getActivity().getActionBar().setSelectedNavigationItem(current_page - 1);
+                    ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(current_page - 1);
                 }
                 getThread();
                 return true;

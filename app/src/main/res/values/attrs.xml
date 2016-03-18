@@ -2,5 +2,6 @@
 <resources>
     <declare-styleable name="WhirldroidTheme">
         <attr name="MenuButton" format="reference" />
+        <attr name="StickyThreadBackground" format="color" />
     </declare-styleable>
 </resources>

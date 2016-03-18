@@ -3,18 +3,22 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccentDark</item>
-        <item name="android:textColorSecondary">#ffffff</item>
 
         <item name="MenuButton">@style/MenuButtonDark</item>
+        <item name="StickyThreadBackground">#474057</item>
     </style>
 
     <style name="WhirldroidLightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColorSecondary">#ffffff</item>
 
         <item name="MenuButton">@style/MenuButtonLight</item>
+        <item name="StickyThreadBackground">#DDDFED</item>
+    </style>
+
+    <style name="WhirldroidBottomMenu" parent="Theme.AppCompat">
+        <item name="android:textColorSecondary">#ffffff</item>
     </style>
 
 </resources>

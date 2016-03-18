@@ -17,18 +17,18 @@
         android:id="@+id/menu_refresh"
         android:icon="@drawable/ic_refresh_white_24dp"
         android:title="@string/menu_refresh"
-        app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/menu_goto_page"
-        android:icon="@drawable/ic_compare_arrows_white_24dp"
-        android:title="@string/menu_page"
-        app:showAsAction="never" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/menu_new_thread"
         android:icon="@drawable/ic_add_box_white_24dp"
         android:title="@string/menu_newthread"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_goto_page"
+        android:icon="@drawable/ic_compare_arrows_white_24dp"
+        android:title="@string/menu_page"
         app:showAsAction="never" />
 
     <item

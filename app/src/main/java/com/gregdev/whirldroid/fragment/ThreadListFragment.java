@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
@@ -504,6 +506,19 @@ public class ThreadListFragment extends ListFragment {
 
         ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
         MenuBuilder menuBuilder = (MenuBuilder) actionMenuView.getMenu();
+
+        menuBuilder.setCallback(new MenuBuilder.Callback() {
+            @Override
+            public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+                return onOptionsItemSelected(menuItem);
+            }
+
+            @Override
+            public void onMenuModeChange(MenuBuilder menuBuilder) {
+
+            }
+        });
+
         getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
     }
 
@@ -683,13 +698,23 @@ public class ThreadListFragment extends ListFragment {
         }
 
         Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(thread_url));
+
+        if (Build.VERSION.SDK_INT >= 18) {
+            final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+            final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+
+            Bundle extras = new Bundle();
+            extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+            thread_intent.putExtras(extras);
+            thread_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+        }
+
         startActivity(thread_intent);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (isActualForum()) {
-            inflater.inflate(R.menu.forum, menu);
             //Create the search view
             SearchView search_view = new SearchView(((MainActivity) getActivity()).getSupportActionBar().getThemedContext());
             search_view.setQueryHint("Search for threads…");
@@ -699,8 +724,8 @@ public class ThreadListFragment extends ListFragment {
                     .setIcon(R.drawable.ic_search_white_24dp)
                     .setActionView(search_view)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-        }
-        else {
+
+        } else {
             inflater.inflate(R.menu.refresh, menu);
         }
     }
@@ -777,6 +802,16 @@ public class ThreadListFragment extends ListFragment {
 
             case R.id.menu_new_thread:
                 Intent newthread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(WhirlpoolApi.NEWTHREAD_URL + forum_id));
+                if (Build.VERSION.SDK_INT >= 18) {
+                    final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+                    final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+
+                    Bundle extras = new Bundle();
+                    extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+                    newthread_intent.putExtras(extras);
+                    newthread_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+                }
+
                 startActivity(newthread_intent);
                 return true;
 

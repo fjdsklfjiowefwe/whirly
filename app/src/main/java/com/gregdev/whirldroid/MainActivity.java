@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                //Closing drawer on item click
+                // Closing drawer on item click
                 mDrawerLayout.closeDrawers();
 
                 switch (item.getItemId()) {
