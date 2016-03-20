@@ -475,11 +475,9 @@ public class ThreadListFragment extends ListFragment {
             }
         }
 
-        getThreads(false);
-
         //registerForContextMenu(getListView());
 
-        if (this.isActualForum() && WhirlpoolApi.isPublicForum(forum_id)) {
+        if (isActualForum() && WhirlpoolApi.isPublicForum(forum_id)) {
             Context context = ((AppCompatActivity) getActivity()).getSupportActionBar().getThemedContext();
 
             ArrayList<String> group_list = new ArrayList<String>();
@@ -503,6 +501,10 @@ public class ThreadListFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         thread_listview = getListView();
+
+        if (thread_listview.getCount() == 0) {
+            getThreads(false);
+        }
 
         if (this.isActualForum()) {
             ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
