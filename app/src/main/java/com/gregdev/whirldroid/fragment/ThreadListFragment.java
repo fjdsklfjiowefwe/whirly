@@ -16,6 +16,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.ActionMenuView;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.method.DigitsKeyListener;
@@ -28,6 +29,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -392,6 +394,61 @@ public class ThreadListFragment extends ListFragment {
                     }
                 }
             }
+
+            ImageButton btn = (ImageButton) convert_view.findViewById(R.id.menu_button);
+            registerForContextMenu(btn);
+
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PopupMenu popupMenu = new PopupMenu(getContext(), v);
+
+                    if (forum_id == WhirlpoolApi.WATCHED_THREADS) {
+                        popupMenu.inflate(R.menu.watched_list_item);
+                    } else if (forum_id == WhirlpoolApi.RECENT_THREADS) {
+                        popupMenu.inflate(R.menu.recent_list_item);
+                    } else {
+                        popupMenu.inflate(R.menu.thread_list_item);
+                    }
+
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.open_browser:
+                                    openThreadInBrowser(thread, 1, false, 0);
+                                    return true;
+
+                                case R.id.unwatch:
+                                    getThreads(true, 0, thread.getId());
+                                    return true;
+
+                                case R.id.mark_read:
+                                    getThreads(true, thread.getId(), 0);
+                                    return true;
+
+                                case R.id.watch:
+                                    markThreadAsWatched(thread.getId());
+                                    return true;
+
+                                case R.id.goto_last:
+                                    openThread(thread, -1, true);
+                                    return true;
+
+                                case R.id.goto_forum:
+                                    openForum(thread.getForumId(), thread.getForum());
+                                    return true;
+
+                                default:
+                                    return false;
+                            }
+                        }
+                    });
+
+                    popupMenu.show();
+                }
+            });
+
 
             return convert_view;
         }
@@ -839,12 +896,6 @@ public class ThreadListFragment extends ListFragment {
                 Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(WhirlpoolApi.FORUM_URL + forum_id));
                 startActivity(thread_intent);
                 return true;
-
-            case android.R.id.home:
-                /*Intent dashboard_intent = new Intent(this, Dashboard.class);
-                dashboard_intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(dashboard_intent)*/;
-                return true;
         }
         return false;
     }
@@ -865,6 +916,14 @@ public class ThreadListFragment extends ListFragment {
         }
 
         return true;
+    }
+
+    private void openForum(int forum_id, String forum_name) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("forum_id", forum_id);
+        bundle.putString("forum_name", forum_name);
+
+        ((MainActivity) getActivity()).switchFragment("ThreadList", true, bundle);
     }
 
     public boolean onNavigationItemSelected(int item_position, long item_id) {

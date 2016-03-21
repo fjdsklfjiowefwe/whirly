@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/watch"
+        android:title="@string/ctxmenu_watch_thread" />
+    <item
+        android:id="@+id/goto_last"
+        android:title="@string/menu_goto_last" />
+    <item
+        android:id="@+id/goto_forum"
+        android:title="@string/ctxmenu_go_to_forum" />
+    <item
+        android:id="@+id/open_browser"
+        android:title="@string/menu_browser" />
+</menu>

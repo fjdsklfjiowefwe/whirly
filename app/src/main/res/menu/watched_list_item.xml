@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/mark_read"
+        android:title="@string/ctxmenu_mark_as_read" />
+    <item
+        android:id="@+id/unwatch"
+        android:title="@string/ctxmenu_unwatch" />
+    <item
+        android:id="@+id/goto_last"
+        android:title="@string/menu_goto_last" />
+    <item
+        android:id="@+id/goto_forum"
+        android:title="@string/ctxmenu_go_to_forum" />
+    <item
+        android:id="@+id/open_browser"
+        android:title="@string/menu_browser" />
+</menu>
