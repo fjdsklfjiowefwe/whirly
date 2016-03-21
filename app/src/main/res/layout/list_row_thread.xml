@@ -6,6 +6,7 @@
     android:paddingRight="0dp"
     android:paddingBottom="10dp"
     android:paddingLeft="18dp"
+    android:descendantFocusability="blocksDescendants"
     >
     
     <TextView

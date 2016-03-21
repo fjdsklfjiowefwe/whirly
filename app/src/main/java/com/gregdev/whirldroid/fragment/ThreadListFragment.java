@@ -389,13 +389,6 @@ public class ThreadListFragment extends ListFragment {
                         lastpost_textview.setText(thread.getLastDateText() + " by " + thread.getLastPoster());
                     }
                 }
-
-                convert_view.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        openThread(thread, 1, false);
-                    }
-                });
             }
 
             return convert_view;
@@ -524,6 +517,14 @@ public class ThreadListFragment extends ListFragment {
 
             getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
         }
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        Thread forum = (Forum) forum_adapter.getItem(position);
+
+        openThread(thread, 1, false);
     }
 
     public void markThreadAsWatched(int thread_id) {
