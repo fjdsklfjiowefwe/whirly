@@ -37,7 +37,7 @@ import com.gregdev.whirldroid.model.Post;
 import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.model.User;
 import com.gregdev.whirldroid.model.Whim;
-import com.gregdev.whirldroid.services.HttpFetch;
+import com.gregdev.whirldroid.service.HttpFetch;
 
 /**
  * Whirlpool API - dowloads, caches and retrieves all data from Whirlpool.

@@ -27,7 +27,7 @@ import com.gregdev.whirldroid.WhirlpoolApi;
 import com.gregdev.whirldroid.WhirlpoolApiException;
 import com.gregdev.whirldroid.layout.SeparatedListAdapter;
 import com.gregdev.whirldroid.model.Forum;
-import com.gregdev.whirldroid.services.DatabaseHandler;
+import com.gregdev.whirldroid.service.DatabaseHandler;
 
 import java.util.ArrayList;
 
