@@ -552,6 +552,9 @@ public class ThreadListFragment extends ListFragment {
             });
 
             getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
+
+        } else {
+            thread_listview.setPadding(0, 0, 0, 0);
         }
     }
 
