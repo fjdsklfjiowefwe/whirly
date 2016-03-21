@@ -266,6 +266,14 @@ public class WhimListFragment extends ListFragment {
         registerForContextMenu(getListView());
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        ((MainActivity) getActivity()).resetActionBar();
+        getActivity().setTitle("Whims");
+    }
+
     /**
      * View single whim
      */

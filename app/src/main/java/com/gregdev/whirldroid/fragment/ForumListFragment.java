@@ -1,5 +1,6 @@
 package com.gregdev.whirldroid.fragment;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
@@ -216,7 +217,7 @@ public class ForumListFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         forum_listview = getListView();
-        getActivity().setTitle("Forums");
+
         if (forum_listview.getCount() == 0) {
             getForums(false);
         }
@@ -245,6 +246,9 @@ public class ForumListFragment extends ListFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        ((MainActivity) getActivity()).resetActionBar();
+        getActivity().setTitle("Forums");
 
         if (listIndex != -1){
             forum_listview.setSelection(listIndex);

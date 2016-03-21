@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.MenuItem;
@@ -289,5 +290,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         }
 
         return false;
+    }
+
+    public void resetActionBar() {
+        getSupportActionBar().setSubtitle("");
+        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
     }
 }

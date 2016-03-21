@@ -258,8 +258,10 @@ public class ThreadListFragment extends ListFragment {
 
                         if (!isActualForum()) {
                             setThreads(thread_list); // display the threads in the list
+                        } else if (WhirlpoolApi.isPublicForum(forum_id)) {
+                            ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Page " + current_page + " of " + forum.getPageCount());
+                            setThreadsNoHeadings(thread_list);
                         } else {
-                            //ThreadList.this.getSupportActionBar().setSubtitle("Page " + current_page + " of " + forum.getPageCount());
                             setThreadsNoHeadings(thread_list);
                         }
                     } else {
@@ -443,29 +445,6 @@ public class ThreadListFragment extends ListFragment {
         if (bundle != null) {
             forum_id = bundle.getInt("forum_id");
             hide_read = bundle.getBoolean("hide_read", false);
-
-            switch(forum_id) {
-                case WhirlpoolApi.WATCHED_THREADS:
-                    getActivity().setTitle("Watched Threads");
-                    break;
-                case WhirlpoolApi.RECENT_THREADS:
-                    getActivity().setTitle("Recent Threads");
-                    break;
-                case WhirlpoolApi.POPULAR_THREADS:
-                    getActivity().setTitle("Popular Threads");
-                    break;
-                case WhirlpoolApi.SEARCH_RESULTS:
-                    getActivity().setTitle("Search Results");
-                    search_query = bundle.getString("search_query");
-                    search_forum = bundle.getInt("search_forum");
-                    search_group = bundle.getInt("search_group");
-                    getActivity().getActionBar().setSubtitle("\"" + search_query + "\"");
-                    break;
-                default:
-                    forum_title = bundle.getString("forum_name");
-                    getActivity().setTitle(forum_title);
-                    break;
-            }
         }
 
         //registerForContextMenu(getListView());
@@ -520,9 +499,45 @@ public class ThreadListFragment extends ListFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        ((MainActivity) getActivity()).resetActionBar();
+
+        Bundle bundle = getArguments();
+
+        switch(forum_id) {
+            case WhirlpoolApi.WATCHED_THREADS:
+                getActivity().setTitle("Watched Threads");
+                break;
+            case WhirlpoolApi.RECENT_THREADS:
+                getActivity().setTitle("Recent Threads");
+                break;
+            case WhirlpoolApi.POPULAR_THREADS:
+                getActivity().setTitle("Popular Threads");
+                break;
+            case WhirlpoolApi.SEARCH_RESULTS:
+                getActivity().setTitle("Search Results");
+                search_query = bundle.getString("search_query");
+                search_forum = bundle.getInt("search_forum");
+                search_group = bundle.getInt("search_group");
+                getActivity().getActionBar().setSubtitle("\"" + search_query + "\"");
+                break;
+            default:
+                forum_title = bundle.getString("forum_name");
+                getActivity().setTitle(forum_title);
+                break;
+        }
+
+        if (forum != null && WhirlpoolApi.isPublicForum(forum_id)) {
+            ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Page " + current_page + " of " + forum.getPageCount());
+        }
+    }
+
+    @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        Thread forum = (Forum) forum_adapter.getItem(position);
+        Thread thread = (Thread) l.getAdapter().getItem(position);
 
         openThread(thread, 1, false);
     }
@@ -574,11 +589,11 @@ public class ThreadListFragment extends ListFragment {
         if (WhirlpoolApi.isPublicForum(forum_id) || forum_id == WhirlpoolApi.POPULAR_THREADS
                 || forum_id == WhirlpoolApi.RECENT_THREADS || forum_id == WhirlpoolApi.WATCHED_THREADS) {
             if (last_updated < 10) { // updated less than 10 seconds ago
-                //getActivity().getActionBar().setSubtitle("Updated just a moment ago");
+                ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Updated just a moment ago");
             }
             else {
                 String ago = Whirldroid.getTimeSince(last_updated);
-                //getActivity().getActionBar().setSubtitle("Updated " + ago + " ago");
+                ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Updated " + ago + " ago");
             }
         }
 

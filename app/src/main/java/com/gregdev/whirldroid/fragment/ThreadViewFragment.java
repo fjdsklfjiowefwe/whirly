@@ -387,9 +387,6 @@ public class ThreadViewFragment extends ListFragment {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
             font_size_option = settings.getString("pref_postfontsize", "0");
 
-            // thread title is set using PageAdapter, so set this to nothing
-            getActivity().setTitle("");
-
             ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
             MenuBuilder menuBuilder = (MenuBuilder) actionMenuView.getMenu();
 
@@ -433,6 +430,10 @@ public class ThreadViewFragment extends ListFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        // thread title is set using PageAdapter, so set this to nothing
+        getActivity().setTitle("");
+        ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("");
 
         if (last_updated == 0 || thread == null) {
             getThread();
