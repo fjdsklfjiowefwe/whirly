@@ -1,4 +1,4 @@
-package com.gregdev.whirldroid.services;
+package com.gregdev.whirldroid.service;
 
 import java.util.ArrayList;
 
