@@ -10,8 +10,10 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
@@ -403,7 +405,7 @@ public class ThreadViewFragment extends ListFragment {
                 }
             });
 
-            getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
+            getActivity().getMenuInflater().inflate(R.menu.thread, menuBuilder);
         }
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
@@ -463,6 +465,17 @@ public class ThreadViewFragment extends ListFragment {
             case 1: // reply in browser
                 String reply_url = "http://forums.whirlpool.net.au/forum/index.cfm?action=reply&r=" + post.getId();
                 Intent reply_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(reply_url));
+
+                if (Build.VERSION.SDK_INT >= 18) {
+                    final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+                    final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+
+                    Bundle extras = new Bundle();
+                    extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+                    reply_intent.putExtras(extras);
+                    reply_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+                }
+
                 startActivity(reply_intent);
                 return true;
 
@@ -578,6 +591,17 @@ public class ThreadViewFragment extends ListFragment {
             case R.id.menu_replythread:
                 String replythread_url = WhirlpoolApi.REPLY_URL + thread.getId();
                 Intent replythread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(replythread_url));
+
+                if (Build.VERSION.SDK_INT >= 18) {
+                    final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+                    final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+
+                    Bundle extras = new Bundle();
+                    extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+                    replythread_intent.putExtras(extras);
+                    replythread_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+                }
+
                 startActivity(replythread_intent);
                 return true;
 

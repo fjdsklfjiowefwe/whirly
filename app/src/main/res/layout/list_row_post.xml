@@ -1,7 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:padding="6dp" >
+    android:padding="18dp" >
 
     <View android:id="@+id/strut"
         android:layout_width="0dp"
@@ -53,5 +53,19 @@
         android:layout_below="@id/middle_left_text"
         android:layout_marginTop="10dp"
         android:textSize="@dimen/post_font_size_normal" />
+
+    <ImageButton
+        android:id="@+id/menu_button"
+        android:background="?android:selectableItemBackgroundBorderless"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:padding="10dip"
+        android:layout_marginRight="-17dp"
+        android:layout_gravity="right"
+        style="?attr/MenuButton"
+        android:alpha="0.5"
+        android:layout_alignBottom="@+id/bottom_text"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
