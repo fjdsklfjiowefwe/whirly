@@ -54,6 +54,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         switchFragment("NewsList", true);
                         break;
 
+                    case R.id.drawer_item_whims:
+                        switchFragment("WhimList", true);
+                        break;
+
                     case R.id.drawer_item_recent:
                         bundle = new Bundle();
                         bundle.putInt("forum_id", WhirlpoolApi.RECENT_THREADS);
@@ -118,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     switchFragment("NewsList", false);
                     break;
                 case "WhimList":
+                    switchFragment("WhimList", false);
                     break;
                 case "RecentThreads":
                     bundle = new Bundle();
