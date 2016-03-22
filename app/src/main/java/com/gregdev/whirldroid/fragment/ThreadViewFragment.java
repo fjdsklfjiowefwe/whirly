@@ -433,7 +433,31 @@ public class ThreadViewFragment extends ListFragment {
 
         // thread title is set using PageAdapter, so set this to nothing
         getActivity().setTitle("");
-        ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("");
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        actionBar.setSubtitle("");
+
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        actionBar.setListNavigationCallbacks(page_adapter, new android.support.v7.app.ActionBar.OnNavigationListener() {
+            @Override
+            public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+                return false;
+            }
+        });
+
+        if (page_count > 0) {
+            page_adapter.clear(); // clear existing page item list
+
+            for (int i = 1; i <= page_count; i++) {
+                page_adapter.add("Page " + i);
+            }
+
+            // select the current page
+            if (current_page != 1) {
+                no_page_select = true;
+                actionBar.setSelectedNavigationItem(current_page - 1);
+                no_page_select = false;
+            }
+        }
 
         if (last_updated == 0 || thread == null) {
             getThread();
