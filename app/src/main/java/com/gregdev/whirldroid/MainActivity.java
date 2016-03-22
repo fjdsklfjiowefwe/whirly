@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -145,6 +146,24 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         }
 
+        String scheme = getIntent().getScheme();
+
+    }
+
+    @Override
+    protected void onNewIntent(final Intent intent) {
+        if (intent.getScheme().equals("whirldroid-thread")) {
+            int thread_id = Integer.parseInt(intent.getData().getQueryParameter("threadid"));
+
+            Bundle bundle = new Bundle();
+            bundle.putInt("thread_id", thread_id);
+            bundle.putString("thread_title", null);
+            bundle.putInt("page_number", 1);
+            bundle.putBoolean("bottom", false);
+            bundle.putInt("goto_num", 0);
+
+            switchFragment("ThreadView", true, bundle);
+        }
     }
 
     public void switchFragment(String fragmentName, boolean addToBackStack) {

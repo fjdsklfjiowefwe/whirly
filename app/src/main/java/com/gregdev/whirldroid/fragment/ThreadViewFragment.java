@@ -274,8 +274,8 @@ public class ThreadViewFragment extends ListFragment {
                 String url_replace = "whirldroid-thread://com.gregdev.whirldroid?threadid=";
 
                 // wiki links
-                content = content.replace("href=\"/wiki/", "href=\"http://forums.whirlpool.net.au/wiki/");
-                content = content.replace("href=\"//", "href=\"http://");
+                content = content.replace("href=\"/wiki/", "href=\"https://whirlpool.net.au/wiki/");
+                content = content.replace("href=\"//", "href=\"https://");
 
                 content = content.replace("http://forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
                 content = content.replace("https://forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
@@ -675,7 +675,8 @@ public class ThreadViewFragment extends ListFragment {
             String url_replace = "whirldroid-thread://com.gregdev.whirldroid?threadid=";
 
             // wiki links
-            content = content.replace("href=\"/wiki/", "href=\"http://forums.whirlpool.net.au/wiki/");
+            content = content.replace("href=\"//whirlpool.net.au/wiki/", "href=\"https://whirlpool.net.au/wiki/");
+            content = content.replace("href=\"/wiki/", "href=\"https://whirlpool.net.au/wiki/");
 
             content = content.replace("http://forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
             content = content.replace("https://forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
