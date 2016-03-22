@@ -457,11 +457,22 @@ public class ThreadViewFragment extends ListFragment {
         Post post = (Post) posts_adapter.getItem(pos);
 
         switch (item.getItemId()) {
-			/*case 0: // open in browser
+			case 0: // open in browser
 				String post_url = "http://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread.getId() + "&p=" + current_page + "#r" + post.getId();
 				Intent view_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(post_url));
+
+                if (Build.VERSION.SDK_INT >= 18) {
+                    final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+                    final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+
+                    Bundle extras = new Bundle();
+                    extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+                    view_intent.putExtras(extras);
+                    view_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+                }
+
 				startActivity(view_intent);
-				return true;*/
+				return true;
 
             case 1: // reply in browser
                 String reply_url = "http://forums.whirlpool.net.au/forum/index.cfm?action=reply&r=" + post.getId();
@@ -481,11 +492,10 @@ public class ThreadViewFragment extends ListFragment {
                 return true;
 
             case 2: // view user info
-                /*Intent userinfo_intent = new Intent(getApplicationContext(), UserInfo.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("user", post.getUser());
-                userinfo_intent.putExtras(bundle);
-                startActivity(userinfo_intent);*/
+                ((MainActivity) getActivity()).switchFragment("UserInfo", true, bundle);
+                return true;
         }
 
         return false;
