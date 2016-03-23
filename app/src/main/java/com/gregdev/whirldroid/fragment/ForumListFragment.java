@@ -247,12 +247,16 @@ public class ForumListFragment extends ListFragment {
     public void onResume() {
         super.onResume();
 
-        ((MainActivity) getActivity()).resetActionBar();
+        MainActivity mainActivity = ((MainActivity) getActivity());
+
+        mainActivity.resetActionBar();
         getActivity().setTitle("Forums");
 
         if (listIndex != -1){
             forum_listview.setSelection(listIndex);
         }
+
+        mainActivity.setCurrentSearchType(mainActivity.SEARCH_FORUMS);
 
     }
 

@@ -25,6 +25,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mTitle;
 
+    public final int SEARCH_FORUMS = 0;
+    public final int SEARCH_THREADS = 1;
+    private int search_forum_id;
+    private int current_search_type;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -233,16 +238,53 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         return super.onOptionsItemSelected(item);
     }
 
+    public void setCurrentSearchType(int type) {
+        setCurrentSearchType(type, 0);
+    }
+
+    public void setCurrentSearchType(int type, int forum_id) {
+        current_search_type = type;
+        search_forum_id = forum_id;
+    }
+
     public boolean onQueryTextSubmit(String query) {
-        Bundle bundle = new Bundle();
-        bundle.putInt("forum_id", WhirlpoolApi.SEARCH_RESULTS);
-        bundle.putString("search_query", query);
-        bundle.putInt("search_forum", -1);
-        bundle.putInt("search_group", -1);
+        switch (current_search_type) {
+            case SEARCH_FORUMS:
+                Bundle bundle = new Bundle();
+                bundle.putInt("forum_id", WhirlpoolApi.SEARCH_RESULTS);
+                bundle.putString("search_query", query);
+                bundle.putInt("search_forum", -1);
+                bundle.putInt("search_group", -1);
 
-        switchFragment("ThreadList", true, bundle);
+                switchFragment("ThreadList", true, bundle);
 
-        return true;
+                return true;
+
+            case SEARCH_THREADS:
+                Intent search_intent;
+
+                // private forums can't be searched, so open the browser
+                if (!WhirlpoolApi.isPublicForum(search_forum_id)) {
+                    String search_url = WhirlpoolApi.buildSearchUrl(search_forum_id, -1, query);
+                    search_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(search_url));
+                    startActivity(search_intent);
+
+                } else {
+
+                    Bundle search_forum_bundle = new Bundle();
+                    search_forum_bundle.putInt("forum_id", WhirlpoolApi.SEARCH_RESULTS);
+                    search_forum_bundle.putString("search_query", query);
+                    search_forum_bundle.putInt("search_forum", search_forum_id);
+                    search_forum_bundle.putInt("search_group", -1);
+
+                    switchFragment("ThreadList", true, search_forum_bundle
+                    );
+                }
+
+                return true;
+        }
+
+        return false;
     }
 
     public boolean onQueryTextChange(String newText) {

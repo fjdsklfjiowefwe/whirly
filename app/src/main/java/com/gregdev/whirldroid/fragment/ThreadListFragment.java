@@ -562,7 +562,9 @@ public class ThreadListFragment extends ListFragment {
     public void onResume() {
         super.onResume();
 
-        ((MainActivity) getActivity()).resetActionBar();
+        MainActivity mainActivity = ((MainActivity) getActivity());
+
+        mainActivity.resetActionBar();
 
         Bundle bundle = getArguments();
 
@@ -581,7 +583,7 @@ public class ThreadListFragment extends ListFragment {
                 search_query = bundle.getString("search_query");
                 search_forum = bundle.getInt("search_forum");
                 search_group = bundle.getInt("search_group");
-                ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("\"" + search_query + "\"");
+                mainActivity.getSupportActionBar().setSubtitle("\"" + search_query + "\"");
                 break;
             default:
                 forum_title = bundle.getString("forum_name");
@@ -590,8 +592,10 @@ public class ThreadListFragment extends ListFragment {
         }
 
         if (forum != null && WhirlpoolApi.isPublicForum(forum_id)) {
-            ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Page " + current_page + " of " + forum.getPageCount());
+            mainActivity.getSupportActionBar().setSubtitle("Page " + current_page + " of " + forum.getPageCount());
         }
+
+        mainActivity.setCurrentSearchType(mainActivity.SEARCH_THREADS, forum_id);
     }
 
     @Override
