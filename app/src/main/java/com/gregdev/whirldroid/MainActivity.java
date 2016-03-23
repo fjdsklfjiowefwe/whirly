@@ -152,18 +152,20 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     protected void onNewIntent(final Intent intent) {
-        if (intent != null && intent.getScheme().equals("whirldroid-thread")) {
-            int thread_id = Integer.parseInt(intent.getData().getQueryParameter("threadid"));
+        try {
+            if (intent.getScheme().equals("whirldroid-thread")) {
+                int thread_id = Integer.parseInt(intent.getData().getQueryParameter("threadid"));
 
-            Bundle bundle = new Bundle();
-            bundle.putInt("thread_id", thread_id);
-            bundle.putString("thread_title", null);
-            bundle.putInt("page_number", 1);
-            bundle.putBoolean("bottom", false);
-            bundle.putInt("goto_num", 0);
+                Bundle bundle = new Bundle();
+                bundle.putInt("thread_id", thread_id);
+                bundle.putString("thread_title", null);
+                bundle.putInt("page_number", 1);
+                bundle.putBoolean("bottom", false);
+                bundle.putInt("goto_num", 0);
 
-            switchFragment("ThreadView", true, bundle);
-        }
+                switchFragment("ThreadView", true, bundle);
+            }
+        } catch (NullPointerException e) { } // we don't really care if this happens; just don't open a thread
     }
 
     public void switchFragment(String fragmentName, boolean addToBackStack) {
