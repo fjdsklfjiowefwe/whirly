@@ -8,9 +8,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -19,8 +21,10 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
+import android.support.v7.app.NotificationCompat;
 
 import com.gregdev.whirldroid.R;
+import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.WhirlpoolApi;
 import com.gregdev.whirldroid.WhirlpoolApiException;
@@ -35,9 +39,6 @@ import com.gregdev.whirldroid.model.Whim;
  */
 
 public class NotificationService extends Service {
-
-    public static final int NOTIFICATION_TYPE_WHIM = 0;
-    public static final int NOTIFICATION_TYPE_WATCHED = 1;
 
     private WakeLock wake_lock;
     private boolean whim_notify;
@@ -177,7 +178,7 @@ public class NotificationService extends Service {
                         notification_title = unread_reply_count + " new replies in " + unread_thread_count + " threads";
                     }
 
-                    //sendNotification("New watched thread reply", notification_title, thread_titles, Whirldroid.NEW_WATCHED_NOTIFICATION_ID, R.drawable.btn_forums, ThreadList.class, WhirlpoolApi.WATCHED_THREADS);
+                    sendNotification("New watched thread reply", notification_title, thread_titles, Whirldroid.NEW_WATCHED_NOTIFICATION_ID, R.drawable.btn_forums, WhirlpoolApi.WATCHED_THREADS);
                 }
 
                 // no unread threads, cancel existing notification (if any)
@@ -217,7 +218,7 @@ public class NotificationService extends Service {
                         whim_title = new_whim_count + " new whims";
                     }
 
-                    //sendNotification("New whim", whim_title, "", Whirldroid.NEW_WHIM_NOTIFICATION_ID, R.drawable.btn_whims, WhimList.class, 0);
+                    sendNotification("New whim", whim_title, "", Whirldroid.NEW_WHIM_NOTIFICATION_ID, R.drawable.btn_whims, 0);
                 }
 
                 // no unread whims, cancel existing notification (if any)
@@ -232,49 +233,47 @@ public class NotificationService extends Service {
         }
     }
 
-    private void sendNotification(String ticker, String title, String text, int id, int icon, Class<?> open_class, int forum_id) {
-        // get reference to NotificationManager
-        String ns = Context.NOTIFICATION_SERVICE;
-        NotificationManager nm = (NotificationManager) getSystemService(ns);
-        // instantiate the Notification
-        long when = System.currentTimeMillis();
-        Notification n = new Notification(icon, ticker, when);
-        n.flags |= Notification.FLAG_AUTO_CANCEL;
+    private void sendNotification(String ticker, String title, String text, int id, int icon, int forum_id) {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-        // define notification message and PendingIntent
-        Context c = getApplicationContext();
-        //CharSequence contentText  = "Notification content text";
-        Intent ni = new Intent(NotificationService.this, open_class);
-
-        Bundle bundle = new Bundle();
-        bundle.putInt("forum_id", forum_id);
-        ni.putExtras(bundle);
-
-        PendingIntent ci = PendingIntent.getActivity(NotificationService.this, 0, ni, 0);
-        //n.setLatestEventInfo(c, contentTitle, contentText, ci);
-        //n.setLatestEventInfo(c, title, text, ci);
-
-        SharedPreferences settings   = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String strRingtonePreference = settings.getString("pref_notifytone", "DEFAULT_RINGTONE_URI");
-        n.sound = Uri.parse(strRingtonePreference);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(icon)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setTicker(ticker)
+                .setOnlyAlertOnce(true)
+                .setWhen(System.currentTimeMillis())
+                .setAutoCancel(true);
 
         // do we want to vibrate?
         boolean do_vibrate = settings.getBoolean("pref_notifyvibrate", false);
         if (do_vibrate) {
-            n.defaults |= Notification.DEFAULT_VIBRATE;
+            long[] v = {500,1000};
+            builder.setVibrate(v);
         }
+
+        // play a sound?
+        String ringtonePreference = settings.getString("pref_notifytone", "DEFAULT_RINGTONE_URI");
+        builder.setSound(Uri.parse(ringtonePreference));
 
         // do we want to flash the LED?
         boolean do_led = settings.getBoolean("pref_notifyled", false);
         if (do_led) {
-            n.ledARGB = 0xff0000ff;
-            n.ledOnMS = 300;
-            n.ledOffMS = 10000;
-            n.flags |= Notification.FLAG_SHOW_LIGHTS;
+            builder.setLights(0xff0000ff, 300, 10000);
         }
 
-        // pass Notification to NotificationManager
-        nm.notify(id, n);
+        Bundle bundle = new Bundle();
+        bundle.putInt("notification", id);
+        bundle.putInt("forum_id", forum_id);
+
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        resultIntent.putExtras(bundle);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, 0);
+
+        builder.setContentIntent(resultPendingIntent);
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(id, builder.build());
     }
 
     /**
