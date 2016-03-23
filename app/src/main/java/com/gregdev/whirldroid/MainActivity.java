@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     protected void onNewIntent(final Intent intent) {
-        if (intent.getScheme().equals("whirldroid-thread")) {
+        if (intent != null && intent.getScheme().equals("whirldroid-thread")) {
             int thread_id = Integer.parseInt(intent.getData().getQueryParameter("threadid"));
 
             Bundle bundle = new Bundle();
