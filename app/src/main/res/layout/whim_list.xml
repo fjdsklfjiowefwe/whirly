@@ -8,7 +8,7 @@
         android:id="@+id/no_whims"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="18dp"
         android:text="@string/no_whims"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:visibility="gone" />
