@@ -417,12 +417,6 @@ public class ThreadViewFragment extends ListFragment {
         page_adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
 
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        actionBar.setListNavigationCallbacks(page_adapter, new android.support.v7.app.ActionBar.OnNavigationListener() {
-            @Override
-            public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-                return false;
-            }
-        });
 
         registerForContextMenu(getListView());
     }
@@ -440,7 +434,22 @@ public class ThreadViewFragment extends ListFragment {
         actionBar.setListNavigationCallbacks(page_adapter, new android.support.v7.app.ActionBar.OnNavigationListener() {
             @Override
             public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-                return false;
+                if (no_page_select) {
+                    no_page_select = false;
+                    return false;
+                }
+
+                int new_page = itemPosition + 1;
+
+                // current page selected, no need to do anything
+                if (new_page == current_page) {
+                    return false;
+                }
+
+                current_page = new_page;
+                getThread();
+
+                return true;
             }
         });
 
@@ -607,13 +616,13 @@ public class ThreadViewFragment extends ListFragment {
 
             case R.id.menu_prev:
                 current_page--;
-                getActivity().getActionBar().setSelectedNavigationItem(current_page - 1);
+                ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(current_page - 1);
                 getThread();
                 return true;
 
             case R.id.menu_goto_last:
                 current_page = thread.getPageCount();
-                getActivity().getActionBar().setSelectedNavigationItem(current_page - 1);
+                ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(current_page - 1);
                 getThread();
                 return true;
 
