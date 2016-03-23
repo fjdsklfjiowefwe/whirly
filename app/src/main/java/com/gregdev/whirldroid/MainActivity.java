@@ -234,26 +234,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     public boolean onQueryTextSubmit(String query) {
-        Intent search_intent;
+        Bundle bundle = new Bundle();
+        bundle.putInt("forum_id", WhirlpoolApi.SEARCH_RESULTS);
+        bundle.putString("search_query", query);
+        bundle.putInt("search_forum", -1);
+        bundle.putInt("search_group", -1);
 
-        // private forums can't be searched, so open the browser
-        /*if (!WhirlpoolApi.isPublicForum(forum_id)) {
-            String search_url = WhirlpoolApi.buildSearchUrl(forum_id, -1, query);
-            search_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(search_url));
-        }
-        else {
-            search_intent = new Intent(this, ThreadList.class);
-
-            Bundle bundle = new Bundle();
-            bundle.putInt("forum_id", WhirlpoolApi.SEARCH_RESULTS);
-            bundle.putString("search_query", query);
-            bundle.putInt("search_forum", forum_id);
-            bundle.putInt("search_group", -1);
-
-            search_intent.putExtras(bundle);
-        }
-
-        startActivity(search_intent);*/
+        switchFragment("ThreadList", true, bundle);
 
         return true;
     }

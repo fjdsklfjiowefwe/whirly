@@ -581,7 +581,7 @@ public class ThreadListFragment extends ListFragment {
                 search_query = bundle.getString("search_query");
                 search_forum = bundle.getInt("search_forum");
                 search_group = bundle.getInt("search_group");
-                getActivity().getActionBar().setSubtitle("\"" + search_query + "\"");
+                ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("\"" + search_query + "\"");
                 break;
             default:
                 forum_title = bundle.getString("forum_name");
