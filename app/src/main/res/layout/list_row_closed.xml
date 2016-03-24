@@ -18,7 +18,6 @@
 
     <ImageButton
         android:id="@+id/menu_button"
-        android:background="?android:selectableItemBackgroundBorderless"
         android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

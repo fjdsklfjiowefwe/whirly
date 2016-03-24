@@ -6,19 +6,20 @@
     android:paddingRight="0dp"
     android:paddingBottom="10dp"
     android:paddingLeft="18dp"
-    android:descendantFocusability="blocksDescendants"
+    android:background="?attr/StickyThreadBackground"
     >
-    
+
     <TextView
         android:id="@+id/top_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingRight="40dp"
         android:paddingBottom="5dp"
-	    android:textSize="18sp" />
+        android:textSize="18sp" />
 
     <ImageButton
         android:id="@+id/menu_button"
+        android:background="?android:selectableItemBackgroundBorderless"
         android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -28,7 +29,7 @@
         android:gravity="right"
         style="?attr/MenuButton"
         android:alpha="0.5" />
-    
+
     <TextView
         android:id="@+id/bottom_left_text"
         android:layout_width="0dp"
@@ -36,8 +37,8 @@
         android:layout_below="@id/top_text"
         android:layout_alignParentLeft="true"
         android:layout_toLeftOf="@+id/bottom_right_text"
-	    android:textColor="@color/list_subtext_colour" />
-    
+        android:textColor="@color/list_subtext_colour" />
+
     <TextView
         android:id="@+id/bottom_right_text"
         android:layout_width="40dp"
@@ -46,6 +47,6 @@
         android:layout_below="@id/top_text"
         android:layout_alignParentRight="true"
         android:gravity="right"
-	    android:textColor="@color/list_subtext_colour" />
-    
+        android:textColor="@color/list_subtext_colour" />
+
 </RelativeLayout>
