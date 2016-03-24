@@ -1,8 +1,7 @@
 package com.gregdev.whirldroid.fragment;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.ListFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -228,19 +227,11 @@ public class ForumListFragment extends ListFragment {
         super.onListItemClick(l, v, position, id);
         Forum forum = (Forum) forum_adapter.getItem(position);
 
-        Fragment fragment = new ThreadListFragment();
-
         Bundle bundle = new Bundle();
         bundle.putInt("forum_id", forum.getId());
         bundle.putString("forum_name", forum.getTitle());
 
-        fragment.setArguments(bundle);
-
-        getFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
-                .replace(R.id.content_frame, fragment)
-                .addToBackStack(null)
-                .commit();
+        ((MainActivity) getActivity()).switchFragment("ThreadList", true, bundle);
     }
 
     @Override

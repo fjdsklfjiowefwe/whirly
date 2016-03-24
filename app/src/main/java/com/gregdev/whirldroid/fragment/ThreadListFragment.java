@@ -1,6 +1,6 @@
 package com.gregdev.whirldroid.fragment;
 
-import android.app.ListFragment;
+import android.support.v4.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -244,16 +244,15 @@ public class ThreadListFragment extends ListFragment {
                         }
 
                         getActivity().invalidateOptionsMenu();
-                        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
 
                         if (thread_list != null && thread_list.size() == 0) {
-
                             if (forum_id == WhirlpoolApi.WATCHED_THREADS && hide_read) {
                                 no_threads.setText(getActivity().getResources().getText(R.string.no_threads_unread));
                             } else {
                                 no_threads.setText(getActivity().getResources().getText(R.string.no_threads));
                             }
                             no_threads.setVisibility(View.VISIBLE);
+
                         } else {
                             no_threads.setVisibility(View.GONE);
                         }
@@ -267,7 +266,7 @@ public class ThreadListFragment extends ListFragment {
                             setThreadsNoHeadings(thread_list);
                         }
                     } else {
-                        Toast.makeText(getActivity(), "Error downloading threads, please try again", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), "Error downloading threads. Please try again", Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -667,9 +666,7 @@ public class ThreadListFragment extends ListFragment {
         }
 
         if (hide_read) {
-
             List<Thread> copy = new ArrayList<Thread>(thread_list);
-
 
             for (Thread thread : thread_list) {
                 if (!thread.hasUnreadPosts()) {
@@ -678,6 +675,14 @@ public class ThreadListFragment extends ListFragment {
             }
 
             thread_list = copy;
+
+            if (thread_list.size() == 0) {
+                no_threads.setText(getActivity().getResources().getText(R.string.no_threads_unread));
+                no_threads.setVisibility(View.VISIBLE);
+
+            } else {
+                no_threads.setVisibility(View.GONE);
+            }
         }
 
         threads_adapter = new SeparatedListAdapter(getActivity());

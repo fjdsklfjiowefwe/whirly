@@ -2,7 +2,7 @@ package com.gregdev.whirldroid.fragment;
 
 import java.util.regex.Pattern;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.text.util.Linkify;
@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 
 public class AboutFragment extends Fragment {
