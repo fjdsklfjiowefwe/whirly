@@ -403,6 +403,12 @@ public class ThreadViewFragment extends ListFragment {
             });
 
             getActivity().getMenuInflater().inflate(R.menu.thread, menuBuilder);
+
+            if (from_forum == WhirlpoolApi.WATCHED_THREADS) {
+                menuBuilder.findItem(R.id.menu_watch).setVisible(false);
+                menuBuilder.findItem(R.id.menu_markread).setVisible(true);
+                menuBuilder.findItem(R.id.menu_unwatch).setVisible(true);
+            }
         }
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
@@ -546,14 +552,6 @@ public class ThreadViewFragment extends ListFragment {
         if (current_page == 1) {
             menu.findItem(R.id.menu_prev).setEnabled(false);
         }
-
-        // if we came from the watched threads list
-        if (from_forum != WhirlpoolApi.WATCHED_THREADS) {
-            menu.findItem(R.id.menu_markread).setVisible(false);
-        }
-        else {
-            menu.findItem(R.id.menu_watch).setVisible(false);
-        }
     }
 
     @Override
@@ -630,6 +628,12 @@ public class ThreadViewFragment extends ListFragment {
                 WatchedThreadTask watch_task = new WatchedThreadTask(0, 0, thread.getId());
                 watch_task.execute();
                 Toast.makeText(getActivity(), "Adding thread to watch list", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.menu_unwatch:
+                WatchedThreadTask unwatch_task = new WatchedThreadTask(0, thread.getId(), 0);
+                unwatch_task.execute();
+                Toast.makeText(getActivity(), "Removing thread from watch list", Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.menu_replythread:

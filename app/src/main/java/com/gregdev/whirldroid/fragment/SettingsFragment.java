@@ -32,6 +32,10 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         super.onResume();
         preferences.registerOnSharedPreferenceChangeListener(this);
 
+        MainActivity mainActivity = ((MainActivity) getActivity());
+
+        mainActivity.resetActionBar();
+        getActivity().setTitle("Settings");
     }
 
     @Override
