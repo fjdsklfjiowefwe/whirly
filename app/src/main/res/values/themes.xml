@@ -3,23 +3,20 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccentDark</item>
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material.Dark</item>
 
         <item name="MenuButton">@style/MenuButtonDark</item>
         <item name="StickyThreadBackground">#414559</item>
-        <item name="android:listSeparatorTextViewStyle">@style/ListSeparatorTextView</item>
-
     </style>
 
     <style name="WhirldroidLightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
 
         <item name="MenuButton">@style/MenuButtonLight</item>
         <item name="StickyThreadBackground">#DDDFED</item>
-        <item name="android:listSeparatorTextViewStyle">@style/ListSeparatorTextView</item>
     </style>
 
     <style name="WhirldroidBottomMenu" parent="Theme.AppCompat">
