@@ -250,11 +250,17 @@ public class NotificationService extends Service {
         if (do_vibrate) {
             long[] v = {500,1000};
             builder.setVibrate(v);
+        } else {
+            builder.setVibrate(new long[]{0l});
         }
 
         // play a sound?
-        String ringtonePreference = settings.getString("pref_notifytone", "DEFAULT_RINGTONE_URI");
-        builder.setSound(Uri.parse(ringtonePreference));
+        /*String ringtonePreference = settings.getString("pref_notifytone", "DEFAULT_RINGTONE_URI");
+        builder.setSound(Uri.parse(ringtonePreference));*/
+
+        if (settings.getBoolean("pref_notifysound", false)) {
+            builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        }
 
         // do we want to flash the LED?
         boolean do_led = settings.getBoolean("pref_notifyled", false);

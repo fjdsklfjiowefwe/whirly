@@ -37,51 +37,50 @@
         android:title="@string/pref_notifications_title"
         android:key="pref_key_notification_settings">
 
-        <PreferenceScreen
-            android:key="notification_screen_pref"
-            android:title="Notification Settings"
-            android:summary="Enable whim or watched thread notifications and manage how you get notified">
+        <CheckBoxPreference
+            android:title="New whim alerts"
+            android:defaultValue="false"
+            android:summary="Notify me when somebody sends me a Whim"
+            android:key="pref_whimnotify" />
 
-            <CheckBoxPreference
-                android:title="New whim alerts"
-                android:defaultValue="false"
-                android:summary="Notify me when somebody sends me a Whim"
-                android:key="pref_whimnotify" />
+        <CheckBoxPreference
+            android:title="Watched thread alerts"
+            android:defaultValue="false"
+            android:summary="Notify me when somebody replies to a thread I'm watching"
+            android:key="pref_watchednotify" />
 
-            <CheckBoxPreference
-                android:title="Watched thread alerts"
-                android:defaultValue="false"
-                android:summary="Notify me when somebody replies to a thread I'm watching"
-                android:key="pref_watchednotify" />
+        <ListPreference
+            android:title="Notify interval"
+            android:summary="How often to check for new whims or watched thread replies"
+            android:key="pref_notifyfreq"
+            android:entries="@array/array_pref_notifyfreq"
+            android:entryValues="@array/values_pref_notifyfreq" />
 
-            <ListPreference
-                android:title="Notify interval"
-                android:summary="How often to check for new whims or watched thread replies"
-                android:key="pref_notifyfreq"
-                android:entries="@array/array_pref_notifyfreq"
-                android:entryValues="@array/values_pref_notifyfreq" />
+        <!--<RingtonePreference
+            android:title="Notification tone"
+            android:summary="Sound to play on incoming notifications"
+            android:key="pref_notifytone"
+            android:showSilent="true"
+            android:showDefault="true"
+            android:ringtoneType="notification" />-->
 
-            <RingtonePreference
-                android:title="Notification tone"
-                android:summary="Sound to play on incoming notifications"
-                android:key="pref_notifytone"
-                android:showSilent="true"
-                android:showDefault="true"
-                android:ringtoneType="notification" />
+        <CheckBoxPreference
+            android:title="Sound"
+            android:summary="Play sound on incoming notifications"
+            android:key="pref_notifysound"
+            android:defaultValue="false" />
 
-            <CheckBoxPreference
-                android:title="Vibrate"
-                android:summary="Vibrate on incoming notifications"
-                android:key="pref_notifyvibrate"
-                android:defaultValue="false" />
+        <CheckBoxPreference
+            android:title="Vibrate"
+            android:summary="Vibrate on incoming notifications"
+            android:key="pref_notifyvibrate"
+            android:defaultValue="false" />
 
-            <CheckBoxPreference
-                android:title="Flash LED"
-                android:summary="Flash phone LED (if available) on incoming notifications"
-                android:key="pref_notifyled"
-                android:defaultValue="false" />
-
-        </PreferenceScreen>
+        <CheckBoxPreference
+            android:title="Flash LED"
+            android:summary="Flash phone LED (if available) on incoming notifications"
+            android:key="pref_notifyled"
+            android:defaultValue="false" />
 
     </PreferenceCategory>
 
