@@ -7,7 +7,6 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -30,7 +29,7 @@ public class WatchedThreadsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.view_pager, container, false);
+        View rootView = inflater.inflate(R.layout.tab_view_pager, container, false);
         ViewPager viewPager = (ViewPager) rootView.findViewById(R.id.pager);
         viewPager.setAdapter(new SampleFragmentPagerAdapter());
 

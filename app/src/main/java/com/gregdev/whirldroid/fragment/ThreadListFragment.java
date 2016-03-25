@@ -794,6 +794,7 @@ public class ThreadListFragment extends ListFragment {
         bundle.putInt("thread_id", thread.getId());
         bundle.putString("thread_title", thread.getTitle());
         bundle.putInt("page_number", page_number);
+        bundle.putInt("page_count", thread.getPageCount());
         bundle.putBoolean("bottom", bottom);
         bundle.putInt("goto_num", goto_post);
         bundle.putInt("from_forum", forum_id);

@@ -34,6 +34,7 @@ import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,11 +67,11 @@ public class ThreadPageFragment extends ListFragment {
     private boolean bottom = false;
     private int goto_num = 0;
     private int from_forum;
-    private PageAdapter page_adapter;
     private boolean pages_loaded = false;
     private boolean no_page_select = true;
     private String font_size_option = "0";
     private Tracker mTracker;
+    private ProgressBar loading;
 
     /**
      * Private class to retrieve threads in the background
@@ -87,46 +88,40 @@ public class ThreadPageFragment extends ListFragment {
 
         @Override
         protected Thread doInBackground(String... params) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    try {
-                        progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Loading thread...", true, true);
-                        progress_dialog.setOnCancelListener(new CancelTaskOnCancelListener(task));
-                    } catch (BadTokenException e) { }
-                }
-            });
-
-            Thread thread = null;
             try {
-                thread = Whirldroid.getApi().downloadThread(thread_id, thread_title, current_page);
-            }
-            catch (final WhirlpoolApiException e) {
-                error_message = e.getMessage();
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        loading.setVisibility(View.VISIBLE);
+                    }
+                });
 
-                if (error_message.equals("Private forum")) {
-                    String thread_url = "http://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread_id;
-                    Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(thread_url));
-                    startActivity(thread_intent);
-                    getActivity().finish();
+                Thread thread = null;
+                try {
+                    thread = Whirldroid.getApi().downloadThread(thread_id, thread_title, current_page);
+                } catch (final WhirlpoolApiException e) {
+                    error_message = e.getMessage();
+
+                    if (error_message.equals("Private forum")) {
+                        String thread_url = "http://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread_id;
+                        Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(thread_url));
+                        startActivity(thread_intent);
+                        getActivity().finish();
+                    }
+
+                    return null;
                 }
 
-                return null;
-            }
+                return thread;
 
-            return thread;
+            } catch (NullPointerException e) { return null; }
         }
 
         @Override
         protected void onPostExecute(final Thread result) {
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
-                    if (progress_dialog != null) {
-                        try {
-                            progress_dialog.dismiss(); // hide the progress dialog
-                            progress_dialog = null;
-                        } catch (Exception e) {
-                        }
-                    }
+                    loading.setVisibility(View.GONE);
+
                     if (result != null) {
                         last_updated = System.currentTimeMillis() / 1000;
                         getActivity().invalidateOptionsMenu();
@@ -138,19 +133,6 @@ public class ThreadPageFragment extends ListFragment {
                         }
 
                         thread_title = result.getTitle();
-
-                        page_adapter.clear(); // clear existing page item list
-                        // add items for each page
-                        for (int i = 1; i <= page_count; i++) {
-                            page_adapter.add("Page " + i);
-                        }
-
-                        // select the current page
-                        if (current_page != 1) {
-                            no_page_select = true;
-                            ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(current_page - 1);
-                            no_page_select = false;
-                        }
 
                         thread = result;
                         setPosts(result.getPosts()); // display the posts in the list
@@ -310,65 +292,6 @@ public class ThreadPageFragment extends ListFragment {
         }
     }
 
-    public class PageAdapter extends ArrayAdapter<String> {
-
-        List<String> page_items;
-        Context context;
-
-        public PageAdapter(Context context, int resource, List<String> group_items) {
-            super(context, resource, group_items);
-            this.page_items = group_items;
-            this.context = context;
-        }
-
-        @Override
-        public View getView(int position, View convert_view, ViewGroup parent) {
-            String item_string = page_items.get(position);
-
-            if (convert_view == null) {
-                LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convert_view = vi.inflate(R.layout.spinner_item, null);
-            }
-
-            TextView title = (TextView) convert_view.findViewById(R.id.title);
-            TextView subtitle = (TextView) convert_view.findViewById(R.id.subtitle);
-
-            if (title != null) {
-                title.setText(thread_title);
-            }
-            if (subtitle != null && item_string != "") {
-                String subtitle_value = "Page " + (position + 1);
-                if (current_page == -1) {
-                    subtitle_value = "Page 1";
-                }
-                if (page_count != 0) {
-                    subtitle_value += " of " + page_count;
-                }
-                subtitle.setText(subtitle_value);
-            }
-
-            return convert_view;
-        }
-    }
-
-    /**
-     * Cancels the fetching of posts if the back button is pressed
-     * @author Greg
-     *
-     */
-    private class CancelTaskOnCancelListener implements OnCancelListener {
-        private AsyncTask<?, ?, ?> task;
-        public CancelTaskOnCancelListener(AsyncTask<?, ?, ?> task) {
-            this.task = task;
-        }
-
-        public void onCancel(DialogInterface dialog) {
-            if (task != null) {
-                task.cancel(true);
-            }
-        }
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -387,6 +310,7 @@ public class ThreadPageFragment extends ListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
         Bundle bundle = getArguments();
+
         if (bundle != null) {
             thread_id = bundle.getInt("thread_id");
             thread_title = bundle.getString("thread_title");
@@ -429,13 +353,11 @@ public class ThreadPageFragment extends ListFragment {
         ArrayList<String> page_list = new ArrayList<String>();
         page_list.add("");
 
-        page_adapter = new PageAdapter(context, R.layout.spinner_item, page_list);
-
-        page_adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
         registerForContextMenu(getListView());
+
+        loading = (ProgressBar) view.findViewById(R.id.loading);
     }
 
     @Override
@@ -451,42 +373,6 @@ public class ThreadPageFragment extends ListFragment {
         actionBar.setSubtitle("");
 
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        actionBar.setListNavigationCallbacks(page_adapter, new android.support.v7.app.ActionBar.OnNavigationListener() {
-            @Override
-            public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-                if (no_page_select) {
-                    no_page_select = false;
-                    return false;
-                }
-
-                int new_page = itemPosition + 1;
-
-                // current page selected, no need to do anything
-                if (new_page == current_page) {
-                    return false;
-                }
-
-                current_page = new_page;
-                getThread();
-
-                return true;
-            }
-        });
-
-        if (page_count > 0) {
-            page_adapter.clear(); // clear existing page item list
-
-            for (int i = 1; i <= page_count; i++) {
-                page_adapter.add("Page " + i);
-            }
-
-            // select the current page
-            if (current_page != 1) {
-                no_page_select = true;
-                actionBar.setSelectedNavigationItem(current_page - 1);
-                no_page_select = false;
-            }
-        }
 
         if (last_updated == 0 || thread == null) {
             getThread();
