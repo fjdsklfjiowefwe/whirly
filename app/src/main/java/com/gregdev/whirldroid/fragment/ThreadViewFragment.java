@@ -37,6 +37,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -68,6 +70,7 @@ public class ThreadViewFragment extends ListFragment {
     private boolean pages_loaded = false;
     private boolean no_page_select = true;
     private String font_size_option = "0";
+    private Tracker mTracker;
 
     /**
      * Private class to retrieve threads in the background
@@ -367,6 +370,14 @@ public class ThreadViewFragment extends ListFragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Obtain the shared Tracker instance.
+        Whirldroid application = (Whirldroid) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.thread_list, container, false);
         return rootView;
@@ -430,6 +441,9 @@ public class ThreadViewFragment extends ListFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        mTracker.setScreenName("ThreadView");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         // thread title is set using PageAdapter, so set this to nothing
         getActivity().setTitle("");

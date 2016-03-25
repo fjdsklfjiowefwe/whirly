@@ -254,7 +254,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
 
             transaction.commit();
-            selectMenuItem(fragmentName);
 
         } catch (ClassNotFoundException e) {
             Whirldroid.log("Fragment " + fragmentName + " not found");

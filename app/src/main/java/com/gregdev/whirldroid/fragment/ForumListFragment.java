@@ -20,6 +20,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -42,6 +44,8 @@ public class ForumListFragment extends ListFragment {
     private View rootView;
 
     private int listIndex = -1;
+
+    private Tracker mTracker;
 
     private class RetrieveForumsTask extends AsyncTask<String, Void, ArrayList<Forum>> {
 
@@ -206,6 +210,14 @@ public class ForumListFragment extends ListFragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Obtain the shared Tracker instance.
+        Whirldroid application = (Whirldroid) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.forum_list, container, false);
         ((MainActivity) getActivity()).selectMenuItem("ForumList");
@@ -238,6 +250,9 @@ public class ForumListFragment extends ListFragment {
     public void onResume() {
         super.onResume();
 
+        mTracker.setScreenName("ForumList");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
         MainActivity mainActivity = ((MainActivity) getActivity());
 
         mainActivity.resetActionBar();
@@ -249,6 +264,7 @@ public class ForumListFragment extends ListFragment {
 
         mainActivity.setCurrentSearchType(mainActivity.SEARCH_FORUMS);
 
+        mainActivity.selectMenuItem("ForumList");
     }
 
     @Override

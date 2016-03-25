@@ -34,6 +34,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -75,6 +77,8 @@ public class ThreadListFragment extends ListFragment {
     private int search_forum = -1;
     private int search_group = -1;
     private String search_query;
+
+    private Tracker mTracker;
 
     private class WatchThreadTask extends AsyncTask<String, Void, Boolean> {
         private int thread_id;
@@ -491,6 +495,15 @@ public class ThreadListFragment extends ListFragment {
         }
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Obtain the shared Tracker instance.
+        Whirldroid application = (Whirldroid) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.thread_list, container, false);
         setHasOptionsMenu(true);
@@ -561,6 +574,18 @@ public class ThreadListFragment extends ListFragment {
     public void onResume() {
         super.onResume();
 
+        if (forum_id != WhirlpoolApi.WATCHED_THREADS) {
+            if (forum_id == WhirlpoolApi.POPULAR_THREADS) {
+                mTracker.setScreenName("PopularThreads");
+            } else if (forum_id == WhirlpoolApi.RECENT_THREADS) {
+                mTracker.setScreenName("RecentThreads");
+            } else {
+                mTracker.setScreenName("ThreadList");
+            }
+
+            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        }
+
         MainActivity mainActivity = ((MainActivity) getActivity());
 
         mainActivity.resetActionBar();
@@ -573,9 +598,11 @@ public class ThreadListFragment extends ListFragment {
                 break;
             case WhirlpoolApi.RECENT_THREADS:
                 getActivity().setTitle("Recent Threads");
+                mainActivity.selectMenuItem("RecentList");
                 break;
             case WhirlpoolApi.POPULAR_THREADS:
                 getActivity().setTitle("Popular Threads");
+                mainActivity.selectMenuItem("PopularList");
                 break;
             case WhirlpoolApi.SEARCH_RESULTS:
                 getActivity().setTitle("Search Results");

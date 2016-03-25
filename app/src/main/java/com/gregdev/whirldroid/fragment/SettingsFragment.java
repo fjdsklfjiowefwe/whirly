@@ -7,6 +7,8 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -14,6 +16,7 @@ import com.gregdev.whirldroid.Whirldroid;
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private SharedPreferences preferences;
+    private Tracker mTracker;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -25,6 +28,10 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         preferences.registerOnSharedPreferenceChangeListener(this);
+
+        // Obtain the shared Tracker instance.
+        Whirldroid application = (Whirldroid) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -36,6 +43,11 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
         mainActivity.resetActionBar();
         getActivity().setTitle("Settings");
+
+        mainActivity.selectMenuItem("Settings");
+
+        mTracker.setScreenName("Settings");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     @Override

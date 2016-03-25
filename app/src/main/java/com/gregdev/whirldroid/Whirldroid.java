@@ -16,10 +16,9 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.model.Thread;
-
-/*import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;*/
 
 public class Whirldroid extends Application {
 
@@ -35,6 +34,8 @@ public class Whirldroid extends Application {
     private static int current_theme;
     private static int current_theme_id;
     private static boolean theme_changed = false;
+
+    private Tracker mTracker;
 
     @Override
     public void onCreate() {
@@ -297,21 +298,12 @@ public class Whirldroid extends Application {
 
     /** Google Analytics **/
 
-    /*HashMap<TrackerName, Tracker> mTrackers = new HashMap<TrackerName, Tracker>();
-
-    public synchronized Tracker getTracker(TrackerName trackerId) {
-
-        if (!mTrackers.containsKey(trackerId)) {
+    synchronized public Tracker getDefaultTracker() {
+        if (mTracker == null) {
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            Tracker t = analytics.newTracker(R.xml.app_tracker);
-            mTrackers.put(trackerId, t);
+            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
+            mTracker = analytics.newTracker(R.xml.global_tracker);
         }
-        return mTrackers.get(trackerId);
+        return mTracker;
     }
-
-    public enum TrackerName {
-        APP_TRACKER,
-        GLOBAL_TRACKER,
-        E_COMMERCE_TRACKER,
-    }*/
 }

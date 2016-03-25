@@ -19,6 +19,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -35,6 +37,7 @@ public class LoginFragment extends Fragment {
 
     private ProgressDialog progress_dialog;
     private RetrieveDataTask task;
+    private Tracker mTracker;
 
     private class RetrieveDataTask extends AsyncTask<String, Void, Boolean> {
 
@@ -113,6 +116,14 @@ public class LoginFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Obtain the shared Tracker instance.
+        Whirldroid application = (Whirldroid) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.login, container, false);
 
@@ -146,6 +157,14 @@ public class LoginFragment extends Fragment {
         Linkify.addLinks(apiKeyWhere, p_url, "http://");
 
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mTracker.setScreenName("Login");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
 }

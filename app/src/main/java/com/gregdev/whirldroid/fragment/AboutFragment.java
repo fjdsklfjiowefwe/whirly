@@ -12,9 +12,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
+import com.gregdev.whirldroid.Whirldroid;
 
 public class AboutFragment extends Fragment {
+
+    private Tracker mTracker;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Obtain the shared Tracker instance.
+        Whirldroid application = (Whirldroid) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -25,8 +39,6 @@ public class AboutFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        getActivity().setTitle("About");
-
         TextView version_info = (TextView) view.findViewById(R.id.version_info);
         TextView gregdev_url = (TextView) view.findViewById(R.id.gregdev_web);
 
@@ -39,6 +51,19 @@ public class AboutFragment extends Fragment {
             version_info.setText(String.format(getString(R.string.version_info), version));
         }
         catch (NameNotFoundException e) { }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mTracker.setScreenName("About");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+        MainActivity mainActivity = ((MainActivity) getActivity());
+        mainActivity.resetActionBar();
+        mainActivity.setTitle("About");
+        mainActivity.selectMenuItem("About");
     }
 
     @Override

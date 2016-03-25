@@ -9,17 +9,53 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
+import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.WhirlpoolApi;
 
 public class WatchedThreadsFragment extends Fragment {
+
+    private Tracker mTracker;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Obtain the shared Tracker instance.
+        Whirldroid application = (Whirldroid) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.view_pager, container, false);
         ViewPager viewPager = (ViewPager) rootView.findViewById(R.id.pager);
         viewPager.setAdapter(new SampleFragmentPagerAdapter());
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 0) {
+                    mTracker.setScreenName("WatchedThreadsUnread");
+                } else {
+                    mTracker.setScreenName("WatchedThreadsAll");
+                }
+
+                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         return rootView;
     }
@@ -31,6 +67,8 @@ public class WatchedThreadsFragment extends Fragment {
         MainActivity mainActivity = ((MainActivity) getActivity());
         mainActivity.resetActionBar();
         mainActivity.setTitle("Watched Threads");
+
+        mainActivity.selectMenuItem("WatchedThreads");
     }
 
     public class SampleFragmentPagerAdapter extends FragmentPagerAdapter {

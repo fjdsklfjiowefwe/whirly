@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -25,6 +27,7 @@ import com.gregdev.whirldroid.model.Whim;
 public class WhimViewFragment extends Fragment {
     private TextView whimContent;
     private Whim whim = null;
+    private Tracker mTracker;
 
     private class MarkWhimAsReadTask extends AsyncTask<Whim, Integer, Integer> {
 
@@ -39,6 +42,14 @@ public class WhimViewFragment extends Fragment {
 
             return null;
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Obtain the shared Tracker instance.
+        Whirldroid application = (Whirldroid) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -67,6 +78,14 @@ public class WhimViewFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mTracker.setScreenName("WhimView");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     @Override

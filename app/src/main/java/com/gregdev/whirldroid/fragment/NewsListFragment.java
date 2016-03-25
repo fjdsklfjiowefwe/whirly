@@ -27,6 +27,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.WhirlpoolApi;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -47,6 +50,7 @@ public class NewsListFragment extends ListFragment {
     private RetrieveNewsTask task;
     private View rootView;
     private ListView newsListView;
+    private Tracker mTracker;
 
     /**
      * Private class to retrieve news in the background
@@ -169,6 +173,14 @@ public class NewsListFragment extends ListFragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Obtain the shared Tracker instance.
+        Whirldroid application = (Whirldroid) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.news_list, container, false);
         setHasOptionsMenu(true);
@@ -177,9 +189,22 @@ public class NewsListFragment extends ListFragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        getActivity().setTitle("News");
         newsListView = getListView();
         getNews(false);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mTracker.setScreenName("NewsList");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+        MainActivity mainActivity = ((MainActivity) getActivity());
+        mainActivity.resetActionBar();
+        mainActivity.setTitle("News");
+
+        mainActivity.selectMenuItem("NewsList");
     }
 
 
