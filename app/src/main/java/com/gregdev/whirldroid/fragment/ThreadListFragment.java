@@ -213,67 +213,69 @@ public class ThreadListFragment extends ListFragment {
 
         @Override
         protected void onPostExecute(final List<Thread> result) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    if (progress_dialog != null) {
-                        try {
-                            progress_dialog.dismiss(); // hide the progress dialog
-                            progress_dialog = null;
-                        } catch (Exception e) {
+            try {
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        if (progress_dialog != null) {
+                            try {
+                                progress_dialog.dismiss(); // hide the progress dialog
+                                progress_dialog = null;
+                            } catch (Exception e) {
+                            }
+
+                            if (result != null && !isActualForum() && forum_id != WhirlpoolApi.SEARCH_RESULTS) {
+                                Toast.makeText(getActivity(), "Threads refreshed", Toast.LENGTH_SHORT).show();
+                            }
                         }
 
-                        if (result != null && !isActualForum() && forum_id != WhirlpoolApi.SEARCH_RESULTS) {
-                            Toast.makeText(getActivity(), "Threads refreshed", Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                        if (result != null) {
+                            if (groups == null) {
+                                groups = forum.getGroups();
+                            }
+                            if (groups != null) {
+                                group_adapter.clear();
+                                group_adapter.add(forum_title);
 
-                    if (result != null) {
-                        if (groups == null) {
-                            groups = forum.getGroups();
-                        }
-                        if (groups != null) {
-                            group_adapter.clear();
-                            group_adapter.add(forum_title);
-
-                            String current_group_name = "";
-                            for (Map.Entry<String, Integer> group : groups.entrySet()) {
-                                group_adapter.add(group.getKey());
-                                if (group.getValue() == current_group) {
-                                    current_group_name = group.getKey();
+                                String current_group_name = "";
+                                for (Map.Entry<String, Integer> group : groups.entrySet()) {
+                                    group_adapter.add(group.getKey());
+                                    if (group.getValue() == current_group) {
+                                        current_group_name = group.getKey();
+                                    }
+                                }
+                                if (current_group != 0) {
+                                    getActivity().getActionBar().setSelectedNavigationItem(group_adapter.getPosition(current_group_name));
                                 }
                             }
-                            if (current_group != 0) {
-                                getActivity().getActionBar().setSelectedNavigationItem(group_adapter.getPosition(current_group_name));
-                            }
-                        }
 
-                        getActivity().invalidateOptionsMenu();
+                            getActivity().invalidateOptionsMenu();
 
-                        if (thread_list != null && thread_list.size() == 0) {
-                            if (forum_id == WhirlpoolApi.WATCHED_THREADS && hide_read) {
-                                no_threads.setText(getActivity().getResources().getText(R.string.no_threads_unread));
+                            if (thread_list != null && thread_list.size() == 0) {
+                                if (forum_id == WhirlpoolApi.WATCHED_THREADS && hide_read) {
+                                    no_threads.setText(getActivity().getResources().getText(R.string.no_threads_unread));
+                                } else {
+                                    no_threads.setText(getActivity().getResources().getText(R.string.no_threads));
+                                }
+                                no_threads.setVisibility(View.VISIBLE);
+
                             } else {
-                                no_threads.setText(getActivity().getResources().getText(R.string.no_threads));
+                                no_threads.setVisibility(View.GONE);
                             }
-                            no_threads.setVisibility(View.VISIBLE);
 
+                            if (!isActualForum()) {
+                                setThreads(thread_list); // display the threads in the list
+                            } else if (WhirlpoolApi.isPublicForum(forum_id)) {
+                                ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Page " + current_page + " of " + forum.getPageCount());
+                                setThreadsNoHeadings(thread_list);
+                            } else {
+                                setThreadsNoHeadings(thread_list);
+                            }
                         } else {
-                            no_threads.setVisibility(View.GONE);
+                            Toast.makeText(getActivity(), "Error downloading threads. Please try again", Toast.LENGTH_LONG).show();
                         }
-
-                        if (!isActualForum()) {
-                            setThreads(thread_list); // display the threads in the list
-                        } else if (WhirlpoolApi.isPublicForum(forum_id)) {
-                            ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Page " + current_page + " of " + forum.getPageCount());
-                            setThreadsNoHeadings(thread_list);
-                        } else {
-                            setThreadsNoHeadings(thread_list);
-                        }
-                    } else {
-                        Toast.makeText(getActivity(), "Error downloading threads. Please try again", Toast.LENGTH_LONG).show();
                     }
-                }
-            });
+                });
+            } catch (NullPointerException e) { }
         }
     }
 
@@ -532,20 +534,12 @@ public class ThreadListFragment extends ListFragment {
             getActivity().getActionBar().setListNavigationCallbacks(group_adapter, this);*/
         }
 
-        /*Tracker t = ((Whirldroid) getApplication()).getTracker(Whirldroid.TrackerName.APP_TRACKER);
-        t.setScreenName("Thread List: " + getTitle());
-        t.send(new HitBuilders.ScreenViewBuilder().build());*/
-
         return rootView;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         thread_listview = getListView();
-
-        if (thread_listview.getCount() == 0) {
-            getThreads(false);
-        }
 
         if (this.isActualForum()) {
             ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
@@ -573,6 +567,10 @@ public class ThreadListFragment extends ListFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        if (thread_listview.getCount() == 0 || forum_id == WhirlpoolApi.WATCHED_THREADS) {
+            getThreads(false);
+        }
 
         if (forum_id != WhirlpoolApi.WATCHED_THREADS) {
             if (forum_id == WhirlpoolApi.POPULAR_THREADS) {
