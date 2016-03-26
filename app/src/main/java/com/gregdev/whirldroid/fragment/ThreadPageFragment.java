@@ -236,6 +236,10 @@ public class ThreadPageFragment extends ListFragment {
                 content = content.replace("href=\"/forum-replies.cfm?t=", "href=\"" + url_replace);
                 content = content.replace("href=\"forum-replies.cfm?t=", "href=\"" + url_replace);
 
+                content = content.replace("<li>", "•");
+                content = content.replace("â€¢", "");
+                content = content.replace("</li>", "");
+
                 try {
                     bottom_text.setText(Html.fromHtml(content));
                 }
