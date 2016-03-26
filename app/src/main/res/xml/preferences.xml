@@ -154,8 +154,7 @@
             android:title="Auto mark as read"
             android:defaultValue="false"
             android:summary="Automatically mark watched threads as read when viewed"
-            android:key="pref_watchedautomarkasread"
-            android:widgetLayout="@layout/multiline_checkbox_preference" />
+            android:key="pref_watchedautomarkasread" />
 
     </PreferenceCategory>
 
