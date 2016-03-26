@@ -16,21 +16,14 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.widget.ActionMenuView;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -124,7 +117,6 @@ public class ThreadPageFragment extends ListFragment {
 
                     if (result != null) {
                         last_updated = System.currentTimeMillis() / 1000;
-                        getActivity().invalidateOptionsMenu();
 
                         page_count = result.getPageCount();
 
@@ -141,35 +133,6 @@ public class ThreadPageFragment extends ListFragment {
                     }
                 }
             });
-        }
-    }
-
-    private class WatchedThreadTask extends AsyncTask<String, Void, Void> {
-
-        private int mark_as_read = 0;
-        private int unwatch = 0;
-        public int watch = 0;
-
-        public WatchedThreadTask(int mark_as_read, int unwatch, int watch) {
-            this.mark_as_read = mark_as_read;
-            this.unwatch = unwatch;
-            this.watch = watch;
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-            try {
-                Whirldroid.getApi().downloadWatched(mark_as_read, unwatch, watch);
-            }
-            catch (final WhirlpoolApiException e) {
-                return null;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(final Void result) {
-
         }
     }
 
@@ -321,39 +284,7 @@ public class ThreadPageFragment extends ListFragment {
 
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
             font_size_option = settings.getString("pref_postfontsize", "0");
-
-            ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
-            MenuBuilder menuBuilder = (MenuBuilder) actionMenuView.getMenu();
-
-            menuBuilder.setCallback(new MenuBuilder.Callback() {
-                @Override
-                public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
-                    return onOptionsItemSelected(menuItem);
-                }
-
-                @Override
-                public void onMenuModeChange(MenuBuilder menuBuilder) {
-
-                }
-            });
-
-            getActivity().getMenuInflater().inflate(R.menu.thread, menuBuilder);
-
-            if (from_forum == WhirlpoolApi.WATCHED_THREADS) {
-                menuBuilder.findItem(R.id.menu_watch).setVisible(false);
-                menuBuilder.findItem(R.id.menu_markread).setVisible(true);
-                menuBuilder.findItem(R.id.menu_unwatch).setVisible(true);
-            }
         }
-
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-
-        Context context = actionBar.getThemedContext();
-
-        ArrayList<String> page_list = new ArrayList<String>();
-        page_list.add("");
-
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
         registerForContextMenu(getListView());
 
@@ -366,13 +297,6 @@ public class ThreadPageFragment extends ListFragment {
 
         mTracker.setScreenName("ThreadView");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-
-        // thread title is set using PageAdapter, so set this to nothing
-        getActivity().setTitle("");
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setSubtitle("");
-
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
         if (last_updated == 0 || thread == null) {
             getThread();
@@ -440,129 +364,7 @@ public class ThreadPageFragment extends ListFragment {
         return false;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.thread, menu);
-        super.onCreateOptionsMenu(menu, menuInflater);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        if (current_page == 1) {
-            menu.findItem(R.id.menu_prev).setEnabled(false);
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_refresh:
-                long now = System.currentTimeMillis() / 1000;
-                // don't refresh too often
-                if (now - last_updated > WhirlpoolApi.REFRESH_INTERVAL) {
-                    getThread();
-                }
-                else {
-                    Toast.makeText(getActivity(), "Wait " + WhirlpoolApi.REFRESH_INTERVAL + " seconds before refreshing", Toast.LENGTH_LONG).show();
-                }
-                return true;
-
-            case R.id.menu_next:
-                if (current_page < thread.getPageCount()) {
-                    current_page++;
-                    ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(current_page - 1);
-                }
-                getThread();
-                return true;
-
-			/*case R.id.menu_goto_page:
-				final CharSequence[] pages = new CharSequence[thread.getPageCount()];
-				for (int i = 0; i < pages.length; i++) {
-					pages[i] = "" + (i + 1);
-				}
-
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle("Jump to page...");
-				builder.setItems(pages, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int item) {
-						current_page = Integer.parseInt((String) pages[item]);
-						getThread();
-					}
-				});
-				AlertDialog alert = builder.create();
-				alert.show();
-				return true;*/
-
-            case R.id.menu_markread:
-                try {
-                    WatchedThreadTask markread_task = new WatchedThreadTask(thread.getId(), 0, 0);
-                    markread_task.execute();
-                    Toast.makeText(getActivity(), "Marking thread as read", Toast.LENGTH_SHORT).show();
-
-                } catch (Exception e) {
-                    Toast.makeText(getActivity(), "Error marking thread as read", Toast.LENGTH_SHORT).show();
-                }
-
-                return true;
-
-            case R.id.menu_open_browser:
-                String thread_url = "http://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread.getId();
-                Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(thread_url));
-                startActivity(thread_intent);
-                return true;
-
-            case R.id.menu_prev:
-                current_page--;
-                ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(current_page - 1);
-                getThread();
-                return true;
-
-            case R.id.menu_goto_last:
-                current_page = thread.getPageCount();
-                ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(current_page - 1);
-                getThread();
-                return true;
-
-            case R.id.menu_watch:
-                WatchedThreadTask watch_task = new WatchedThreadTask(0, 0, thread.getId());
-                watch_task.execute();
-                Toast.makeText(getActivity(), "Adding thread to watch list", Toast.LENGTH_SHORT).show();
-                return true;
-
-            case R.id.menu_unwatch:
-                WatchedThreadTask unwatch_task = new WatchedThreadTask(0, thread.getId(), 0);
-                unwatch_task.execute();
-                Toast.makeText(getActivity(), "Removing thread from watch list", Toast.LENGTH_SHORT).show();
-                return true;
-
-            case R.id.menu_replythread:
-                String replythread_url = WhirlpoolApi.REPLY_URL + thread.getId();
-                Intent replythread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(replythread_url));
-
-                if (Build.VERSION.SDK_INT >= 18) {
-                    final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
-                    final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
-
-                    Bundle extras = new Bundle();
-                    extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
-                    replythread_intent.putExtras(extras);
-                    replythread_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
-                }
-
-                startActivity(replythread_intent);
-                return true;
-
-            case android.R.id.home:
-                /*Intent dashboard_intent = new Intent(this, Dashboard.class);
-                dashboard_intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(dashboard_intent);*/
-                return true;
-        }
-        return false;
-    }
-
-    private void getThread() {
+    public void getThread() {
         task = new RetrieveThreadTask(); // start new thread to retrieve posts
         task.execute();
     }
