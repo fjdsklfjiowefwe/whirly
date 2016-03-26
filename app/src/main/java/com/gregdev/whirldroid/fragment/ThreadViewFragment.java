@@ -40,8 +40,8 @@ public class ThreadViewFragment extends Fragment {
     private int threadId;
     private int pageNumber;
     private int currentIndex;
-    private int pageCount;
-    private String threadTitle;
+    private int pageCount = 0;
+    private String threadTitle = null;
     private MenuBuilder menuBuilder;
 
     @Override
@@ -127,8 +127,15 @@ public class ThreadViewFragment extends Fragment {
         MainActivity mainActivity = ((MainActivity) getActivity());
         mainActivity.resetActionBar();
 
-        mainActivity.setTitle(threadTitle);
-        mainActivity.getSupportActionBar().setSubtitle("Page " + (currentIndex + 1) + " of " + pageCount);
+        if (threadTitle != null){
+            mainActivity.setTitle(threadTitle);
+        } else {
+            mainActivity.setTitle("Thread");
+        }
+
+        if (pageCount != 0) {
+            mainActivity.getSupportActionBar().setSubtitle("Page " + (currentIndex + 1) + " of " + pageCount);
+        }
 
         mTracker.setScreenName("ThreadView");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
@@ -142,8 +149,22 @@ public class ThreadViewFragment extends Fragment {
             pages = new HashMap<>();
         }
 
+        public void setCount(int count) {
+            if (count != pageCount) { // count has changed, let's do some things
+                pageCount = count;
+                notifyDataSetChanged();
+                ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Page " + (viewPager.getCurrentItem() + 1) + " of " + pageCount);
+            }
+        }
+
         @Override
         public int getCount() {
+            if (pageCount == 0) {
+                // If the page count is 0, it means we don't know how many pages are in the thread.
+                // Default to one page so we load the first, which allows us to determine the real count.
+                return 1;
+            }
+
             return pageCount;
         }
 
@@ -152,9 +173,10 @@ public class ThreadViewFragment extends Fragment {
             if (pages.get(position + 1) == null) {
                 Bundle bundle = new Bundle();
 
-                bundle.putInt("thread_id", threadId);
-                bundle.putString("thread_title", threadTitle);
-                bundle.putInt("page_number", position + 1);
+                bundle.putString("thread_title" , threadTitle);
+                bundle.putInt("thread_id"       , threadId);
+                bundle.putInt("page_number"     , position + 1);
+                bundle.putInt("page_count"      , pageCount);
 
                 Fragment fragment = new ThreadPageFragment();
                 fragment.setArguments(bundle);
@@ -165,8 +187,6 @@ public class ThreadViewFragment extends Fragment {
             return pages.get(position + 1);
         }
     }
-
-
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {

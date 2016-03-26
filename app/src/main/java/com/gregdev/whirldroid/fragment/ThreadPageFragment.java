@@ -16,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.ViewPager;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.ContextMenu;
@@ -65,6 +66,7 @@ public class ThreadPageFragment extends ListFragment {
     private String font_size_option = "0";
     private Tracker mTracker;
     private ProgressBar loading;
+    ViewPager parent;
 
     /**
      * Private class to retrieve threads in the background
@@ -111,28 +113,32 @@ public class ThreadPageFragment extends ListFragment {
 
         @Override
         protected void onPostExecute(final Thread result) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    loading.setVisibility(View.GONE);
+            try {
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        loading.setVisibility(View.GONE);
 
-                    if (result != null) {
-                        last_updated = System.currentTimeMillis() / 1000;
+                        if (result != null) {
+                            last_updated = System.currentTimeMillis() / 1000;
 
-                        page_count = result.getPageCount();
+                            page_count = result.getPageCount();
+                            ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setCount(page_count);
 
-                        if (current_page == -1) { // -1 indicates we're on the last page
-                            current_page = page_count;
+                            if (current_page == -1) { // -1 indicates we're on the last page
+                                current_page = page_count;
+                            }
+
+                            thread_title = result.getTitle();
+                            getActivity().setTitle(thread_title);
+
+                            thread = result;
+                            setPosts(result.getPosts()); // display the posts in the list
+                        } else {
+                            Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
                         }
-
-                        thread_title = result.getTitle();
-
-                        thread = result;
-                        setPosts(result.getPosts()); // display the posts in the list
-                    } else {
-                        Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
                     }
-                }
-            });
+                });
+            } catch (NullPointerException e) { }
         }
     }
 
@@ -266,6 +272,7 @@ public class ThreadPageFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.thread_list, container, false);
+        parent = (ViewPager) container;
         return rootView;
     }
 
