@@ -840,7 +840,7 @@ public class ThreadListFragment extends ListFragment {
                     .setActionView(search_view)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
-        } else {
+        } else if (forum_id != WhirlpoolApi.WATCHED_THREADS) {
             inflater.inflate(R.menu.refresh, menu);
         }
     }

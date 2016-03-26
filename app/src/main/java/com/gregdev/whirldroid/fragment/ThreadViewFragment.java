@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.ActionMenuView;
 import android.view.LayoutInflater;
@@ -50,6 +51,7 @@ public class ThreadViewFragment extends Fragment {
         // Obtain the shared Tracker instance.
         Whirldroid application = (Whirldroid) getActivity().getApplication();
         mTracker = application.getDefaultTracker();
+        setHasOptionsMenu(false);
     }
 
     @Override
@@ -189,19 +191,8 @@ public class ThreadViewFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.thread, menu);
-        super.onCreateOptionsMenu(menu, menuInflater);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Whirldroid.log("Whirldroidm selected");
         switch (item.getItemId()) {
             case R.id.menu_refresh:
                 ((ThreadPageFragment) ((ThreadPageFragmentPagerAdapter) viewPager.getAdapter()).getItem(viewPager.getCurrentItem())).getThread();

@@ -4,7 +4,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -32,6 +36,7 @@ public class WatchedThreadsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.tab_view_pager, container, false);
         ViewPager viewPager = (ViewPager) rootView.findViewById(R.id.pager);
         viewPager.setAdapter(new SampleFragmentPagerAdapter());
+        setHasOptionsMenu(true);
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -68,6 +73,11 @@ public class WatchedThreadsFragment extends Fragment {
         mainActivity.setTitle("Watched Threads");
 
         mainActivity.selectMenuItem("WatchedThreads");
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.refresh, menu);
     }
 
     public class SampleFragmentPagerAdapter extends FragmentPagerAdapter {
