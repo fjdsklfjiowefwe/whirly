@@ -182,26 +182,26 @@ public class Whirldroid extends Application {
      * @return True if a notification has already been sent
      */
     public static boolean hasBeenNotified(Date date) {
-        long current_timestamp = System.currentTimeMillis();
-        long event_timestamp = date.getTime();
-        long system_uptime = SystemClock.elapsedRealtime();
+        long currentTimestamp   = System.currentTimeMillis();
+        long eventTimestamp     = date.getTime();
+        long systemUptime       = SystemClock.elapsedRealtime();
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        long notification_interval = Long.parseLong(settings.getString("pref_notifyfreq", "0")) * 60000;
+        SharedPreferences settings  = PreferenceManager.getDefaultSharedPreferences(context);
+        long notificationInterval   = Long.parseLong(settings.getString("pref_notifyfreq", "0")) * 60000;
 
         /**
          * If the system hasn't been turned on long enough to check for anything, assume that
-         * the pending notification hasn't already be shown to the usre
+         * the pending notification hasn't already be shown to the user
          */
-        if (system_uptime < notification_interval) {
+        if (systemUptime < notificationInterval) {
             return false;
         }
 
         /**
-         * if the current timestamp subtract the time of the event is less than the notification interval,
+         * if the current timestamp minus the time of the event is less than the notification interval,
          * then the event must have happened after the last notification.
          */
-        if (current_timestamp - event_timestamp < notification_interval) {
+        if (currentTimestamp - eventTimestamp < notificationInterval) {
             return false; // we haven't notified for this event yet
         }
 

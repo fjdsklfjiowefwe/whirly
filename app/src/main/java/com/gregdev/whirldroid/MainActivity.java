@@ -49,19 +49,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        boolean from_notification = false;
+        boolean fromNotification = false;
 
         try {
             Bundle bundle = getIntent().getExtras();
 
             switch (bundle.getInt("notification")) {
                 case Whirldroid.NEW_WATCHED_NOTIFICATION_ID:
-                    from_notification = true;
+                    fromNotification = true;
                     switchFragment("WatchedThreads", false);
                     break;
 
                 case Whirldroid.NEW_WHIM_NOTIFICATION_ID:
-                    from_notification = true;
+                    fromNotification = true;
                     switchFragment("WhimList", false);
                     break;
             }
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        if (!from_notification) {
+        if (!fromNotification) {
             // choose which fragment to display initially
             if (Whirldroid.getApi().getApiKey() == null) {
                 switchFragment("Login", false);

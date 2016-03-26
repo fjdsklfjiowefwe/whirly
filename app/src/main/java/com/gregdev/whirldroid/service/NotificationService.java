@@ -4,17 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.RingtoneManager;
-import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -40,9 +36,9 @@ import com.gregdev.whirldroid.model.Whim;
 
 public class NotificationService extends Service {
 
-    private WakeLock wake_lock;
-    private boolean whim_notify;
-    private boolean watched_notify;
+    private WakeLock wakeLock;
+    private boolean whimNotify;
+    private boolean watchedNotify;
 
     /**
      * Simply return null, since our Service will not be communicating with
@@ -61,15 +57,8 @@ public class NotificationService extends Service {
     private void handleIntent(Intent intent) {
         // obtain the wake lock
         PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-        wake_lock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WhirldroidNotificationService");
-        wake_lock.acquire();
-
-        // check the global background data setting
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        if (!cm.getBackgroundDataSetting()) {
-            stopSelf();
-            return;
-        }
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WhirldroidNotificationService");
+        wakeLock.acquire();
 
         // do the actual work, in a separate thread
         new PollTask().execute();
@@ -81,28 +70,23 @@ public class NotificationService extends Service {
          */
         @Override
         protected Void doInBackground(Void... parameters) {
+            Whirldroid.log("Whirldroidm downloading data for notifications");
 
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-            whim_notify = settings.getBoolean("pref_whimnotify", false);
-            watched_notify = settings.getBoolean("pref_watchednotify", false);
+            whimNotify      = settings.getBoolean("pref_whimnotify"     , false);
+            watchedNotify   = settings.getBoolean("pref_watchednotify"  , false);
 
             try {
                 ArrayList<String> get = new ArrayList<String>();
                 HashMap<String, String> params = new HashMap<String, String>();
 
-                if (whim_notify) { // whim notifications are enabled
+                if (whimNotify) { // whim notifications are enabled
                     get.add("whims"); // download whims
                 }
 
-                if (watched_notify) { // watched thread notifications enabled
+                if (watchedNotify) { // watched thread notifications enabled
                     get.add("watched"); // download watched threads
-                    boolean hide_read = settings.getBoolean("pref_hidewatchedunread", false);
-                    if (hide_read) {
-                        params.put("watchedmode", "0");
-                    }
-                    else {
-                        params.put("watchedmode", "1");
-                    }
+                    params.put("watchedmode", "0");
                 }
 
                 Whirldroid.getApi().downloadData(get, params);
@@ -128,101 +112,103 @@ public class NotificationService extends Service {
          */
         @Override
         protected void onPostExecute(Void result) {
+            Whirldroid.log("Whirldroidm analysing downloaded data");
 
-            if (watched_notify) {
+            if (watchedNotify) {
                 Forum forum = Whirldroid.getApi().getThreads(WhirlpoolApi.WATCHED_THREADS, 0, 0);
-                List<Thread> watched_threads = forum.getThreads();
+                List<Thread> watchedThreads = forum.getThreads();
 
-                int unread_thread_count = 0;
-                int unread_reply_count = 0;
-                String thread_titles = "";
-                boolean need_to_notify = false;
+                int unreadThreadCount = 0;
+                int unreadReplyCount  = 0;
+                String threadTitles   = "";
+                boolean needToNotify  = false;
 
                 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                boolean ignore_own = settings.getBoolean("pref_ignoreownreplies", false);
+                boolean ignoreOwnReplies = settings.getBoolean("pref_ignoreownreplies", false);
 
-                for (Thread t : watched_threads) {
-                    // check if this forum has any unread posts
+                for (Thread t : watchedThreads) {
+                    // check if this thread has any unread posts
                     if (t.hasUnreadPosts()) {
-                        unread_thread_count++;
-                        unread_reply_count += t.getUnread();
+                        unreadThreadCount++;
+                        unreadReplyCount += t.getUnread();
 
-                        if (!thread_titles.equals("")) {
-                            thread_titles += ", ";
+                        if (!threadTitles.equals("")) {
+                            threadTitles += ", ";
                         }
-                        thread_titles += t.getTitle();
+                        threadTitles += t.getTitle();
 
                         if (!Whirldroid.hasBeenNotified(t.getLastDate())) {
-                            if (t.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId()) && ignore_own) {
-                                need_to_notify = false;
-                            }
-                            else {
-                                need_to_notify = true;
+                            if (!ignoreOwnReplies || !t.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId())) {
+                                needToNotify = true;
                             }
                         }
                     }
                 }
 
                 // there's at least one thread with unread replies
-                if (need_to_notify) {
+                if (needToNotify) {
                     String notification_title = null;
 
-                    if (unread_thread_count == 1) { // only one unread thread
+                    if (unreadThreadCount == 1) { // only one unread thread
                         String plural_reply = "post";
-                        if (unread_reply_count > 1) {
+                        if (unreadReplyCount > 1) {
                             plural_reply = "posts";
                         }
-                        notification_title = unread_reply_count + " unread " + plural_reply;
+                        notification_title = unreadReplyCount + " unread " + plural_reply;
                     }
                     else { // multiple unread threads
-                        notification_title = unread_reply_count + " new replies in " + unread_thread_count + " threads";
+                        notification_title = unreadReplyCount + " new replies in " + unreadThreadCount + " threads";
                     }
 
-                    sendNotification("New watched thread reply", notification_title, thread_titles, Whirldroid.NEW_WATCHED_NOTIFICATION_ID, R.drawable.btn_forums, WhirlpoolApi.WATCHED_THREADS);
+                    sendNotification("New watched thread reply", notification_title, threadTitles, Whirldroid.NEW_WATCHED_NOTIFICATION_ID, R.drawable.ic_visibility_white_24dp);
                 }
 
                 // no unread threads, cancel existing notification (if any)
-                if (unread_thread_count == 0) {
+                if (unreadThreadCount == 0) {
                     String ns = Context.NOTIFICATION_SERVICE;
                     NotificationManager nm = (NotificationManager) getSystemService(ns);
                     nm.cancel(Whirldroid.NEW_WATCHED_NOTIFICATION_ID);
                 }
             }
 
-            if (whim_notify) {
+            if (whimNotify) {
                 ArrayList<Whim> whims = Whirldroid.getApi().getWhims();
 
-                int new_whim_count = 0;
-                String whim_from = "";
-                boolean need_to_notify = false;
+                int newWhimCount        = 0;
+                String whimFrom         = "";
+                boolean needToNotify    = false;
 
                 for (Whim w : whims) {
                     // check if this whim has been read
                     if (!w.isRead()) {
-                        new_whim_count++;
+                        Whirldroid.log("Whirldroidm found an unread whim");
+                        newWhimCount++;
+
                         // check if we have already sent a notification for this whim
                         if (!Whirldroid.hasBeenNotified(w.getDate())) {
-                            need_to_notify = true;
-                            whim_from = w.getFromName();
+                            needToNotify = true;
+                            whimFrom = w.getFromName();
+                        } else {
+                            Whirldroid.log("Whirldroidm no need to notify for this whim");
                         }
                     }
                 }
 
                 // if there is at least one new notification that we haven't notified for
-                if (need_to_notify) {
-                    String whim_title;
-                    if (new_whim_count == 1) { // only one whim, show who it's from
-                        whim_title = "New whim from " + whim_from;
+                if (needToNotify) {
+                    String whimTitle;
+                    if (newWhimCount == 1) { // only one whim, show who it's from
+                        whimTitle = "New whim from " + whimFrom;
                     }
                     else { // multiple whims, show count
-                        whim_title = new_whim_count + " new whims";
+                        whimTitle = newWhimCount + " new whims";
                     }
 
-                    sendNotification("New whim", whim_title, "", Whirldroid.NEW_WHIM_NOTIFICATION_ID, R.drawable.btn_whims, 0);
+                    sendNotification("New whim", whimTitle, "", Whirldroid.NEW_WHIM_NOTIFICATION_ID, R.drawable.ic_chat_white_24dp);
                 }
 
                 // no unread whims, cancel existing notification (if any)
-                if (new_whim_count == 0) {
+                if (newWhimCount == 0) {
                     String ns = Context.NOTIFICATION_SERVICE;
                     NotificationManager nm = (NotificationManager) getSystemService(ns);
                     nm.cancel(Whirldroid.NEW_WHIM_NOTIFICATION_ID);
@@ -233,7 +219,8 @@ public class NotificationService extends Service {
         }
     }
 
-    private void sendNotification(String ticker, String title, String text, int id, int icon, int forum_id) {
+    private void sendNotification(String ticker, String title, String text, int id, int icon) {
+        Whirldroid.log("Sending notification");
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
@@ -270,7 +257,6 @@ public class NotificationService extends Service {
 
         Bundle bundle = new Bundle();
         bundle.putInt("notification", id);
-        bundle.putInt("forum_id", forum_id);
 
         Intent resultIntent = new Intent(this, MainActivity.class);
         resultIntent.putExtras(bundle);
@@ -301,6 +287,6 @@ public class NotificationService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        wake_lock.release();
+        wakeLock.release();
     }
 }
