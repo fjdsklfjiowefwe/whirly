@@ -1,13 +1,9 @@
 package com.gregdev.whirldroid.fragment;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.support.v4.app.ListFragment;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -37,7 +33,6 @@ import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
-import com.gregdev.whirldroid.WhirlpoolApi;
 import com.gregdev.whirldroid.WhirlpoolApiException;
 import com.gregdev.whirldroid.model.Post;
 import com.gregdev.whirldroid.model.Thread;
@@ -50,7 +45,6 @@ import com.gregdev.whirldroid.model.Thread;
 public class ThreadPageFragment extends ListFragment {
 
     private ArrayAdapter<Post> posts_adapter;
-    private ProgressDialog progress_dialog;
     private RetrieveThreadTask task;
     private int thread_id;
     private String thread_title;
@@ -325,51 +319,53 @@ public class ThreadPageFragment extends ListFragment {
 
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        int pos = info.position - getListView().getHeaderViewsCount();
+        if (getUserVisibleHint()) {
+            AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+            int pos = info.position - getListView().getHeaderViewsCount();
 
-        Post post = (Post) posts_adapter.getItem(pos);
+            Post post = (Post) posts_adapter.getItem(pos);
 
-        switch (item.getItemId()) {
-			case 0: // open in browser
-				String post_url = "http://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread.getId() + "&p=" + current_page + "#r" + post.getId();
-				Intent view_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(post_url));
+            switch (item.getItemId()) {
+                case 0: // open in browser
+                    String post_url = "http://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread.getId() + "&p=" + current_page + "#r" + post.getId();
+                    Intent view_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(post_url));
 
-                if (Build.VERSION.SDK_INT >= 18) {
-                    final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
-                    final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+                    if (Build.VERSION.SDK_INT >= 18) {
+                        final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+                        final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
 
-                    Bundle extras = new Bundle();
-                    extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
-                    view_intent.putExtras(extras);
-                    view_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
-                }
+                        Bundle extras = new Bundle();
+                        extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+                        view_intent.putExtras(extras);
+                        view_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+                    }
 
-				startActivity(view_intent);
-				return true;
+                    startActivity(view_intent);
+                    return true;
 
-            case 1: // reply in browser
-                String reply_url = "http://forums.whirlpool.net.au/forum/index.cfm?action=reply&r=" + post.getId();
-                Intent reply_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(reply_url));
+                case 1: // reply in browser
+                    String reply_url = "http://forums.whirlpool.net.au/forum/index.cfm?action=reply&r=" + post.getId();
+                    Intent reply_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(reply_url));
 
-                if (Build.VERSION.SDK_INT >= 18) {
-                    final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
-                    final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+                    if (Build.VERSION.SDK_INT >= 18) {
+                        final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+                        final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
 
-                    Bundle extras = new Bundle();
-                    extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
-                    reply_intent.putExtras(extras);
-                    reply_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
-                }
+                        Bundle extras = new Bundle();
+                        extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+                        reply_intent.putExtras(extras);
+                        reply_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+                    }
 
-                startActivity(reply_intent);
-                return true;
+                    startActivity(reply_intent);
+                    return true;
 
-            case 2: // view user info
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("user", post.getUser());
-                ((MainActivity) getActivity()).switchFragment("UserInfo", true, bundle);
-                return true;
+                case 2: // view user info
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable("user", post.getUser());
+                    ((MainActivity) getActivity()).switchFragment("UserInfo", true, bundle);
+                    return true;
+            }
         }
 
         return false;
