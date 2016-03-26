@@ -39,9 +39,11 @@ public class ThreadViewFragment extends Fragment {
     private Tracker mTracker;
     private int fromForum;
     private int threadId;
-    private int pageNumber;
+    private int initialPage;
     private int currentIndex;
     private int pageCount = 0;
+    private int gotoNum = 0;
+    private boolean gotoBottom = false;
     private String threadTitle = null;
     private MenuBuilder menuBuilder;
 
@@ -60,8 +62,10 @@ public class ThreadViewFragment extends Fragment {
 
         fromForum   = getArguments().getInt("from_forum");
         threadId    = getArguments().getInt("thread_id");
-        pageNumber  = getArguments().getInt("page_number");
+        initialPage = getArguments().getInt("page_number");
         pageCount   = getArguments().getInt("page_count");
+        gotoNum     = getArguments().getInt("goto_num");
+        gotoBottom  = getArguments().getBoolean("bottom");
         threadTitle = getArguments().getString("thread_title");
 
         viewPager = (ViewPager) rootView.findViewById(R.id.pager);
@@ -79,12 +83,6 @@ public class ThreadViewFragment extends Fragment {
                 currentIndex = position;
 
                 ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Page " + (currentIndex + 1) + " of " + pageCount);
-
-                if (currentIndex == 0) {
-                    menuBuilder.findItem(R.id.menu_prev).setEnabled(false);
-                } else {
-                    menuBuilder.findItem(R.id.menu_prev).setEnabled(true);
-                }
             }
 
             @Override
@@ -92,6 +90,11 @@ public class ThreadViewFragment extends Fragment {
 
             }
         });
+
+        if (initialPage == -1) {
+            initialPage = viewPager.getAdapter().getCount();
+        }
+        viewPager.setCurrentItem(initialPage - 1);
 
         return rootView;
     }
@@ -145,6 +148,7 @@ public class ThreadViewFragment extends Fragment {
 
     public class ThreadPageFragmentPagerAdapter extends FragmentStatePagerAdapter {
         private Map<Integer, Fragment> pages;
+        private boolean doneInitialPage = false;
 
         public ThreadPageFragmentPagerAdapter() {
             super(getChildFragmentManager());
@@ -175,10 +179,16 @@ public class ThreadViewFragment extends Fragment {
             if (pages.get(position + 1) == null) {
                 Bundle bundle = new Bundle();
 
-                bundle.putString("thread_title" , threadTitle);
+                bundle.putString("thread_title", threadTitle);
                 bundle.putInt("thread_id"       , threadId);
                 bundle.putInt("page_number"     , position + 1);
                 bundle.putInt("page_count"      , pageCount);
+
+                if (!doneInitialPage && (position + 1) == initialPage) {
+                    bundle.putInt("goto_num", gotoNum);
+                    bundle.putBoolean("bottom", gotoBottom);
+                    doneInitialPage = true;
+                }
 
                 Fragment fragment = new ThreadPageFragment();
                 fragment.setArguments(bundle);
