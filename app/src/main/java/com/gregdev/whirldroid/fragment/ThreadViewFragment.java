@@ -192,7 +192,6 @@ public class ThreadViewFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Whirldroid.log("Whirldroidm selected");
         switch (item.getItemId()) {
             case R.id.menu_refresh:
                 ((ThreadPageFragment) ((ThreadPageFragmentPagerAdapter) viewPager.getAdapter()).getItem(viewPager.getCurrentItem())).getThread();
