@@ -389,32 +389,34 @@ public class ThreadPageFragment extends ListFragment {
             return;
         }
 
-        if (thread.getNotebar() != null && getListView().getHeaderViewsCount() == 0) {
-            ListView lv = getListView();
-            LayoutInflater inflater = getActivity().getLayoutInflater();
-            View header = inflater.inflate(R.layout.notebar, lv, false);
-            TextView notebar = (TextView) header.findViewById(R.id.notebar_text);
+        try {
+            if (thread.getNotebar() != null && getListView().getHeaderViewsCount() == 0) {
+                ListView lv = getListView();
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                View header = inflater.inflate(R.layout.notebar, lv, false);
+                TextView notebar = (TextView) header.findViewById(R.id.notebar_text);
 
-            String content = thread.getNotebar();
+                String content = thread.getNotebar();
 
-            // links to other threads
-            String url_replace = "whirldroid-thread://com.gregdev.whirldroid?threadid=";
+                // links to other threads
+                String url_replace = "whirldroid-thread://com.gregdev.whirldroid?threadid=";
 
-            // wiki links
-            content = content.replace("href=\"//whirlpool.net.au/wiki/", "href=\"https://whirlpool.net.au/wiki/");
-            content = content.replace("href=\"/wiki/", "href=\"https://whirlpool.net.au/wiki/");
+                // wiki links
+                content = content.replace("href=\"//whirlpool.net.au/wiki/", "href=\"https://whirlpool.net.au/wiki/");
+                content = content.replace("href=\"/wiki/", "href=\"https://whirlpool.net.au/wiki/");
 
-            content = content.replace("http://forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
-            content = content.replace("https://forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
-            content = content.replace("//forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
-            content = content.replace("href=\"/forum-replies.cfm?t=", "href=\"" + url_replace);
+                content = content.replace("http://forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
+                content = content.replace("https://forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
+                content = content.replace("//forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
+                content = content.replace("href=\"/forum-replies.cfm?t=", "href=\"" + url_replace);
 
-            notebar.setText(Html.fromHtml(content));
+                notebar.setText(Html.fromHtml(content));
 
-            notebar.setMovementMethod(LinkMovementMethod.getInstance());
-            notebar.setLinksClickable(true);
-            lv.addHeaderView(header, null, false);
-        }
+                notebar.setMovementMethod(LinkMovementMethod.getInstance());
+                notebar.setLinksClickable(true);
+                lv.addHeaderView(header, null, false);
+            }
+        } catch (Exception e) { }
 
         posts_adapter = new PostsAdapter(getActivity(), R.layout.list_row_post, posts);
         setListAdapter(posts_adapter);
