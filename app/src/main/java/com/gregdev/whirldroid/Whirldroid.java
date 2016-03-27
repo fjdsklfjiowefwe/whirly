@@ -9,8 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import android.app.AlarmManager;
 import android.app.Application;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -69,6 +72,26 @@ public class Whirldroid extends Application {
      */
     public static void log(String message) {
         Log.d("Whirldroid", message);
+    }
+
+    public static void updateAlarm() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+
+        long interval = Long.parseLong(settings.getString("pref_notifyfreq", "0"));
+        interval = interval * 60 * 1000;
+
+        boolean notify_whim    = settings.getBoolean("pref_whimnotify", false);
+        boolean notify_watched = settings.getBoolean("pref_watchednotify", false);
+
+        AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        Intent i = new Intent(context, com.gregdev.whirldroid.service.NotificationService.class);
+        PendingIntent pi = PendingIntent.getService(context, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        am.cancel(pi);
+
+        if (interval > 0 && (notify_whim || notify_watched)) {
+            am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime(), interval, pi);
+        }
     }
 
     /**

@@ -188,29 +188,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         }
 
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-
-        long interval = Long.parseLong(settings.getString("pref_notifyfreq", "0"));
-        interval = interval * 60 * 1000;
-
-        boolean notify_whim    = settings.getBoolean("pref_whimnotify", false);
-        boolean notify_watched = settings.getBoolean("pref_watchednotify", false);
-
-        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent i = new Intent(this, com.gregdev.whirldroid.service.NotificationService.class);
-        PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
-        am.cancel(pi);
-
-        if (interval > 0 && (notify_whim || notify_watched)) {
-            am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime(), interval, pi);
-        }
+        Whirldroid.updateAlarm();
     }
 
     @Override
