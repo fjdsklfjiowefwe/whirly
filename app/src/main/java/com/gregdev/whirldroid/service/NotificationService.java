@@ -281,7 +281,7 @@ public class NotificationService extends Service {
 
         Intent resultIntent = new Intent(this, MainActivity.class);
         resultIntent.putExtras(bundle);
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, 0);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         builder.setContentIntent(resultPendingIntent);
 

@@ -3,5 +3,8 @@
     <declare-styleable name="WhirldroidTheme">
         <attr name="MenuButton" format="reference" />
         <attr name="StickyThreadBackground" format="color" />
+        <attr name="NavigationDrawerBackground" format="color" />
+        <attr name="NavigationDrawerTextColour" format="color" />
+        <attr name="NavigationDrawerIconTint" format="color" />
     </declare-styleable>
 </resources>

@@ -72,6 +72,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             getActivity().finish();
             getActivity().startActivity(new Intent(getActivity(), getActivity().getClass()));
         }
+
+        if (key.equals("pref_whimnotify") || key.equals("pref_watchednotify") || key.equals("pref_notifyfreq")) {
+            Whirldroid.updateAlarm();
+        }
     }
 
     @Override
