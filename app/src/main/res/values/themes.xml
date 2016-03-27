@@ -7,6 +7,10 @@
 
         <item name="MenuButton">@style/MenuButtonDark</item>
         <item name="StickyThreadBackground">#414559</item>
+
+        <item name="NavigationDrawerBackground">#303030</item>
+        <item name="NavigationDrawerTextColour">#b2b2b2</item>
+        <item name="NavigationDrawerIconTint">#8b8b8b</item>
     </style>
 
     <style name="WhirldroidLightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -17,6 +21,10 @@
 
         <item name="MenuButton">@style/MenuButtonLight</item>
         <item name="StickyThreadBackground">#DDDFED</item>
+
+        <item name="NavigationDrawerBackground">#ffffff</item>
+        <item name="NavigationDrawerTextColour">#666666</item>
+        <item name="NavigationDrawerIconTint">#8b8b8b</item>
     </style>
 
     <style name="WhirldroidBottomMenu" parent="Theme.AppCompat">
