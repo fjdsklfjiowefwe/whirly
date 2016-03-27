@@ -31,6 +31,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,6 +74,7 @@ public class ThreadListFragment extends ListFragment {
     private GroupAdapter group_adapter;
     private Map<String, Integer> groups;
     private boolean hide_read = false;
+    private ProgressBar loading;
 
     private int search_forum = -1;
     private int search_group = -1;
@@ -148,7 +150,6 @@ public class ThreadListFragment extends ListFragment {
         private boolean clear_cache = false;
         private int mark_thread_as_read = 0;
         private int unwatch_thread = 0;
-        //private String error_message = "";
 
         public RetrieveThreadsTask(boolean clear_cache, int mark_thread_as_read, int unwatch_thread) {
             this.clear_cache = clear_cache;
@@ -163,20 +164,15 @@ public class ThreadListFragment extends ListFragment {
         @Override
         protected List<Thread> doInBackground(String... params) {
             if (clear_cache || Whirldroid.getApi().needToDownloadThreads(forum_id)) {
-                getActivity().runOnUiThread(new Runnable() {
-                    public void run() {
-                        try {
-                            String message;
-                            if (forum_id == WhirlpoolApi.SEARCH_RESULTS) {
-                                message = "Searching threads...";
-                            } else {
-                                message = "Loading threads...";
-                            }
-                            progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", message, true, true);
-                        } catch (WindowManager.BadTokenException e) {
+                try {
+                    getActivity().runOnUiThread(new Runnable() {
+                        public void run() {
+                            loading.setVisibility(View.VISIBLE);
+                            thread_listview.setAlpha(0.5F);
                         }
-                    }
-                });
+                    });
+                } catch (NullPointerException e) { }
+
                 try {
                     switch (forum_id) {
                         case WhirlpoolApi.WATCHED_THREADS:
@@ -193,9 +189,7 @@ public class ThreadListFragment extends ListFragment {
                             thread_list = Whirldroid.getApi().searchThreads(search_forum, search_group, search_query);
                             return thread_list;
                     }
-                }
-                catch (final WhirlpoolApiException e) {
-                    //error_message = e.getMessage();
+                } catch (final WhirlpoolApiException e) {
                     return null;
                 }
             }
@@ -216,17 +210,8 @@ public class ThreadListFragment extends ListFragment {
             try {
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
-                        if (progress_dialog != null) {
-                            try {
-                                progress_dialog.dismiss(); // hide the progress dialog
-                                progress_dialog = null;
-                            } catch (Exception e) {
-                            }
-
-                            if (result != null && !isActualForum() && forum_id != WhirlpoolApi.SEARCH_RESULTS) {
-                                Toast.makeText(getActivity(), "Threads refreshed", Toast.LENGTH_SHORT).show();
-                            }
-                        }
+                        loading.setVisibility(View.GONE);
+                        thread_listview.setAlpha(1F);
 
                         if (result != null) {
                             if (groups == null) {
@@ -562,6 +547,8 @@ public class ThreadListFragment extends ListFragment {
         } else {
             thread_listview.setPadding(0, 0, 0, 0);
         }
+
+        loading = (ProgressBar) view.findViewById(R.id.loading);
     }
 
     @Override
@@ -691,10 +678,12 @@ public class ThreadListFragment extends ListFragment {
         }
 
         if (hide_read) {
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+            Boolean ignore_own = settings.getBoolean("pref_ignoreownreplies", false);
             List<Thread> copy = new ArrayList<Thread>(thread_list);
 
             for (Thread thread : thread_list) {
-                if (!thread.hasUnreadPosts()) {
+                if (!thread.hasUnreadPosts() || (ignore_own && thread.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId()))) {
                     copy.remove(thread);
                 }
             }
