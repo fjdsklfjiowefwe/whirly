@@ -176,39 +176,6 @@ public class Whirldroid extends Application {
     }
 
     /**
-     * Uses timestamps to check if a notification for a given whim or watched thread
-     * reply has already been sent to the user
-     * @param date The date of the whim or watched thread
-     * @return True if a notification has already been sent
-     */
-    public static boolean hasBeenNotified(Date date) {
-        long currentTimestamp   = System.currentTimeMillis();
-        long eventTimestamp     = date.getTime();
-        long systemUptime       = SystemClock.elapsedRealtime();
-
-        SharedPreferences settings  = PreferenceManager.getDefaultSharedPreferences(context);
-        long notificationInterval   = Long.parseLong(settings.getString("pref_notifyfreq", "0")) * 60000;
-
-        /**
-         * If the system hasn't been turned on long enough to check for anything, assume that
-         * the pending notification hasn't already be shown to the user
-         */
-        if (systemUptime < notificationInterval) {
-            return false;
-        }
-
-        /**
-         * if the current timestamp minus the time of the event is less than the notification interval,
-         * then the event must have happened after the last notification.
-         */
-        if (currentTimestamp - eventTimestamp < notificationInterval) {
-            return false; // we haven't notified for this event yet
-        }
-
-        return true; // already notified for this event
-    }
-
-    /**
      * Replaces (some common) HTML characters with the actual character
      * @param text String to search for HTML characters
      * @return String with HTML characters replaced with actual characters
@@ -295,9 +262,7 @@ public class Whirldroid extends Application {
         return null;
     }
 
-
     /** Google Analytics **/
-
     synchronized public Tracker getDefaultTracker() {
         if (mTracker == null) {
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);

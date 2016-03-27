@@ -1,6 +1,7 @@
 package com.gregdev.whirldroid.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -70,8 +71,6 @@ public class NotificationService extends Service {
          */
         @Override
         protected Void doInBackground(Void... parameters) {
-            Whirldroid.log("Whirldroidm downloading data for notifications");
-
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
             whimNotify      = settings.getBoolean("pref_whimnotify"     , false);
             watchedNotify   = settings.getBoolean("pref_watchednotify"  , false);
@@ -112,8 +111,6 @@ public class NotificationService extends Service {
          */
         @Override
         protected void onPostExecute(Void result) {
-            Whirldroid.log("Whirldroidm analysing downloaded data");
-
             if (watchedNotify) {
                 Forum forum = Whirldroid.getApi().getThreads(WhirlpoolApi.WATCHED_THREADS, 0, 0);
                 List<Thread> watchedThreads = forum.getThreads();
@@ -126,19 +123,19 @@ public class NotificationService extends Service {
                 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                 boolean ignoreOwnReplies = settings.getBoolean("pref_ignoreownreplies", false);
 
-                for (Thread t : watchedThreads) {
+                for (Thread thread : watchedThreads) {
                     // check if this thread has any unread posts
-                    if (t.hasUnreadPosts()) {
+                    if (thread.hasUnreadPosts()) {
                         unreadThreadCount++;
-                        unreadReplyCount += t.getUnread();
+                        unreadReplyCount += thread.getUnread();
 
                         if (!threadTitles.equals("")) {
                             threadTitles += ", ";
                         }
-                        threadTitles += t.getTitle();
+                        threadTitles += thread.getTitle();
 
-                        if (!Whirldroid.hasBeenNotified(t.getLastDate())) {
-                            if (!ignoreOwnReplies || !t.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId())) {
+                        if (!hasBeenNotified(Whirldroid.NEW_WATCHED_NOTIFICATION_ID, thread.getLastDate())) {
+                            if (!ignoreOwnReplies || !thread.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId())) {
                                 needToNotify = true;
                             }
                         }
@@ -178,18 +175,15 @@ public class NotificationService extends Service {
                 String whimFrom         = "";
                 boolean needToNotify    = false;
 
-                for (Whim w : whims) {
+                for (Whim whim : whims) {
                     // check if this whim has been read
-                    if (!w.isRead()) {
-                        Whirldroid.log("Whirldroidm found an unread whim");
+                    if (!whim.isRead()) {
                         newWhimCount++;
 
                         // check if we have already sent a notification for this whim
-                        if (!Whirldroid.hasBeenNotified(w.getDate())) {
+                        if (!hasBeenNotified(Whirldroid.NEW_WHIM_NOTIFICATION_ID, whim.getDate())) {
                             needToNotify = true;
-                            whimFrom = w.getFromName();
-                        } else {
-                            Whirldroid.log("Whirldroidm no need to notify for this whim");
+                            whimFrom = whim.getFromName();
                         }
                     }
                 }
@@ -219,9 +213,36 @@ public class NotificationService extends Service {
         }
     }
 
-    private void sendNotification(String ticker, String title, String text, int id, int icon) {
-        Whirldroid.log("Sending notification");
+    private boolean hasBeenNotified(int notificationType, Date date) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        long lastNotifiedTime = 0;
+
+        switch (notificationType) {
+            case Whirldroid.NEW_WATCHED_NOTIFICATION_ID:
+                lastNotifiedTime = settings.getLong("last_watched_notify_time", 0);
+                break;
+            case Whirldroid.NEW_WHIM_NOTIFICATION_ID:
+                lastNotifiedTime = settings.getLong("last_whim_notify_time", 0);
+                break;
+        }
+
+        return (date.getTime() <= lastNotifiedTime);
+    }
+
+    private void sendNotification(String ticker, String title, String text, int notificationType, int icon) {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        SharedPreferences.Editor editor = settings.edit();
+
+        switch (notificationType) {
+            case Whirldroid.NEW_WATCHED_NOTIFICATION_ID:
+                editor.putLong("last_watched_notify_time", System.currentTimeMillis());
+                break;
+            case Whirldroid.NEW_WHIM_NOTIFICATION_ID:
+                editor.putLong("last_whim_notify_time", System.currentTimeMillis());
+                break;
+        }
+
+        editor.apply();
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(icon)
@@ -256,7 +277,7 @@ public class NotificationService extends Service {
         }
 
         Bundle bundle = new Bundle();
-        bundle.putInt("notification", id);
+        bundle.putInt("notification", notificationType);
 
         Intent resultIntent = new Intent(this, MainActivity.class);
         resultIntent.putExtras(bundle);
@@ -265,7 +286,7 @@ public class NotificationService extends Service {
         builder.setContentIntent(resultPendingIntent);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(id, builder.build());
+        notificationManager.notify(notificationType, builder.build());
     }
 
     /**
