@@ -118,7 +118,7 @@ public class ThreadViewFragment extends Fragment {
 
         getActivity().getMenuInflater().inflate(R.menu.thread, menuBuilder);
 
-        if (fromForum == WhirlpoolApi.WATCHED_THREADS) {
+        if (fromForum == WhirlpoolApi.ALL_WATCHED_THREADS || fromForum == WhirlpoolApi.UNREAD_WATCHED_THREADS) {
             menuBuilder.findItem(R.id.menu_watch).setVisible(false);
             menuBuilder.findItem(R.id.menu_markread).setVisible(true);
             menuBuilder.findItem(R.id.menu_unwatch).setVisible(true);
@@ -232,7 +232,7 @@ public class ThreadViewFragment extends Fragment {
 
             case R.id.menu_markread:
                 try {
-                    WatchedThreadTask markread_task = new WatchedThreadTask(threadId, 0, 0);
+                    WatchedThreadTask markread_task = new WatchedThreadTask(WhirlpoolApi.WATCHMODE_UNREAD, threadId, 0, 0);
                     markread_task.execute();
                     Toast.makeText(getActivity(), "Marking thread as read", Toast.LENGTH_SHORT).show();
 
@@ -257,13 +257,13 @@ public class ThreadViewFragment extends Fragment {
                 return true;
 
             case R.id.menu_watch:
-                WatchedThreadTask watch_task = new WatchedThreadTask(0, 0, threadId);
+                WatchedThreadTask watch_task = new WatchedThreadTask(WhirlpoolApi.WATCHMODE_ALL, 0, 0, threadId);
                 watch_task.execute();
                 Toast.makeText(getActivity(), "Adding thread to watch list", Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.menu_unwatch:
-                WatchedThreadTask unwatch_task = new WatchedThreadTask(0, threadId, 0);
+                WatchedThreadTask unwatch_task = new WatchedThreadTask(WhirlpoolApi.WATCHMODE_ALL, 0, threadId, 0);
                 unwatch_task.execute();
                 Toast.makeText(getActivity(), "Removing thread from watch list", Toast.LENGTH_SHORT).show();
                 return true;
@@ -293,17 +293,19 @@ public class ThreadViewFragment extends Fragment {
         private int mark_as_read = 0;
         private int unwatch = 0;
         public int watch = 0;
+        public int mode = 0;
 
-        public WatchedThreadTask(int mark_as_read, int unwatch, int watch) {
+        public WatchedThreadTask(int mode, int mark_as_read, int unwatch, int watch) {
             this.mark_as_read = mark_as_read;
             this.unwatch = unwatch;
             this.watch = watch;
+            this.mode = mode;
         }
 
         @Override
         protected Void doInBackground(String... params) {
             try {
-                Whirldroid.getApi().downloadWatched(mark_as_read, unwatch, watch);
+                Whirldroid.getApi().downloadWatched(mode, mark_as_read, unwatch, watch);
             }
             catch (final WhirlpoolApiException e) {
                 return null;

@@ -112,7 +112,7 @@ public class NotificationService extends Service {
         @Override
         protected void onPostExecute(Void result) {
             if (watchedNotify) {
-                Forum forum = Whirldroid.getApi().getThreads(WhirlpoolApi.WATCHED_THREADS, 0, 0);
+                Forum forum = Whirldroid.getApi().getThreads(WhirlpoolApi.UNREAD_WATCHED_THREADS, 0, 0);
                 List<Thread> watchedThreads = forum.getThreads();
 
                 int unreadThreadCount = 0;

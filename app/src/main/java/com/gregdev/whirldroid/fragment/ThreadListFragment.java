@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
@@ -54,7 +55,7 @@ import java.util.Map;
 /**
  * Created by Greg on 10/03/2016.
  */
-public class ThreadListFragment extends ListFragment {
+public class ThreadListFragment extends ListFragment implements ActionBar.OnNavigationListener {
 
     private SeparatedListAdapter threads_adapter;
     private ThreadAdapter threads_adapter_no_headings;
@@ -92,7 +93,7 @@ public class ThreadListFragment extends ListFragment {
         @Override
         protected Boolean doInBackground(String... params) {
             try {
-                Whirldroid.getApi().downloadWatched(0, 0, thread_id);
+                Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, 0, 0, thread_id);
                 return true;
             }
             catch (final WhirlpoolApiException e) {
@@ -131,7 +132,7 @@ public class ThreadListFragment extends ListFragment {
         @Override
         protected Boolean doInBackground(String... params) {
             try {
-                Whirldroid.getApi().downloadWatched(thread_id, 0, 0);
+                Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, thread_id, 0, 0);
                 return true;
             }
             catch (final WhirlpoolApiException e) {
@@ -175,8 +176,11 @@ public class ThreadListFragment extends ListFragment {
 
                 try {
                     switch (forum_id) {
-                        case WhirlpoolApi.WATCHED_THREADS:
-                            Whirldroid.getApi().downloadWatched(mark_thread_as_read, unwatch_thread, 0);
+                        case WhirlpoolApi.UNREAD_WATCHED_THREADS:
+                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, mark_thread_as_read, unwatch_thread, 0);
+                            break;
+                        case WhirlpoolApi.ALL_WATCHED_THREADS:
+                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, mark_thread_as_read, unwatch_thread, 0);
                             break;
                         case WhirlpoolApi.RECENT_THREADS:
                             Whirldroid.getApi().downloadRecent();
@@ -229,14 +233,14 @@ public class ThreadListFragment extends ListFragment {
                                     }
                                 }
                                 if (current_group != 0) {
-                                    getActivity().getActionBar().setSelectedNavigationItem(group_adapter.getPosition(current_group_name));
+                                    ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(group_adapter.getPosition(current_group_name));
                                 }
                             }
 
                             getActivity().invalidateOptionsMenu();
 
                             if (thread_list != null && thread_list.size() == 0) {
-                                if (forum_id == WhirlpoolApi.WATCHED_THREADS && hide_read) {
+                                if (forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS) {
                                     no_threads.setText(getActivity().getResources().getText(R.string.no_threads_unread));
                                 } else {
                                     no_threads.setText(getActivity().getResources().getText(R.string.no_threads));
@@ -250,13 +254,12 @@ public class ThreadListFragment extends ListFragment {
                             if (!isActualForum()) {
                                 setThreads(thread_list); // display the threads in the list
                             } else if (WhirlpoolApi.isPublicForum(forum_id)) {
-                                ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Page " + current_page + " of " + forum.getPageCount());
                                 setThreadsNoHeadings(thread_list);
                             } else {
                                 setThreadsNoHeadings(thread_list);
                             }
                         } else {
-                            Toast.makeText(getActivity(), "Error downloading threads. Please try again", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(), "Error downloading threads. Please try again", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -393,7 +396,7 @@ public class ThreadListFragment extends ListFragment {
                 public void onClick(View v) {
                     PopupMenu popupMenu = new PopupMenu(getContext(), v);
 
-                    if (forum_id == WhirlpoolApi.WATCHED_THREADS) {
+                    if (forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS || forum_id == WhirlpoolApi.ALL_WATCHED_THREADS) {
                         popupMenu.inflate(R.menu.watched_list_item);
                     } else if (forum_id == WhirlpoolApi.RECENT_THREADS) {
                         popupMenu.inflate(R.menu.recent_list_item);
@@ -503,22 +506,6 @@ public class ThreadListFragment extends ListFragment {
             hide_read = bundle.getBoolean("hide_read", false);
         }
 
-        //registerForContextMenu(getListView());
-
-        if (isActualForum() && WhirlpoolApi.isPublicForum(forum_id)) {
-            Context context = ((AppCompatActivity) getActivity()).getSupportActionBar().getThemedContext();
-
-            ArrayList<String> group_list = new ArrayList<String>();
-            group_list.add(bundle.getString("forum_name"));
-
-            group_adapter = new GroupAdapter(context, R.layout.spinner_item, group_list);
-
-            /*group_adapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
-
-            getActivity().getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-            getActivity().getActionBar().setListNavigationCallbacks(group_adapter, this);*/
-        }
-
         return rootView;
     }
 
@@ -555,11 +542,11 @@ public class ThreadListFragment extends ListFragment {
     public void onResume() {
         super.onResume();
 
-        if (thread_listview.getCount() == 0 || forum_id == WhirlpoolApi.WATCHED_THREADS) {
+        if (thread_listview.getCount() == 0 || forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS || forum_id == WhirlpoolApi.ALL_WATCHED_THREADS) {
             getThreads(false);
         }
 
-        if (forum_id != WhirlpoolApi.WATCHED_THREADS) {
+        if (forum_id != WhirlpoolApi.UNREAD_WATCHED_THREADS && forum_id != WhirlpoolApi.ALL_WATCHED_THREADS) {
             if (forum_id == WhirlpoolApi.POPULAR_THREADS) {
                 mTracker.setScreenName("PopularThreads");
             } else if (forum_id == WhirlpoolApi.RECENT_THREADS) {
@@ -577,8 +564,23 @@ public class ThreadListFragment extends ListFragment {
 
         Bundle bundle = getArguments();
 
+        if (isActualForum() && WhirlpoolApi.isPublicForum(forum_id)) {
+            Context context = mainActivity.getSupportActionBar().getThemedContext();
+
+            ArrayList<String> group_list = new ArrayList<>();
+            group_list.add(bundle.getString("forum_name"));
+
+            group_adapter = new GroupAdapter(context, R.layout.spinner_item, group_list);
+
+            group_adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+
+            mainActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+            mainActivity.getSupportActionBar().setListNavigationCallbacks(group_adapter, this);
+        }
+
         switch(forum_id) {
-            case WhirlpoolApi.WATCHED_THREADS:
+            case WhirlpoolApi.UNREAD_WATCHED_THREADS:
+            case WhirlpoolApi.ALL_WATCHED_THREADS:
                 getActivity().setTitle("Watched Threads");
                 break;
             case WhirlpoolApi.RECENT_THREADS:
@@ -599,11 +601,8 @@ public class ThreadListFragment extends ListFragment {
             default:
                 forum_title = bundle.getString("forum_name");
                 getActivity().setTitle(forum_title);
+                getActivity().setTitle("");
                 break;
-        }
-
-        if (forum != null && WhirlpoolApi.isPublicForum(forum_id)) {
-            mainActivity.getSupportActionBar().setSubtitle("Page " + current_page + " of " + forum.getPageCount());
         }
 
         mainActivity.setCurrentSearchType(mainActivity.SEARCH_THREADS, forum_id);
@@ -653,8 +652,11 @@ public class ThreadListFragment extends ListFragment {
             case WhirlpoolApi.RECENT_THREADS:
                 last_updated -= Whirldroid.getApi().getRecentLastUpdated();
                 break;
-            case WhirlpoolApi.WATCHED_THREADS:
-                last_updated -= Whirldroid.getApi().getWatchedLastUpdated();
+            case WhirlpoolApi.UNREAD_WATCHED_THREADS:
+                last_updated -= Whirldroid.getApi().getUnreadWatchedLastUpdated();
+                break;
+            case WhirlpoolApi.ALL_WATCHED_THREADS:
+                last_updated -= Whirldroid.getApi().getAllWatchedLastUpdated();
                 break;
             case WhirlpoolApi.POPULAR_THREADS:
                 last_updated -= Whirldroid.getApi().getPopularLastUpdated();
@@ -662,7 +664,8 @@ public class ThreadListFragment extends ListFragment {
         }
 
         if (WhirlpoolApi.isPublicForum(forum_id) || forum_id == WhirlpoolApi.POPULAR_THREADS
-                || forum_id == WhirlpoolApi.RECENT_THREADS || forum_id == WhirlpoolApi.WATCHED_THREADS) {
+                || forum_id == WhirlpoolApi.RECENT_THREADS || forum_id == WhirlpoolApi.ALL_WATCHED_THREADS
+                || forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS) {
             if (last_updated < 10) { // updated less than 10 seconds ago
                 ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Updated just a moment ago");
             }
@@ -726,7 +729,7 @@ public class ThreadListFragment extends ListFragment {
         int goto_post = 0;
 
         // this is a list of watched threads, and the preference is to open the thread at the last read post
-        if (!bottom && !load_watched_at_top && forum_id == WhirlpoolApi.WATCHED_THREADS) {
+        if (!bottom && !load_watched_at_top && (forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS || forum_id == WhirlpoolApi.ALL_WATCHED_THREADS)) {
             page_number = thread.getLastPage();
             goto_post = thread.getLastPost();
             bottom = false;
@@ -829,7 +832,7 @@ public class ThreadListFragment extends ListFragment {
                     .setActionView(search_view)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
-        } else if (forum_id != WhirlpoolApi.WATCHED_THREADS) {
+        } else if (forum_id != WhirlpoolApi.ALL_WATCHED_THREADS && forum_id != WhirlpoolApi.UNREAD_WATCHED_THREADS) {
             inflater.inflate(R.menu.refresh, menu);
         }
     }
@@ -935,7 +938,8 @@ public class ThreadListFragment extends ListFragment {
     private boolean isActualForum() {
         if (
                 forum_id == WhirlpoolApi.RECENT_THREADS ||
-                        forum_id == WhirlpoolApi.WATCHED_THREADS ||
+                        forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS ||
+                        forum_id == WhirlpoolApi.ALL_WATCHED_THREADS ||
                         forum_id == WhirlpoolApi.POPULAR_THREADS ||
                         forum_id == WhirlpoolApi.SEARCH_RESULTS
                 ) {

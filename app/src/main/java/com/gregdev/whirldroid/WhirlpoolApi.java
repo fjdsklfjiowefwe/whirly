@@ -57,10 +57,14 @@ public class WhirlpoolApi extends Activity {
     public static final int REFRESH_INTERVAL = 10;
 
     // Whirldroid-specific forum IDs (so a single activity can be used to display all thread listings)
-    public static final int WATCHED_THREADS = -1;
-    public static final int RECENT_THREADS  = -2;
-    public static final int POPULAR_THREADS = -3;
-    public static final int SEARCH_RESULTS  = -4;
+    public static final int ALL_WATCHED_THREADS     = -5;
+    public static final int UNREAD_WATCHED_THREADS  = -1;
+    public static final int RECENT_THREADS          = -2;
+    public static final int POPULAR_THREADS         = -3;
+    public static final int SEARCH_RESULTS          = -4;
+
+    public static final int WATCHMODE_UNREAD    = 0;
+    public static final int WATCHMODE_ALL       = 1;
 
     private HttpFetch http;
     private SharedPreferences settings;
@@ -68,27 +72,30 @@ public class WhirlpoolApi extends Activity {
     // store the data
     private ArrayList<NewsArticle> news_articles;
     private ArrayList<Whim>        whims;
-    private ArrayList<Thread>      watched_threads;
+    private ArrayList<Thread>      all_watched_threads;
+    private ArrayList<Thread>      unread_watched_threads;
     private ArrayList<Thread>      recent_threads;
     private ArrayList<Thread>      popular_threads;
     private ArrayList<Forum>       forums;
     private ArrayList<Thread>      forum_threads;
 
     // cache file names
-    private static final String NEWS_CACHE_FILE    = "cache_news.txt";
-    private static final String WHIM_CACHE_FILE    = "cache_whims.txt";
-    private static final String RECENT_CACHE_FILE  = "cache_recent_threads.txt";
-    private static final String WATCHED_CACHE_FILE = "cache_watched_threads.txt";
-    private static final String POPULAR_CACHE_FILE = "cache_popular_threads.txt";
-    private static final String FORUMS_CACHE_FILE  = "cache_forums.txt";
+    private static final String NEWS_CACHE_FILE             = "cache_news.txt";
+    private static final String WHIM_CACHE_FILE             = "cache_whims.txt";
+    private static final String RECENT_CACHE_FILE           = "cache_recent_threads.txt";
+    private static final String ALL_WATCHED_CACHE_FILE      = "all_cache_watched_threads.txt";
+    private static final String UNREAD_WATCHED_CACHE_FILE   = "unread_cache_watched_threads.txt";
+    private static final String POPULAR_CACHE_FILE          = "cache_popular_threads.txt";
+    private static final String FORUMS_CACHE_FILE           = "cache_forums.txt";
 
     // keep track of the last time we downloaded each set of data
-    private long last_update_news    = 0;
-    private long last_update_whims   = 0;
-    private long last_update_watched = 0;
-    private long last_update_recent  = 0;
-    private long last_update_popular = 0;
-    private long last_update_forums  = 0;
+    private long last_update_news           = 0;
+    private long last_update_whims          = 0;
+    private long last_update_watched_all    = 0;
+    private long last_update_watched_unread = 0;
+    private long last_update_recent         = 0;
+    private long last_update_popular        = 0;
+    private long last_update_forums         = 0;
 
     // maximum time in minutes that each type of data can be out of date by before we download it again
     private final int MAX_AGE_NEWs    = 60;
@@ -120,12 +127,13 @@ public class WhirlpoolApi extends Activity {
 
         http = new HttpFetch();
 
-        news_articles   = new ArrayList<NewsArticle>();
-        whims           = new ArrayList<Whim>();
-        watched_threads = new ArrayList<Thread>();
-        recent_threads  = new ArrayList<Thread>();
-        popular_threads = new ArrayList<Thread>();
-        forums          = new ArrayList<Forum>();
+        news_articles           = new ArrayList<>();
+        whims                   = new ArrayList<>();
+        all_watched_threads     = new ArrayList<>();
+        unread_watched_threads  = new ArrayList<>();
+        recent_threads          = new ArrayList<>();
+        popular_threads         = new ArrayList<>();
+        forums                  = new ArrayList<>();
     }
 
     public String getApiKey() {
@@ -144,11 +152,12 @@ public class WhirlpoolApi extends Activity {
      * @return True if forum is public
      */
     public static boolean isPublicForum(int forum_id) {
-        for (int i = 0; i < PUBLIC_FORUMS.length; i++) {
-            if (PUBLIC_FORUMS[i] == forum_id) {
+        for (int id : PUBLIC_FORUMS) {
+            if (id == forum_id) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -184,13 +193,22 @@ public class WhirlpoolApi extends Activity {
                 forum.setThreads(recent_threads);
                 return forum;
 
-            case WATCHED_THREADS:
-                if (watched_threads == null || watched_threads.isEmpty()) { // no data in memory, get from cache file
-                    watched_threads = (ArrayList<Thread>) readFromCacheFile(WATCHED_CACHE_FILE);
+            case ALL_WATCHED_THREADS:
+                if (all_watched_threads == null || all_watched_threads.isEmpty()) { // no data in memory, get from cache file
+                    all_watched_threads = (ArrayList<Thread>) readFromCacheFile(ALL_WATCHED_CACHE_FILE);
                 }
 
-                forum = new Forum(forum_id, "Recent Threads", 0, null);
-                forum.setThreads(watched_threads);
+                forum = new Forum(forum_id, "Watched Threads", 0, null);
+                forum.setThreads(all_watched_threads);
+                return forum;
+
+            case UNREAD_WATCHED_THREADS:
+                if (unread_watched_threads == null || unread_watched_threads.isEmpty()) { // no data in memory, get from cache file
+                    unread_watched_threads = (ArrayList<Thread>) readFromCacheFile(UNREAD_WATCHED_CACHE_FILE);
+                }
+
+                forum = new Forum(forum_id, "Watched Threads", 0, null);
+                forum.setThreads(unread_watched_threads);
                 return forum;
 
             case POPULAR_THREADS:
@@ -260,10 +278,16 @@ public class WhirlpoolApi extends Activity {
                 last_update = last_update_recent;
                 max_age = MAX_AGE_RECENT;
                 break;
-            case WATCHED_THREADS:
-                cache_file = WATCHED_CACHE_FILE;
-                threads = watched_threads;
-                last_update = last_update_watched;
+            case ALL_WATCHED_THREADS:
+                cache_file = ALL_WATCHED_CACHE_FILE;
+                threads = all_watched_threads;
+                last_update = last_update_watched_all;
+                max_age = MAX_AGE_WATCHED;
+                break;
+            case UNREAD_WATCHED_THREADS:
+                cache_file = UNREAD_WATCHED_CACHE_FILE;
+                threads = unread_watched_threads;
+                last_update = last_update_watched_unread;
                 max_age = MAX_AGE_WATCHED;
                 break;
             case POPULAR_THREADS:
@@ -303,11 +327,18 @@ public class WhirlpoolApi extends Activity {
         return Whirldroid.getContext().getFileStreamPath(RECENT_CACHE_FILE).lastModified() / 1000;
     }
 
-    public long getWatchedLastUpdated() {
-        if (last_update_watched != 0) {
-            return last_update_watched;
+    public long getUnreadWatchedLastUpdated() {
+        if (last_update_watched_unread != 0) {
+            return last_update_watched_unread;
         }
-        return Whirldroid.getContext().getFileStreamPath(WATCHED_CACHE_FILE).lastModified() / 1000;
+        return Whirldroid.getContext().getFileStreamPath(UNREAD_WATCHED_CACHE_FILE).lastModified() / 1000;
+    }
+
+    public long getAllWatchedLastUpdated() {
+        if (last_update_watched_all != 0) {
+            return last_update_watched_all;
+        }
+        return Whirldroid.getContext().getFileStreamPath(ALL_WATCHED_CACHE_FILE).lastModified() / 1000;
     }
 
     public long getPopularLastUpdated() {
@@ -882,9 +913,14 @@ public class WhirlpoolApi extends Activity {
         /** Extract Watched Threads **/
         try {
             JSONArray json_watched = json.getJSONArray("WATCHED");
-            setWatchedThreads(getThreadsFromJson(json_watched));
+
+            if (params.containsKey("watchedmode") && params.get("watchedmode").equals("1")) {
+                setAllWatchedThreads(getThreadsFromJson(json_watched));
+            } else {
+                setUnreadWatchedThreads(getThreadsFromJson(json_watched));
+            }
         }
-        catch (JSONException e) {
+        catch (Exception e) {
             // no watched threads in fetched data
         }
 
@@ -949,12 +985,12 @@ public class WhirlpoolApi extends Activity {
         downloadData(get, params);
     }
 
-    public void downloadWatched(int mark_thread_as_read, int unwatch_thread, int watch_thread) throws WhirlpoolApiException {
+    public void downloadWatched(int mode, int mark_thread_as_read, int unwatch_thread, int watch_thread) throws WhirlpoolApiException {
         List<String> get = new ArrayList<String>();
         Map<String, String> params = new HashMap<String, String>();
 
         get.add("watched");
-        params.put("watchedmode", "1");
+        params.put("watchedmode", mode + "");
 
         if (mark_thread_as_read != 0) {
             params.put("watchedread", mark_thread_as_read + "");
@@ -1119,11 +1155,18 @@ public class WhirlpoolApi extends Activity {
         this.recent_threads = recent_threads;
     }
 
-    private void setWatchedThreads(ArrayList<Thread> watched_threads) {
-        last_update_watched = System.currentTimeMillis() / 1000;
+    private void setAllWatchedThreads(ArrayList<Thread> watched_threads) {
+        last_update_watched_all = System.currentTimeMillis() / 1000;
 
-        writeToCacheFile(WATCHED_CACHE_FILE, watched_threads);
-        this.watched_threads = watched_threads;
+        writeToCacheFile(ALL_WATCHED_CACHE_FILE, watched_threads);
+        this.all_watched_threads = watched_threads;
+    }
+
+    private void setUnreadWatchedThreads(ArrayList<Thread> watched_threads) {
+        last_update_watched_unread = System.currentTimeMillis() / 1000;
+
+        writeToCacheFile(UNREAD_WATCHED_CACHE_FILE, watched_threads);
+        this.unread_watched_threads = watched_threads;
     }
 
     private void setPopularThreads(ArrayList<Thread> popular_threads) {

@@ -95,10 +95,12 @@ public class WatchedThreadsFragment extends Fragment {
         @Override
         public Fragment getItem(int position) {
             Bundle bundle = new Bundle();
-            bundle.putInt("forum_id", WhirlpoolApi.WATCHED_THREADS);
 
             if (position == 0) {
+                bundle.putInt("forum_id", WhirlpoolApi.UNREAD_WATCHED_THREADS);
                 bundle.putBoolean("hide_read", true);
+            } else {
+                bundle.putInt("forum_id", WhirlpoolApi.ALL_WATCHED_THREADS);
             }
 
             Fragment fragment = new ThreadListFragment();
