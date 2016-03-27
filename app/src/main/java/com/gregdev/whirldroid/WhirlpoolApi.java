@@ -1120,34 +1120,10 @@ public class WhirlpoolApi extends Activity {
     }
 
     private void setWatchedThreads(ArrayList<Thread> watched_threads) {
-        ArrayList<Thread> new_watched_threads = new ArrayList<Thread>();
-
-        boolean ignore_own = settings.getBoolean("pref_ignoreownreplies", true);
-
-        int dont_ignore_counter = 0;
-        for (Thread t : watched_threads) {
-            if (ignore_own && t.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId())) {
-
-            }
-            else {
-                new_watched_threads.add(t);
-                dont_ignore_counter++;
-            }
-        }
-
         last_update_watched = System.currentTimeMillis() / 1000;
 
-        /**
-         * This is a cheap hack. I don't know why, but for some reason when the "ignore own replies"
-         * option is selected and there are no unread watched threads that don't have us as the last
-         * replier, those threads don't get ignored. It confuse me.
-         */
-        if (dont_ignore_counter == 0) {
-            new_watched_threads.clear();
-        }
-
-        writeToCacheFile(WATCHED_CACHE_FILE, new_watched_threads);
-        this.watched_threads = new_watched_threads;
+        writeToCacheFile(WATCHED_CACHE_FILE, watched_threads);
+        this.watched_threads = watched_threads;
     }
 
     private void setPopularThreads(ArrayList<Thread> popular_threads) {
