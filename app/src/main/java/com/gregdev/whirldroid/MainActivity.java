@@ -49,25 +49,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        boolean fromNotification = false;
-
-        try {
-            Bundle bundle = getIntent().getExtras();
-
-            switch (bundle.getInt("notification")) {
-                case Whirldroid.NEW_WATCHED_NOTIFICATION_ID:
-                    fromNotification = true;
-                    switchFragment("WatchedThreads", false);
-                    break;
-
-                case Whirldroid.NEW_WHIM_NOTIFICATION_ID:
-                    fromNotification = true;
-                    switchFragment("WhimList", false);
-                    break;
-            }
-
-        } catch (Exception e) { }
-
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
@@ -151,44 +132,62 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        if (!fromNotification) {
-            // choose which fragment to display initially
-            if (Whirldroid.getApi().getApiKey() == null) {
-                switchFragment("Login", false);
+        // choose which fragment to display initially
+        if (Whirldroid.getApi().getApiKey() == null) {
+            switchFragment("Login", false);
 
-            } else {
+        } else {
 
-                Bundle bundle;
+            Bundle bundle;
 
-                switch (PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext()).getString("pref_homepage", "ForumList")) {
-                    case "NewsList":
-                        switchFragment("NewsList", false);
-                        break;
-                    case "WhimList":
-                        switchFragment("WhimList", false);
-                        break;
-                    case "RecentThreads":
-                        bundle = new Bundle();
-                        bundle.putInt("forum_id", WhirlpoolApi.RECENT_THREADS);
-                        switchFragment("ThreadList", false, bundle);
-                        break;
-                    case "WatchedThreads":
-                        switchFragment("WatchedThreads", false);
-                        break;
-                    case "PopularThreads":
-                        bundle = new Bundle();
-                        bundle.putInt("forum_id", WhirlpoolApi.POPULAR_THREADS);
-                        switchFragment("ThreadList", true, bundle);
-                        break;
-                    case "ForumList":
-                    default:
-                        switchFragment("ForumList", false);
-                        break;
-                }
+            switch (PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext()).getString("pref_homepage", "ForumList")) {
+                case "NewsList":
+                    switchFragment("NewsList", false);
+                    break;
+                case "WhimList":
+                    switchFragment("WhimList", false);
+                    break;
+                case "RecentThreads":
+                    bundle = new Bundle();
+                    bundle.putInt("forum_id", WhirlpoolApi.RECENT_THREADS);
+                    switchFragment("ThreadList", false, bundle);
+                    break;
+                case "WatchedThreads":
+                    switchFragment("WatchedThreads", false);
+                    break;
+                case "PopularThreads":
+                    bundle = new Bundle();
+                    bundle.putInt("forum_id", WhirlpoolApi.POPULAR_THREADS);
+                    switchFragment("ThreadList", true, bundle);
+                    break;
+                case "ForumList":
+                default:
+                    switchFragment("ForumList", false);
+                    break;
             }
         }
 
         Whirldroid.updateAlarm();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        try {
+            Bundle bundle = getIntent().getExtras();
+
+            switch (bundle.getInt("notification")) {
+                case Whirldroid.NEW_WATCHED_NOTIFICATION_ID:
+                    switchFragment("WatchedThreads", true);
+                    break;
+
+                case Whirldroid.NEW_WHIM_NOTIFICATION_ID:
+                    switchFragment("WhimList", true);
+                    break;
+            }
+        } catch (Exception e) { }
+
     }
 
     @Override

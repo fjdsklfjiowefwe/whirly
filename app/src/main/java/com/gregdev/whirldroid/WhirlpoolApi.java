@@ -161,6 +161,25 @@ public class WhirlpoolApi extends Activity {
         return false;
     }
 
+    /**
+     * Checks if the current threads are from an actual forum on Whirlpool,
+     * or are Whirldroid-specific (recent, watched, popular, etc)
+     * @return
+     */
+    public static boolean isActualForum(int forum_id) {
+        if (
+            forum_id == WhirlpoolApi.RECENT_THREADS ||
+            forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS ||
+            forum_id == WhirlpoolApi.ALL_WATCHED_THREADS ||
+            forum_id == WhirlpoolApi.POPULAR_THREADS ||
+            forum_id == WhirlpoolApi.SEARCH_RESULTS
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
     @SuppressWarnings("unchecked")
     public ArrayList<NewsArticle> getNewsArticles() {
         if (news_articles == null || news_articles.isEmpty()) { // no data in memory, get from cache file

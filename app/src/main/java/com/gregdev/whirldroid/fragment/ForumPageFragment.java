@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -68,6 +69,7 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
     private String forum_title;
     private int forum_id;
     private int list_position;
+    private int page = 1;
     private int current_page = 1;
     private int current_group = 0;
     private ListView thread_listview;
@@ -76,9 +78,11 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
     private Map<String, Integer> groups;
     private boolean hide_read = false;
     private ProgressBar loading;
+    ViewPager parent;
 
     private int search_forum = -1;
     private int search_group = -1;
+
     private String search_query;
 
     private Tracker mTracker;
@@ -198,7 +202,7 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
                 }
             }
 
-            forum = Whirldroid.getApi().getThreads(forum_id, current_page, current_group);
+            forum = Whirldroid.getApi().getThreads(forum_id, page, current_group);
 
             if (forum == null) { // error downloading data
                 return null;
@@ -218,6 +222,8 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
                         thread_listview.setAlpha(1F);
 
                         if (result != null) {
+                            ((ThreadListFragment.ForumPageFragmentPagerAdapter) parent.getAdapter()).setCount(forum.getPageCount());
+
                             if (groups == null) {
                                 groups = forum.getGroups();
                             }
@@ -251,7 +257,7 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
                                 no_threads.setVisibility(View.GONE);
                             }
 
-                            if (!isActualForum()) {
+                            if (!WhirlpoolApi.isActualForum(forum_id)) {
                                 setThreads(thread_list); // display the threads in the list
                             } else if (WhirlpoolApi.isPublicForum(forum_id)) {
                                 setThreadsNoHeadings(thread_list);
@@ -498,12 +504,14 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
         final View rootView = inflater.inflate(R.layout.thread_list, container, false);
         setHasOptionsMenu(true);
         no_threads = (TextView) rootView.findViewById(R.id.no_threads);
+        parent = (ViewPager) container;
 
         Bundle bundle = getArguments();
 
         if (bundle != null) {
-            forum_id = bundle.getInt("forum_id");
-            hide_read = bundle.getBoolean("hide_read", false);
+            forum_id    = bundle.getInt("forum_id");
+            hide_read   = bundle.getBoolean("hide_read", false);
+            page        = bundle.getInt("page", 1);
         }
 
         return rootView;
@@ -513,7 +521,7 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
     public void onViewCreated(View view, Bundle savedInstanceState) {
         thread_listview = getListView();
 
-        if (this.isActualForum()) {
+        if (WhirlpoolApi.isActualForum(forum_id)) {
             ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
             MenuBuilder menuBuilder = (MenuBuilder) actionMenuView.getMenu();
 
@@ -564,7 +572,7 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
 
         Bundle bundle = getArguments();
 
-        if (isActualForum() && WhirlpoolApi.isPublicForum(forum_id)) {
+        if (WhirlpoolApi.isActualForum(forum_id) && WhirlpoolApi.isPublicForum(forum_id)) {
             Context context = mainActivity.getSupportActionBar().getThemedContext();
 
             ArrayList<String> group_list = new ArrayList<>();
@@ -619,12 +627,11 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
 
     public void markThreadAsWatched(int thread_id) {
         progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Watching thread...", true, true);
-        //progress_dialog.setOnCancelListener(new CancelTaskOnCancelListener(task));
         watch_task = new WatchThreadTask(thread_id); // start new thread to retrieve threads
         watch_task.execute();
     }
 
-    private void getThreads(boolean clear_cache) {
+    public void getThreads(boolean clear_cache) {
         task = new RetrieveThreadsTask(clear_cache); // start new thread to retrieve threads
         task.execute();
     }
@@ -743,13 +750,13 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
         }
 
         // this is a public thread, and the preference is to open the thread at the bottom
-        if (load_public_at_bottom && isActualForum() && WhirlpoolApi.isPublicForum(forum_id)) {
+        if (load_public_at_bottom && WhirlpoolApi.isActualForum(forum_id) && WhirlpoolApi.isPublicForum(forum_id)) {
             page_number = -1;
             bottom = true;
         }
 
         // this is a private thread, and the preference is to open the thread at the bottom
-        if (load_private_at_bottom && isActualForum() && !WhirlpoolApi.isPublicForum(forum_id)) {
+        if (load_private_at_bottom && WhirlpoolApi.isActualForum(forum_id) && !WhirlpoolApi.isPublicForum(forum_id)) {
             page_number = -1;
             bottom = true;
         }
@@ -821,24 +828,6 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (isActualForum()) {
-            //Create the search view
-            SearchView search_view = new SearchView(((MainActivity) getActivity()).getSupportActionBar().getThemedContext());
-            search_view.setQueryHint("Search for threads…");
-            search_view.setOnQueryTextListener((MainActivity) getActivity());
-
-            menu.add("Search")
-                    .setIcon(R.drawable.ic_search_white_24dp)
-                    .setActionView(search_view)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-
-        } else if (forum_id != WhirlpoolApi.ALL_WATCHED_THREADS && forum_id != WhirlpoolApi.UNREAD_WATCHED_THREADS) {
-            inflater.inflate(R.menu.refresh, menu);
-        }
-    }
-
-    @Override
     public void onPrepareOptionsMenu(Menu menu) {
         // hide page navigation for private forums
         if (!WhirlpoolApi.isPublicForum(forum_id)) {
@@ -861,95 +850,6 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_refresh:
-                long now = System.currentTimeMillis() / 1000;
-                // don't refresh too often
-                if (now - Whirldroid.getApi().getRecentLastUpdated() > WhirlpoolApi.REFRESH_INTERVAL) {
-                    getThreads(true);
-                }
-                else {
-                    Toast.makeText(getActivity(), "Wait " + WhirlpoolApi.REFRESH_INTERVAL + " seconds before refreshing", Toast.LENGTH_LONG).show();
-                }
-                return true;
-
-            case R.id.menu_prev:
-                current_page--;
-                getThreads(false, 0, 0);
-                return true;
-
-            case R.id.menu_goto_page:
-                final EditText input = new EditText(getActivity());
-                input.setKeyListener(new DigitsKeyListener());
-                new AlertDialog.Builder(getActivity())
-                        .setTitle("Jump to page...")
-                        .setMessage("Enter a page number to load")
-                        .setView(input)
-                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                Editable value = input.getText();
-                                try {
-                                    current_page = Integer.parseInt(value.toString());
-                                }
-                                catch (Exception e) { }
-                                getThreads(false, 0, 0);
-                            }
-                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        // Do nothing.
-                    }
-                }).show();
-                return true;
-
-            case R.id.menu_next:
-                current_page++;
-                getThreads(false, 0, 0);
-                return true;
-
-            case R.id.menu_new_thread:
-                Intent newthread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(WhirlpoolApi.NEWTHREAD_URL + forum_id));
-                if (Build.VERSION.SDK_INT >= 18) {
-                    final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
-                    final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
-
-                    Bundle extras = new Bundle();
-                    extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
-                    newthread_intent.putExtras(extras);
-                    newthread_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
-                }
-
-                startActivity(newthread_intent);
-                return true;
-
-            case R.id.menu_open_browser:
-                Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(WhirlpoolApi.FORUM_URL + forum_id));
-                startActivity(thread_intent);
-                return true;
-        }
-        return false;
-    }
-
-    /**
-     * Checks if the current threads are from an actual forum on Whirlpool,
-     * or are Whirldroid-specific (recent, watched, popular, etc)
-     * @return
-     */
-    private boolean isActualForum() {
-        if (
-                forum_id == WhirlpoolApi.RECENT_THREADS ||
-                        forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS ||
-                        forum_id == WhirlpoolApi.ALL_WATCHED_THREADS ||
-                        forum_id == WhirlpoolApi.POPULAR_THREADS ||
-                        forum_id == WhirlpoolApi.SEARCH_RESULTS
-                ) {
-            return false;
-        }
-
-        return true;
-    }
-
     private void openForum(int forum_id, String forum_name) {
         Bundle bundle = new Bundle();
         bundle.putInt("forum_id", forum_id);
@@ -962,8 +862,8 @@ public class ForumPageFragment extends ListFragment implements ActionBar.OnNavig
         try {
             if (item_position == 0 && current_group == 0) {
                 return false;
-            }
-            else if (item_position == 0) {
+
+            } else if (item_position == 0) {
                 current_group = 0;
                 current_page = 1;
                 getThreads(true);

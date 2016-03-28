@@ -14,12 +14,16 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.ActionMenuView;
+import android.support.v7.widget.SearchView;
+import android.text.Editable;
+import android.text.method.DigitsKeyListener;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -37,14 +41,8 @@ public class ThreadListFragment extends Fragment {
 
     private ViewPager viewPager;
     private Tracker mTracker;
-    private int fromForum;
-    private int threadId;
-    private int initialPage;
     private int currentIndex;
     private int pageCount = 0;
-    private int gotoNum = 0;
-    private boolean gotoBottom = false;
-    private String threadTitle = null;
     private MenuBuilder menuBuilder;
 
     private int forumId;
@@ -89,11 +87,6 @@ public class ThreadListFragment extends Fragment {
             }
         });
 
-        if (initialPage == -1) {
-            initialPage = viewPager.getAdapter().getCount();
-        }
-        viewPager.setCurrentItem(initialPage - 1);
-
         return rootView;
     }
 
@@ -114,13 +107,7 @@ public class ThreadListFragment extends Fragment {
             }
         });
 
-        getActivity().getMenuInflater().inflate(R.menu.thread, menuBuilder);
-
-        if (fromForum == WhirlpoolApi.ALL_WATCHED_THREADS || fromForum == WhirlpoolApi.UNREAD_WATCHED_THREADS) {
-            menuBuilder.findItem(R.id.menu_watch).setVisible(false);
-            menuBuilder.findItem(R.id.menu_markread).setVisible(true);
-            menuBuilder.findItem(R.id.menu_unwatch).setVisible(true);
-        }
+        getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
     }
 
     @Override
@@ -130,18 +117,26 @@ public class ThreadListFragment extends Fragment {
         MainActivity mainActivity = ((MainActivity) getActivity());
         mainActivity.resetActionBar();
 
-        if (threadTitle != null){
-            mainActivity.setTitle(threadTitle);
-        } else {
-            mainActivity.setTitle("Thread");
-        }
-
-        if (pageCount != 0) {
-            mainActivity.getSupportActionBar().setSubtitle("Page " + (currentIndex + 1) + " of " + pageCount);
-        }
-
-        mTracker.setScreenName("ThreadView");
+        mTracker.setScreenName("ThreadList");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (WhirlpoolApi.isActualForum(forumId)) {
+            //Create the search view
+            SearchView search_view = new SearchView(((MainActivity) getActivity()).getSupportActionBar().getThemedContext());
+            search_view.setQueryHint("Search for threads…");
+            search_view.setOnQueryTextListener((MainActivity) getActivity());
+
+            menu.add("Search")
+                    .setIcon(R.drawable.ic_search_white_24dp)
+                    .setActionView(search_view)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+
+        } else if (forumId != WhirlpoolApi.ALL_WATCHED_THREADS && forumId != WhirlpoolApi.UNREAD_WATCHED_THREADS) {
+            inflater.inflate(R.menu.refresh, menu);
+        }
     }
 
     public class ForumPageFragmentPagerAdapter extends FragmentStatePagerAdapter {
@@ -178,13 +173,8 @@ public class ThreadListFragment extends Fragment {
                 Bundle bundle = new Bundle();
 
                 bundle.putInt("forum_id"    , forumId);
+                bundle.putInt("page"        , position + 1);
                 bundle.putBoolean("hideRead", hideRead);
-
-                if (!doneInitialPage && (position + 1) == initialPage) {
-                    bundle.putInt("goto_num", gotoNum);
-                    bundle.putBoolean("bottom", gotoBottom);
-                    doneInitialPage = true;
-                }
 
                 Fragment fragment = new ForumPageFragment();
                 fragment.setArguments(bundle);
@@ -200,85 +190,59 @@ public class ThreadListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                ((ThreadPageFragment) ((ForumPageFragmentPagerAdapter) viewPager.getAdapter()).getItem(viewPager.getCurrentItem())).getThread();
-                return true;
-
-            case R.id.menu_next:
-                if (viewPager.getCurrentItem() < viewPager.getAdapter().getCount()) {
-                    viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
-                }
-                return true;
-
-            case R.id.menu_goto_page:
-                final CharSequence[] pages = new CharSequence[pageCount];
-                for (int i = 0; i < pages.length; i++) {
-                    pages[i] = "" + (i + 1);
-                }
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Jump to page...");
-                builder.setItems(pages, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int item) {
-                        viewPager.setCurrentItem(Integer.parseInt((String) pages[item]) - 1);
-                    }
-                });
-                AlertDialog alert = builder.create();
-                alert.show();
-                return true;
-
-            case R.id.menu_markread:
-                try {
-                    WatchedThreadTask markread_task = new WatchedThreadTask(WhirlpoolApi.WATCHMODE_UNREAD, threadId, 0, 0);
-                    markread_task.execute();
-                    Toast.makeText(getActivity(), "Marking thread as read", Toast.LENGTH_SHORT).show();
-
-                } catch (Exception e) {
-                    Toast.makeText(getActivity(), "Error marking thread as read", Toast.LENGTH_SHORT).show();
-                }
-
-                return true;
-
-            case R.id.menu_open_browser:
-                String thread_url = "http://forums.whirlpool.net.au/forum-replies.cfm?t=" + threadId;
-                Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(thread_url));
-                startActivity(thread_intent);
+                ((ForumPageFragment) ((ForumPageFragmentPagerAdapter) viewPager.getAdapter()).getItem(viewPager.getCurrentItem())).getThreads(false);
                 return true;
 
             case R.id.menu_prev:
                 viewPager.setCurrentItem(viewPager.getCurrentItem() - 1);
                 return true;
 
-            case R.id.menu_goto_last:
-                viewPager.setCurrentItem(viewPager.getAdapter().getCount() - 1);
+            case R.id.menu_goto_page:
+                final EditText input = new EditText(getActivity());
+                input.setKeyListener(new DigitsKeyListener());
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Jump to page...")
+                        .setMessage("Enter a page number to load")
+                        .setView(input)
+                        .setPositiveButton("Go for it", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                Editable value = input.getText();
+                                int input;
+                                try {
+                                    input = Integer.parseInt(value.toString());
+                                    viewPager.setCurrentItem(input - 1);
+                                }
+                                catch (Exception e) { }
+                            }
+                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // Do nothing.
+                    }
+                }).show();
                 return true;
 
-            case R.id.menu_watch:
-                WatchedThreadTask watch_task = new WatchedThreadTask(WhirlpoolApi.WATCHMODE_ALL, 0, 0, threadId);
-                watch_task.execute();
-                Toast.makeText(getActivity(), "Adding thread to watch list", Toast.LENGTH_SHORT).show();
+            case R.id.menu_next:
+                viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
                 return true;
 
-            case R.id.menu_unwatch:
-                WatchedThreadTask unwatch_task = new WatchedThreadTask(WhirlpoolApi.WATCHMODE_ALL, 0, threadId, 0);
-                unwatch_task.execute();
-                Toast.makeText(getActivity(), "Removing thread from watch list", Toast.LENGTH_SHORT).show();
-                return true;
-
-            case R.id.menu_replythread:
-                String replythread_url = WhirlpoolApi.REPLY_URL + threadId;
-                Intent replythread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(replythread_url));
-
+            case R.id.menu_new_thread:
+                Intent newthread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(WhirlpoolApi.NEWTHREAD_URL + forumId));
                 if (Build.VERSION.SDK_INT >= 18) {
                     final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
                     final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
 
                     Bundle extras = new Bundle();
                     extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
-                    replythread_intent.putExtras(extras);
-                    replythread_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+                    newthread_intent.putExtras(extras);
+                    newthread_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
                 }
 
-                startActivity(replythread_intent);
+                startActivity(newthread_intent);
+                return true;
+
+            case R.id.menu_open_browser:
+                Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(WhirlpoolApi.FORUM_URL + forumId));
+                startActivity(thread_intent);
                 return true;
         }
         return false;
