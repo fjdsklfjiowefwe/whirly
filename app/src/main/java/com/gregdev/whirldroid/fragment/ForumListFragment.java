@@ -1,5 +1,9 @@
 package com.gregdev.whirldroid.fragment;
 
+import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.app.ProgressDialog;
@@ -182,17 +186,39 @@ public class ForumListFragment extends ListFragment {
                     PopupMenu popupMenu = new PopupMenu(getContext(), v);
                     popupMenu.inflate(R.menu.forum_list_item);
 
+                    DatabaseHandler db = new DatabaseHandler(getActivity());
+
+                    if (db.isInFavourites(forum)) {
+                        popupMenu.getMenu().findItem(R.id.menu_add_favourite).setVisible(false);
+                        popupMenu.getMenu().findItem(R.id.menu_remove_favourite).setVisible(true);
+                    }
+
                     popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
+                            DatabaseHandler db = new DatabaseHandler(getActivity());
                             switch (item.getItemId()) {
                                 case R.id.menu_add_favourite:
-                                    DatabaseHandler db = new DatabaseHandler(getActivity());
                                     db.addFavouriteForum(forum);
                                     getForums(false);
                                     return true;
+                                case R.id.menu_remove_favourite:
+                                    db.removeFavouriteForum(forum);
+                                    getForums(false);
+                                    return true;
                                 case R.id.menu_new_thread:
-                                    Toast.makeText(getActivity(), "New thread in " + forum.getId(), Toast.LENGTH_SHORT).show();
+                                    Intent newthread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(WhirlpoolApi.NEWTHREAD_URL + forum.getId()));
+                                    if (Build.VERSION.SDK_INT >= 18) {
+                                        final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+                                        final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+
+                                        Bundle extras = new Bundle();
+                                        extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+                                        newthread_intent.putExtras(extras);
+                                        newthread_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+                                    }
+
+                                    startActivity(newthread_intent);
                                     return true;
                                 default:
                                     return false;

@@ -7,6 +7,12 @@
         android:title="Add to Favourites" />
 
     <item
+        android:id="@+id/menu_remove_favourite"
+        android:icon="@drawable/ic_refresh_white_24dp"
+        android:visible="false"
+        android:title="Remove from Favourites" />
+
+    <item
         android:id="@+id/menu_new_thread"
         android:icon="@drawable/ic_add_box_white_24dp"
         android:title="@string/menu_newthread" />
