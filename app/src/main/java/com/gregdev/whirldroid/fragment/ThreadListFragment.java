@@ -48,6 +48,7 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
 
     private ViewPager viewPager;
     private Tracker mTracker;
+    private int currentGroup = 0;
     private int currentIndex = 0;
     private int pageCount = 0;
     private MenuBuilder menuBuilder;
@@ -123,6 +124,14 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
         });
 
         getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
+
+        // private forums don't have pages, so hide pagination
+        if (WhirlpoolApi.isActualForum(forumId) && !WhirlpoolApi.isPublicForum(forumId)) {
+            menuBuilder.findItem(R.id.menu_prev).setVisible(false);
+            menuBuilder.findItem(R.id.menu_next).setVisible(false);
+            menuBuilder.findItem(R.id.menu_goto_page).setVisible(false);
+            menuBuilder.findItem(R.id.menu_open_browser).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
     }
 
     @Override
@@ -185,10 +194,17 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
 
                     mainActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
                     mainActivity.getSupportActionBar().setListNavigationCallbacks(groupAdapter, this);
+
+                } else if (!WhirlpoolApi.isPublicForum(forumId)) {
+                    getActivity().setTitle(forumTitle);
                 }
         }
 
         mainActivity.setCurrentSearchType(mainActivity.SEARCH_THREADS, forumId);
+
+        if (forum != null) {
+            ((ForumPageFragmentPagerAdapter) viewPager.getAdapter()).setHeader(forum);
+        }
     }
 
     @Override
@@ -211,11 +227,18 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
 
     public class ForumPageFragmentPagerAdapter extends FragmentStatePagerAdapter {
         private Map<Integer, Fragment> pages;
-        private boolean doneInitialPage = false;
 
         public ForumPageFragmentPagerAdapter() {
             super(getChildFragmentManager());
             pages = new HashMap<>();
+
+            if (forum != null) {
+                setHeader(forum);
+            }
+        }
+
+        public Forum getHeaderForum() {
+            return forum;
         }
 
         public void setHeader(Forum f) {
@@ -224,23 +247,19 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
             if (forum.getGroups() != null) {
                 groupAdapter.clear();
                 groupAdapter.add(forumTitle + "  ");
+                String currentGroupName = "";
 
                 for (Map.Entry<String, Integer> group : forum.getGroups().entrySet()) {
                     groupAdapter.add(group.getKey());
-                }
-                /*groupAdapter.clear();
-                groupAdapter.add(forum_title);
 
-                String current_group_name = "";
-                for (Map.Entry<String, Integer> group : groups.entrySet()) {
-                    groupAdapter.add(group.getKey());
-                    if (group.getValue() == current_group) {
-                        current_group_name = group.getKey();
+                    if (group.getValue() == currentGroup) {
+                        currentGroupName = group.getKey();
                     }
-                }*/
-                /*if (current_group != 0) {
-                    ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(group_adapter.getPosition(current_group_name));
-                }*/
+                }
+
+                if (currentGroup != 0) {
+                    ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(groupAdapter.getPosition(currentGroupName));
+                }
             }
         }
 
@@ -269,6 +288,7 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
 
                 bundle.putInt("forum_id"    , forumId);
                 bundle.putInt("page"        , position + 1);
+                bundle.putInt("group"       , currentGroup);
                 bundle.putBoolean("hideRead", hideRead);
 
                 Fragment fragment = new ForumPageFragment();
@@ -343,35 +363,36 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
         return false;
     }
 
-    public boolean onNavigationItemSelected(int item_position, long item_id) {
+    public boolean onNavigationItemSelected(int itemPosition, long itemId) {
         try {
-            /*if (item_position == 0 && current_group == 0) {
+            if (itemPosition == 0 && currentGroup == 0) {
                 return false;
 
-            } else if (item_position == 0) {
-                current_group = 0;
-                current_page = 1;
-                getThreads(true);
+            } else if (itemPosition == 0) {
+                currentGroup = 0;
+                viewPager.setAdapter(null);
+                viewPager.setAdapter(new ForumPageFragmentPagerAdapter());
                 return true;
             }
 
             int counter = 1;
-            for (Map.Entry<String, Integer> group : groups.entrySet()) {
-                if (counter == item_position) {
-                    if (current_group == group.getValue()) {
+            for (Map.Entry<String, Integer> group : forum.getGroups().entrySet()) {
+                if (counter == itemPosition) {
+                    if (currentGroup == group.getValue()) {
                         return false;
                     }
 
-                    current_group = group.getValue();
-                    current_page = 1;
-                    getThreads(true);
+                    currentGroup = group.getValue();
+                    viewPager.setAdapter(null);
+                    viewPager.setAdapter(new ForumPageFragmentPagerAdapter());
+
                     return true;
                 }
                 counter++;
-            }*/
+            }
+
             return false;
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             return false;
         }
     }

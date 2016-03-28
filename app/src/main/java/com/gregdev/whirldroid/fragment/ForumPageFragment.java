@@ -3,7 +3,6 @@ package com.gregdev.whirldroid.fragment;
 import android.support.v4.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -13,32 +12,21 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.SearchView;
-import android.text.Editable;
-import android.text.method.DigitsKeyListener;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -50,7 +38,6 @@ import com.gregdev.whirldroid.model.Thread;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,7 +59,7 @@ public class ForumPageFragment extends ListFragment {
     private int list_position;
     private int page = 1;
     private int current_page = 1;
-    private int current_group = 0;
+    private int group = 0;
     private ListView thread_listview;
     private TextView no_threads;
     private boolean hide_read = false;
@@ -198,7 +185,7 @@ public class ForumPageFragment extends ListFragment {
                 }
             }
 
-            forum = Whirldroid.getApi().getThreads(forum_id, page, current_group);
+            forum = Whirldroid.getApi().getThreads(forum_id, page, group);
 
             if (forum == null) { // error downloading data
                 return null;
@@ -220,7 +207,10 @@ public class ForumPageFragment extends ListFragment {
                         if (result != null) {
                             ThreadListFragment.ForumPageFragmentPagerAdapter pagerAdapter = (ThreadListFragment.ForumPageFragmentPagerAdapter) parent.getAdapter();
                             pagerAdapter.setCount(forum.getPageCount());
-                            pagerAdapter.setHeader(forum);
+
+                            if (pagerAdapter.getHeaderForum() == null) {
+                                pagerAdapter.setHeader(forum);
+                            }
 
                             getActivity().invalidateOptionsMenu();
 
@@ -443,8 +433,9 @@ public class ForumPageFragment extends ListFragment {
 
         if (bundle != null) {
             forum_id    = bundle.getInt("forum_id");
-            hide_read   = bundle.getBoolean("hide_read", false);
             page        = bundle.getInt("page", 1);
+            group       = bundle.getInt("group", 0);
+            hide_read   = bundle.getBoolean("hide_read", false);
         }
 
         return rootView;

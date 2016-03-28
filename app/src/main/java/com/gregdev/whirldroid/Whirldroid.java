@@ -90,7 +90,7 @@ public class Whirldroid extends Application {
 
         if (interval > 0 && (notify_whim || notify_watched)) {
             am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime(), interval, pi);
+                    SystemClock.elapsedRealtime() + (interval / 2), interval, pi);
         }
     }
 
