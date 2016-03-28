@@ -82,9 +82,6 @@ public class Forum implements Serializable {
 	}
 
 	public boolean equals(Forum forum) {
-		Whirldroid.log("Whirldroidm " + forum.getId());
-		Whirldroid.log("Whirldroidm " + this.getId());
-		Whirldroid.log("Whirldroidm");
 		return this.getId() == forum.getId();
 	}
 
