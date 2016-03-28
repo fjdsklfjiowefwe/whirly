@@ -1,5 +1,7 @@
 package com.gregdev.whirldroid.model;
 
+import com.gregdev.whirldroid.Whirldroid;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +79,13 @@ public class Forum implements Serializable {
 
 	public void setThreads(List<Thread> threads) {
 		this.threads = threads;
+	}
+
+	public boolean equals(Forum forum) {
+		Whirldroid.log("Whirldroidm " + forum.getId());
+		Whirldroid.log("Whirldroidm " + this.getId());
+		Whirldroid.log("Whirldroidm");
+		return this.getId() == forum.getId();
 	}
 
 }
