@@ -140,7 +140,8 @@ public class WhirlpoolApi extends Activity {
         String api_key = settings.getString("pref_apikey", null);
 
         if (api_key != null) {
-            api_key.trim().replace(' ', '-');
+            api_key = api_key.trim();
+            api_key = api_key.replace(' ', '-');
         }
 
         return api_key;
