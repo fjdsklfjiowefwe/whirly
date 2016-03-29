@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,6 +21,7 @@ import com.gregdev.whirldroid.WhirlpoolApi;
 public class WatchedThreadsFragment extends Fragment {
 
     private Tracker mTracker;
+    ViewPager viewPager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,8 +34,8 @@ public class WatchedThreadsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab_view_pager, container, false);
-        ViewPager viewPager = (ViewPager) rootView.findViewById(R.id.pager);
-        viewPager.setAdapter(new SampleFragmentPagerAdapter());
+        viewPager = (ViewPager) rootView.findViewById(R.id.pager);
+        viewPager.setAdapter(new WatchedFragmentPagerAdapter());
         setHasOptionsMenu(true);
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -80,10 +80,20 @@ public class WatchedThreadsFragment extends Fragment {
         inflater.inflate(R.menu.refresh, menu);
     }
 
-    public class SampleFragmentPagerAdapter extends FragmentPagerAdapter {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_refresh:
+                WatchedFragmentPagerAdapter adapter = (WatchedFragmentPagerAdapter) viewPager.getAdapter();
+                ((ThreadListFragment) adapter.getItem(viewPager.getCurrentItem())).initiateRefresh();
+        }
+        return false;
+    }
+
+    public class WatchedFragmentPagerAdapter extends FragmentPagerAdapter {
         final int PAGE_COUNT = 2;
 
-        public SampleFragmentPagerAdapter() {
+        public WatchedFragmentPagerAdapter() {
             super(getChildFragmentManager());
         }
 
@@ -98,7 +108,6 @@ public class WatchedThreadsFragment extends Fragment {
 
             if (position == 0) {
                 bundle.putInt("forum_id", WhirlpoolApi.UNREAD_WATCHED_THREADS);
-                bundle.putBoolean("hide_read", true);
             } else {
                 bundle.putInt("forum_id", WhirlpoolApi.ALL_WATCHED_THREADS);
             }

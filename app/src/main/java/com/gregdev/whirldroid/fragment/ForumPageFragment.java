@@ -12,8 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.widget.ActionMenuView;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -62,9 +61,9 @@ public class ForumPageFragment extends ListFragment {
     private int group = 0;
     private ListView thread_listview;
     private TextView no_threads;
-    private boolean hide_read = false;
     private ProgressBar loading;
     ViewPager parent;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private int search_forum = -1;
     private int search_group = -1;
@@ -155,8 +154,10 @@ public class ForumPageFragment extends ListFragment {
                 try {
                     getActivity().runOnUiThread(new Runnable() {
                         public void run() {
-                            loading.setVisibility(View.VISIBLE);
-                            thread_listview.setAlpha(0.5F);
+                            if (!mSwipeRefreshLayout.isRefreshing()) {
+                                loading.setVisibility(View.VISIBLE);
+                                thread_listview.setAlpha(0.5F);
+                            }
                         }
                     });
                 } catch (NullPointerException e) { }
@@ -201,8 +202,14 @@ public class ForumPageFragment extends ListFragment {
             try {
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
-                        loading.setVisibility(View.GONE);
-                        thread_listview.setAlpha(1F);
+                        if (!mSwipeRefreshLayout.isRefreshing()) {
+                            loading.setVisibility(View.GONE);
+                            thread_listview.setAlpha(1F);
+                        } else {
+                            Toast.makeText(getActivity(), "Threads refreshed", Toast.LENGTH_SHORT).show();
+                        }
+
+                        mSwipeRefreshLayout.setRefreshing(false);
 
                         if (result != null) {
                             ThreadListFragment.ForumPageFragmentPagerAdapter pagerAdapter = (ThreadListFragment.ForumPageFragmentPagerAdapter) parent.getAdapter();
@@ -281,13 +288,6 @@ public class ForumPageFragment extends ListFragment {
 
             if (item.isDeleted()) {
                 return 3; // highlight (fade out) as deleted
-            }
-
-            else if (!hide_read && item.hasUnreadPosts()) {
-                if (item.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId()) && ignore_own) {
-                    return 0; // last reply was by us, no highlighting
-                }
-                return 2; // highlight as unread
             }
 
             return 0; // normal, no highlighting
@@ -435,8 +435,9 @@ public class ForumPageFragment extends ListFragment {
             forum_id    = bundle.getInt("forum_id");
             page        = bundle.getInt("page", 1);
             group       = bundle.getInt("group", 0);
-            hide_read   = bundle.getBoolean("hide_read", false);
         }
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
 
         return rootView;
     }
@@ -445,29 +446,18 @@ public class ForumPageFragment extends ListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         thread_listview = getListView();
 
-        if (WhirlpoolApi.isActualForum(forum_id)) {
-            ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
-            MenuBuilder menuBuilder = (MenuBuilder) actionMenuView.getMenu();
-
-            menuBuilder.setCallback(new MenuBuilder.Callback() {
-                @Override
-                public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
-                    return onOptionsItemSelected(menuItem);
-                }
-
-                @Override
-                public void onMenuModeChange(MenuBuilder menuBuilder) {
-
-                }
-            });
-
-            getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
-
-        } else {
+        if (!WhirlpoolApi.isActualForum(forum_id)) {
             thread_listview.setPadding(0, 0, 0, 0);
         }
 
         loading = (ProgressBar) view.findViewById(R.id.loading);
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                initiateRefresh();
+            }
+        });
     }
 
     @Override
@@ -550,7 +540,7 @@ public class ForumPageFragment extends ListFragment {
             return;
         }
 
-        if (hide_read) {
+        if (forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS) {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
             Boolean ignore_own = settings.getBoolean("pref_ignoreownreplies", false);
             List<Thread> copy = new ArrayList<Thread>(thread_list);
@@ -718,5 +708,12 @@ public class ForumPageFragment extends ListFragment {
         bundle.putString("forum_name", forum_name);
 
         ((MainActivity) getActivity()).switchFragment("ThreadList", true, bundle);
+    }
+
+    public boolean initiateRefresh() {
+        mSwipeRefreshLayout.setRefreshing(true);
+        getThreads(true);
+
+        return true;
     }
 }

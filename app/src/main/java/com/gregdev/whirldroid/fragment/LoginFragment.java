@@ -153,8 +153,8 @@ public class LoginFragment extends Fragment {
 
         TextView apiKeyWhere = (TextView) rootView.findViewById(R.id.api_key_where);
 
-        Pattern p_url = Pattern.compile("http://whirlpool.net.au/profile/");
-        Linkify.addLinks(apiKeyWhere, p_url, "http://");
+        Pattern p_url = Pattern.compile("https://whirlpool.net.au/profile/");
+        Linkify.addLinks(apiKeyWhere, p_url, "https://");
 
         return rootView;
     }

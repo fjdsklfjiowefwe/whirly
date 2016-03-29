@@ -4,12 +4,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
@@ -41,11 +40,11 @@ public class ForumListFragment extends ListFragment {
 
     private SeparatedListAdapter forum_adapter;
     private ArrayList<Forum> forum_list;
-    private ProgressDialog progress_dialog;
     private RetrieveForumsTask task;
     private int list_position;
     private ListView forum_listview;
     private View rootView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private int listIndex = -1;
 
@@ -63,11 +62,6 @@ public class ForumListFragment extends ListFragment {
         @Override
         protected ArrayList<Forum> doInBackground(String... params) {
             if (clear_cache || Whirldroid.getApi().needToDownloadForums()) {
-                getActivity().runOnUiThread(new Runnable() {
-                    public void run() {
-                        progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Loading forums...", true, true);
-                    }
-                });
                 try {
                     Whirldroid.getApi().downloadForums();
                 }
@@ -82,26 +76,21 @@ public class ForumListFragment extends ListFragment {
 
         @Override
         protected void onPostExecute(final ArrayList<Forum> result) {
+
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
-                    if (progress_dialog != null) {
-                        try {
-                            progress_dialog.dismiss(); // hide the progress dialog
-                            progress_dialog = null;
-                        } catch (Exception e) {
-                        }
-
-                        if (result != null) {
+                    if (result != null) {
+                        if (mSwipeRefreshLayout.isRefreshing()) {
                             Toast.makeText(getActivity(), "Forums refreshed", Toast.LENGTH_SHORT).show();
                         }
-                    }
-                    if (result != null) {
+
                         setForums(forum_list); // display the forums in the list
                     } else {
                         Toast.makeText(getActivity(), "Error: " + error_message, Toast.LENGTH_LONG).show();
                     }
                 }
             });
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -248,6 +237,9 @@ public class ForumListFragment extends ListFragment {
         rootView = inflater.inflate(R.layout.forum_list, container, false);
         ((MainActivity) getActivity()).selectMenuItem("ForumList");
         setHasOptionsMenu(true);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
+
         return rootView;
     }
 
@@ -258,6 +250,13 @@ public class ForumListFragment extends ListFragment {
         if (forum_listview.getCount() == 0) {
             getForums(false);
         }
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                initiateRefresh();
+            }
+        });
     }
 
     @Override
@@ -322,17 +321,21 @@ public class ForumListFragment extends ListFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                long now = System.currentTimeMillis() / 1000;
-                // don't refresh too often
-                if (now - Whirldroid.getApi().getNewsLastUpdated() > WhirlpoolApi.REFRESH_INTERVAL) {
-                    getForums(true);
-                }
-                else {
-                    Toast.makeText(getActivity(), "Wait " + WhirlpoolApi.REFRESH_INTERVAL + " seconds before refreshing", Toast.LENGTH_SHORT).show();
-                }
-                return true;
+                return initiateRefresh();
         }
         return false;
+    }
+
+    public boolean initiateRefresh() {
+        long now = System.currentTimeMillis() / 1000;
+        // don't refresh too often
+        if (now - Whirldroid.getApi().getNewsLastUpdated() > WhirlpoolApi.REFRESH_INTERVAL) {
+            mSwipeRefreshLayout.setRefreshing(true);
+            getForums(true);
+        } else {
+            Toast.makeText(getActivity(), "Wait " + WhirlpoolApi.REFRESH_INTERVAL + " seconds before refreshing", Toast.LENGTH_SHORT).show();
+        }
+        return true;
     }
 
 }

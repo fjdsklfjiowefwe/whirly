@@ -28,7 +28,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -53,7 +52,6 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
     private int pageCount = 0;
     private MenuBuilder menuBuilder;
     private GroupAdapter groupAdapter;
-    private Map<String, Integer> groups;
 
     private Forum forum;
     private int forumId;
@@ -70,7 +68,7 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
         // Obtain the shared Tracker instance.
         Whirldroid application = (Whirldroid) getActivity().getApplication();
         mTracker = application.getDefaultTracker();
-        setHasOptionsMenu(false);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -108,29 +106,31 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
-        menuBuilder = (MenuBuilder) actionMenuView.getMenu();
+        if (WhirlpoolApi.isActualForum(forumId)) {
+            ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
+            menuBuilder = (MenuBuilder) actionMenuView.getMenu();
 
-        menuBuilder.setCallback(new MenuBuilder.Callback() {
-            @Override
-            public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
-                return onOptionsItemSelected(menuItem);
+            menuBuilder.setCallback(new MenuBuilder.Callback() {
+                @Override
+                public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+                    return onOptionsItemSelected(menuItem);
+                }
+
+                @Override
+                public void onMenuModeChange(MenuBuilder menuBuilder) {
+
+                }
+            });
+
+            getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
+
+            // private forums don't have pages, so hide pagination
+            if (WhirlpoolApi.isActualForum(forumId) && !WhirlpoolApi.isPublicForum(forumId)) {
+                menuBuilder.findItem(R.id.menu_prev).setVisible(false);
+                menuBuilder.findItem(R.id.menu_next).setVisible(false);
+                menuBuilder.findItem(R.id.menu_goto_page).setVisible(false);
+                menuBuilder.findItem(R.id.menu_open_browser).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
             }
-
-            @Override
-            public void onMenuModeChange(MenuBuilder menuBuilder) {
-
-            }
-        });
-
-        getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
-
-        // private forums don't have pages, so hide pagination
-        if (WhirlpoolApi.isActualForum(forumId) && !WhirlpoolApi.isPublicForum(forumId)) {
-            menuBuilder.findItem(R.id.menu_prev).setVisible(false);
-            menuBuilder.findItem(R.id.menu_next).setVisible(false);
-            menuBuilder.findItem(R.id.menu_goto_page).setVisible(false);
-            menuBuilder.findItem(R.id.menu_open_browser).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
     }
 
@@ -305,7 +305,7 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                ((ForumPageFragment) ((ForumPageFragmentPagerAdapter) viewPager.getAdapter()).getItem(viewPager.getCurrentItem())).getThreads(false);
+                initiateRefresh();
                 return true;
 
             case R.id.menu_prev:
@@ -496,5 +496,11 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
         }
     }
 
+    public void initiateRefresh() {
+        try {
+            ForumPageFragmentPagerAdapter adapter = (ForumPageFragmentPagerAdapter) viewPager.getAdapter();
+            ((ForumPageFragment) adapter.getItem(viewPager.getCurrentItem())).initiateRefresh();
+        } catch (NullPointerException e) { }
+    }
 
 }
