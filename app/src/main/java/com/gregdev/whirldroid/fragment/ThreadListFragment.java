@@ -258,7 +258,9 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
                 }
 
                 if (currentGroup != 0) {
-                    ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(groupAdapter.getPosition(currentGroupName));
+                    try {
+                        ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(groupAdapter.getPosition(currentGroupName));
+                    } catch (Exception e) { }
                 }
             }
         }
