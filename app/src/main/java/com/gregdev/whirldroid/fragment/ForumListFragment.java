@@ -327,14 +327,9 @@ public class ForumListFragment extends ListFragment {
     }
 
     public boolean initiateRefresh() {
-        long now = System.currentTimeMillis() / 1000;
-        // don't refresh too often
-        if (now - Whirldroid.getApi().getNewsLastUpdated() > WhirlpoolApi.REFRESH_INTERVAL) {
-            mSwipeRefreshLayout.setRefreshing(true);
-            getForums(true);
-        } else {
-            Toast.makeText(getActivity(), "Wait " + WhirlpoolApi.REFRESH_INTERVAL + " seconds before refreshing", Toast.LENGTH_SHORT).show();
-        }
+        mSwipeRefreshLayout.setRefreshing(true);
+        getForums(true);
+
         return true;
     }
 
