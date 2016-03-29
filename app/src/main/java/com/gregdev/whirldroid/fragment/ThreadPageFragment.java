@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.ContextMenu;
@@ -33,6 +34,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
+import com.gregdev.whirldroid.WhirlpoolApi;
 import com.gregdev.whirldroid.WhirlpoolApiException;
 import com.gregdev.whirldroid.model.Post;
 import com.gregdev.whirldroid.model.Thread;
@@ -61,6 +63,7 @@ public class ThreadPageFragment extends ListFragment {
     private Tracker mTracker;
     private ProgressBar loading;
     ViewPager parent;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     /**
      * Private class to retrieve threads in the background
@@ -80,7 +83,9 @@ public class ThreadPageFragment extends ListFragment {
             try {
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
-                        loading.setVisibility(View.VISIBLE);
+                        if (!mSwipeRefreshLayout.isRefreshing()) {
+                            loading.setVisibility(View.VISIBLE);
+                        }
                     }
                 });
 
@@ -111,6 +116,11 @@ public class ThreadPageFragment extends ListFragment {
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
                         loading.setVisibility(View.GONE);
+
+                        if (mSwipeRefreshLayout.isRefreshing()) {
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            Toast.makeText(getActivity(), "Page refreshed", Toast.LENGTH_SHORT).show();
+                        }
 
                         if (result != null) {
                             last_updated = System.currentTimeMillis() / 1000;
@@ -271,6 +281,7 @@ public class ThreadPageFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.thread_list, container, false);
         parent = (ViewPager) container;
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         return rootView;
     }
 
@@ -294,6 +305,13 @@ public class ThreadPageFragment extends ListFragment {
         registerForContextMenu(getListView());
 
         loading = (ProgressBar) view.findViewById(R.id.loading);
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                initiateRefresh();
+            }
+        });
     }
 
     @Override
@@ -442,6 +460,13 @@ public class ThreadPageFragment extends ListFragment {
         }
 
         current_page = new_page;
+        getThread();
+
+        return true;
+    }
+
+    public boolean initiateRefresh() {
+        mSwipeRefreshLayout.setRefreshing(true);
         getThread();
 
         return true;
