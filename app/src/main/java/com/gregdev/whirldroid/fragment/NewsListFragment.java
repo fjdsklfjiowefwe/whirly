@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +25,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager.BadTokenException;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +53,8 @@ public class NewsListFragment extends ListFragment {
     private View rootView;
     private ListView newsListView;
     private Tracker mTracker;
+    private ProgressBar loading;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     /**
      * Private class to retrieve news in the background
@@ -71,10 +75,8 @@ public class NewsListFragment extends ListFragment {
             if (clear_cache || Whirldroid.getApi().needToDownloadNews()) {
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
-                        try {
-                            progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Loading news...", true, true);
-                            progress_dialog.setOnCancelListener(new CancelTaskOnCancelListener(task));
-                        } catch (BadTokenException e) {
+                        if (!mSwipeRefreshLayout.isRefreshing()) {
+                            loading.setVisibility(View.VISIBLE);
                         }
                     }
                 });
@@ -94,17 +96,16 @@ public class NewsListFragment extends ListFragment {
         protected void onPostExecute(final ArrayList<NewsArticle> result) {
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
-                    if (progress_dialog != null) {
-                        try {
-                            progress_dialog.dismiss(); // hide the progress dialog
-                            progress_dialog = null;
-                        } catch (Exception e) {
-                        }
+                    if (mSwipeRefreshLayout.isRefreshing()) {
+                        mSwipeRefreshLayout.setRefreshing(false);
 
                         if (result != null) {
                             Toast.makeText(getActivity(), "News refreshed", Toast.LENGTH_SHORT).show();
                         }
+                    } else {
+                        loading.setVisibility(View.GONE);
                     }
+
                     if (result != null) {
                         setNews(news_list); // display the news in the list
                     } else {
@@ -184,6 +185,9 @@ public class NewsListFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.news_list, container, false);
         setHasOptionsMenu(true);
+
+        loading = (ProgressBar) rootView.findViewById(R.id.loading);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         return rootView;
     }
 
@@ -191,6 +195,13 @@ public class NewsListFragment extends ListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         newsListView = getListView();
         getNews(false);
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                initiateRefresh();
+            }
+        });
     }
 
     @Override
@@ -318,22 +329,16 @@ public class NewsListFragment extends ListFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                long now = System.currentTimeMillis() / 1000;
-                // don't refresh too often
-                if (now - Whirldroid.getApi().getNewsLastUpdated() > WhirlpoolApi.REFRESH_INTERVAL) {
-                    getNews(true);
-                }
-                else {
-                    Toast.makeText(getActivity(), "Wait " + WhirlpoolApi.REFRESH_INTERVAL + " seconds before refreshing", Toast.LENGTH_SHORT).show();
-                }
-                return true;
-
-            case android.R.id.home:
-                /*Intent dashboard_intent = new Intent(this, Dashboard.class);
-                dashboard_intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(dashboard_intent);*/
+                initiateRefresh();
                 return true;
         }
         return false;
+    }
+
+    public boolean initiateRefresh() {
+        mSwipeRefreshLayout.setRefreshing(true);
+        getNews(true);
+
+        return true;
     }
 }
