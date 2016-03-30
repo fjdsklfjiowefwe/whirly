@@ -94,25 +94,27 @@ public class NewsListFragment extends ListFragment {
 
         @Override
         protected void onPostExecute(final ArrayList<NewsArticle> result) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    if (mSwipeRefreshLayout.isRefreshing()) {
-                        mSwipeRefreshLayout.setRefreshing(false);
+            try {
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        if (mSwipeRefreshLayout.isRefreshing()) {
+                            mSwipeRefreshLayout.setRefreshing(false);
+
+                            if (result != null) {
+                                Toast.makeText(getActivity(), "News refreshed", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            loading.setVisibility(View.GONE);
+                        }
 
                         if (result != null) {
-                            Toast.makeText(getActivity(), "News refreshed", Toast.LENGTH_SHORT).show();
+                            setNews(news_list); // display the news in the list
+                        } else {
+                            Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
                         }
-                    } else {
-                        loading.setVisibility(View.GONE);
                     }
-
-                    if (result != null) {
-                        setNews(news_list); // display the news in the list
-                    } else {
-                        Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
+                });
+            } catch (NullPointerException e) { }
         }
     }
 
