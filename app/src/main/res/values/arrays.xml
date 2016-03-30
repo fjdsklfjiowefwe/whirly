@@ -71,13 +71,19 @@
     </string-array>
 
     <string-array name="array_pref_postfontsize">
+        <item>Smaller</item>
+        <item>Small</item>
         <item>Default</item>
+        <item>Slightly Large</item>
         <item>Large</item>
         <item>Even Larger</item>
     </string-array>
 
     <string-array name="values_pref_postfontsize">
+        <item>-2</item>
+        <item>-1</item>
         <item>0</item>
+        <item>0.5</item>
         <item>1</item>
         <item>2</item>
     </string-array>

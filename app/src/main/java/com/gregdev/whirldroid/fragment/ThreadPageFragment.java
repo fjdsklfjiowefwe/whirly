@@ -178,10 +178,16 @@ public class ThreadPageFragment extends ListFragment {
                 top_left_text.setText(post.getUser().getName());
                 top_right_text.setText(post.getPostedTime());
 
-                if (font_size_option.equals("1")) {
+                if (font_size_option.equals("0.5")) {
+                    bottom_text.setTextSize(19);
+                } else if (font_size_option.equals("1")) {
                     bottom_text.setTextSize(20);
-                } if (font_size_option.equals("2")) {
+                } else if (font_size_option.equals("2")) {
                     bottom_text.setTextSize(22);
+                } else if (font_size_option.equals("-1")) {
+                    bottom_text.setTextSize(16);
+                } else if (font_size_option.equals("-2")) {
+                    bottom_text.setTextSize(14);
                 }
 
                 if (post.isOp()) {
