@@ -1,15 +1,11 @@
 package com.gregdev.whirldroid;
 
-import android.app.AlarmManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -17,22 +13,27 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.widget.Spinner;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
-    private CharSequence mDrawerTitle;
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mTitle;
+    private Spinner spinner;
 
     public final int SEARCH_FORUMS = 0;
     public final int SEARCH_THREADS = 1;
-    private int search_forum_id;
-    private int current_search_type;
+
+    private int     currentSearchType;
+    private int     searchForum = -1;
+    private int     searchGroup = -1;
+    private String  searchQuery = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,7 +43,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         setContentView(R.layout.activity_main);
 
-        mTitle = mDrawerTitle = getTitle();
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        spinner = (Spinner) findViewById(R.id.spinner);
+        setSupportActionBar(myToolbar);
+
+        mTitle = getTitle();
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView) findViewById(R.id.vNavigation);
 
@@ -273,22 +278,28 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     public void setCurrentSearchType(int type) {
-        setCurrentSearchType(type, 0);
+        setCurrentSearchType(type, -1, -1);
     }
 
-    public void setCurrentSearchType(int type, int forum_id) {
-        current_search_type = type;
-        search_forum_id = forum_id;
+    public void setCurrentSearchType(int type, int forumId, int groupId) {
+        currentSearchType = type;
+        searchForum = forumId;
+        searchGroup = groupId;
     }
 
     public boolean onQueryTextSubmit(String query) {
-        switch (current_search_type) {
+        searchQuery = query;
+
+        switch (currentSearchType) {
             case SEARCH_FORUMS:
+                searchForum = -1;
+                searchGroup = -1;
+
                 Bundle bundle = new Bundle();
                 bundle.putInt("forum_id", WhirlpoolApi.SEARCH_RESULTS);
-                bundle.putString("search_query", query);
-                bundle.putInt("search_forum", -1);
-                bundle.putInt("search_group", -1);
+                bundle.putString("search_query", searchQuery);
+                bundle.putInt("search_forum", searchForum);
+                bundle.putInt("search_group", searchGroup);
 
                 switchFragment("ThreadList", true, bundle);
 
@@ -296,10 +307,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
             case SEARCH_THREADS:
                 Intent search_intent;
+                getSupportActionBar().setDisplayShowCustomEnabled(false);
 
                 // private forums can't be searched, so open the browser
-                if (!WhirlpoolApi.isPublicForum(search_forum_id)) {
-                    String search_url = WhirlpoolApi.buildSearchUrl(search_forum_id, -1, query);
+                if (!WhirlpoolApi.isPublicForum(searchForum)) {
+                    String search_url = WhirlpoolApi.buildSearchUrl(searchForum, searchGroup, query);
                     search_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(search_url));
                     startActivity(search_intent);
 
@@ -308,11 +320,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     Bundle search_forum_bundle = new Bundle();
                     search_forum_bundle.putInt("forum_id", WhirlpoolApi.SEARCH_RESULTS);
                     search_forum_bundle.putString("search_query", query);
-                    search_forum_bundle.putInt("search_forum", search_forum_id);
-                    search_forum_bundle.putInt("search_group", -1);
+                    search_forum_bundle.putInt("search_forum", searchForum);
+                    search_forum_bundle.putInt("search_group", searchGroup);
 
-                    switchFragment("ThreadList", true, search_forum_bundle
-                    );
+                    switchFragment("ForumPage", true, search_forum_bundle);
                 }
 
                 return true;
@@ -378,6 +389,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     public void resetActionBar() {
         getSupportActionBar().setSubtitle("");
-        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+        spinner.setVisibility(View.GONE);
     }
 }

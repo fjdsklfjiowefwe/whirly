@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -212,11 +213,13 @@ public class ForumPageFragment extends ListFragment {
                         mSwipeRefreshLayout.setRefreshing(false);
 
                         if (result != null) {
-                            ThreadListFragment.ForumPageFragmentPagerAdapter pagerAdapter = (ThreadListFragment.ForumPageFragmentPagerAdapter) parent.getAdapter();
-                            pagerAdapter.setCount(forum.getPageCount());
+                            if (parent != null) {
+                                ThreadListFragment.ForumPageFragmentPagerAdapter pagerAdapter = (ThreadListFragment.ForumPageFragmentPagerAdapter) parent.getAdapter();
+                                pagerAdapter.setCount(forum.getPageCount());
 
-                            if (pagerAdapter.getHeaderForum() == null) {
-                                pagerAdapter.setHeader(forum);
+                                if (pagerAdapter.getHeaderForum() == null) {
+                                    pagerAdapter.setHeader(forum);
+                                }
                             }
 
                             getActivity().invalidateOptionsMenu();
@@ -427,14 +430,22 @@ public class ForumPageFragment extends ListFragment {
         final View rootView = inflater.inflate(R.layout.thread_list, container, false);
         setHasOptionsMenu(true);
         no_threads = (TextView) rootView.findViewById(R.id.no_threads);
-        parent = (ViewPager) container;
+
+        try {
+            parent = (ViewPager) container;
+        } catch (ClassCastException e) {
+            parent = null;
+        }
 
         Bundle bundle = getArguments();
 
         if (bundle != null) {
-            forum_id    = bundle.getInt("forum_id");
-            page        = bundle.getInt("page", 1);
-            group       = bundle.getInt("group", 0);
+            forum_id        = bundle.getInt   ("forum_id");
+            page            = bundle.getInt   ("page"           , 1     );
+            group           = bundle.getInt   ("group"          , 0     );
+            search_forum    = bundle.getInt   ("search_forum"   , -1    );
+            search_group    = bundle.getInt   ("search_group"   , -1    );
+            search_query    = bundle.getString("search_query"   , null  );
         }
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
@@ -466,6 +477,13 @@ public class ForumPageFragment extends ListFragment {
 
         if (thread_listview.getCount() == 0 || forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS || forum_id == WhirlpoolApi.ALL_WATCHED_THREADS) {
             getThreads(false);
+        }
+
+        if (forum_id == WhirlpoolApi.SEARCH_RESULTS && search_forum != -1) {
+            MainActivity mainActivity = (MainActivity) getActivity();
+            mainActivity.resetActionBar();
+            mainActivity.setTitle("Search Results");
+            mainActivity.getSupportActionBar().setSubtitle("\"" + search_query + "\"");
         }
     }
 

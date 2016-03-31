@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.view.SupportMenuInflater;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.SearchView;
@@ -25,8 +24,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -43,7 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ThreadListFragment extends Fragment implements ActionBar.OnNavigationListener {
+public class ThreadListFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private ViewPager viewPager;
     private Tracker mTracker;
@@ -52,15 +53,16 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
     private int pageCount = 0;
     private MenuBuilder menuBuilder;
     private GroupAdapter groupAdapter;
+    View rootView;
 
     private Forum forum;
     private int forumId;
     private String forumTitle;
     private Boolean hideRead;
 
-    private int search_forum = -1;
-    private int search_group = -1;
-    private String search_query;
+    private int searchForum = -1;
+    private int searchGroup = -1;
+    private String searchQuery;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,7 +75,7 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.view_pager, container, false);
+        rootView = inflater.inflate(R.layout.view_pager, container, false);
 
         forumId     = getArguments().getInt("forum_id");
         hideRead    = getArguments().getBoolean("hide_read");
@@ -175,34 +177,37 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
 
             case WhirlpoolApi.SEARCH_RESULTS:
                 getActivity().setTitle("Search Results");
-                search_query = bundle.getString("search_query");
-                search_forum = bundle.getInt("search_forum");
-                search_group = bundle.getInt("search_group");
-                mainActivity.getSupportActionBar().setSubtitle("\"" + search_query + "\"");
+                searchQuery = bundle.getString("search_query");
+                searchForum = bundle.getInt("search_forum");
+                searchGroup = bundle.getInt("search_group");
+                mainActivity.getSupportActionBar().setSubtitle("\"" + searchQuery + "\"");
                 break;
 
             default:
                 if (WhirlpoolApi.isActualForum(forumId) && WhirlpoolApi.isPublicForum(forumId)) {
-                    getActivity().setTitle("");
-                    Context context = mainActivity.getSupportActionBar().getThemedContext();
 
                     ArrayList<String> group_list = new ArrayList<>();
                     group_list.add(bundle.getString("forum_name") + "  ");
-
-                    groupAdapter = new GroupAdapter(context, R.layout.spinner_item, group_list);
+                    groupAdapter = new GroupAdapter(getActivity(), R.layout.spinner_item, group_list);
                     groupAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
 
-                    mainActivity.getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-                    mainActivity.getSupportActionBar().setListNavigationCallbacks(groupAdapter, this);
+                    Spinner spinner = (Spinner) getActivity().findViewById(R.id.spinner);
+                    spinner.setAdapter(groupAdapter);
+                    spinner.setVisibility(View.VISIBLE);
+
+                    spinner.setOnItemSelectedListener(this);
+
+                    mainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+
 
                 } else if (!WhirlpoolApi.isPublicForum(forumId)) {
                     getActivity().setTitle(forumTitle);
                 }
         }
 
-        mainActivity.setCurrentSearchType(mainActivity.SEARCH_THREADS, forumId);
+        mainActivity.setCurrentSearchType(mainActivity.SEARCH_THREADS, forumId, currentGroup);
 
-        if (forum != null) {
+        if (forum != null && forumId != WhirlpoolApi.SEARCH_RESULTS) {
             ((ForumPageFragmentPagerAdapter) viewPager.getAdapter()).setHeader(forum);
         }
     }
@@ -288,10 +293,14 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
             if (pages.get(position + 1) == null) {
                 Bundle bundle = new Bundle();
 
-                bundle.putInt("forum_id"    , forumId);
-                bundle.putInt("page"        , position + 1);
-                bundle.putInt("group"       , currentGroup);
-                bundle.putBoolean("hideRead", hideRead);
+                bundle.putInt    ("forum_id", forumId       );
+                bundle.putInt    ("page"    , position + 1  );
+                bundle.putInt    ("group"   , currentGroup  );
+                bundle.putBoolean("hideRead", hideRead      );
+
+                bundle.putInt   ("search_forum", searchForum);
+                bundle.putInt   ("search_group", searchGroup);
+                bundle.putString("search_query", searchQuery);
 
                 Fragment fragment = new ForumPageFragment();
                 fragment.setArguments(bundle);
@@ -365,69 +374,39 @@ public class ThreadListFragment extends Fragment implements ActionBar.OnNavigati
         return false;
     }
 
-    public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int itemPosition, long itemId) {
         try {
             if (itemPosition == 0 && currentGroup == 0) {
-                return false;
+                return;
 
             } else if (itemPosition == 0) {
                 currentGroup = 0;
                 viewPager.setAdapter(null);
                 viewPager.setAdapter(new ForumPageFragmentPagerAdapter());
-                return true;
+                return;
             }
 
             int counter = 1;
             for (Map.Entry<String, Integer> group : forum.getGroups().entrySet()) {
                 if (counter == itemPosition) {
                     if (currentGroup == group.getValue()) {
-                        return false;
+                        return;
                     }
 
                     currentGroup = group.getValue();
                     viewPager.setAdapter(null);
                     viewPager.setAdapter(new ForumPageFragmentPagerAdapter());
 
-                    return true;
+                    return;
                 }
                 counter++;
             }
 
-            return false;
-        } catch (NullPointerException e) {
-            return false;
-        }
+        } catch (NullPointerException e) { }
     }
 
-    public boolean onQueryTextSubmit(String query) {
-        Intent search_intent;
-
-        // private forums can't be searched, so open the browser
-        if (!WhirlpoolApi.isPublicForum(forumId)) {
-            String search_url = WhirlpoolApi.buildSearchUrl(forumId, -1, query);
-            search_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(search_url));
-        }
-        else {
-           /* search_intent = new Intent(this, ThreadList.class);
-
-            Bundle bundle = new Bundle();
-            bundle.putInt("forum_id", WhirlpoolApi.SEARCH_RESULTS);
-            bundle.putString("search_query", query);
-            bundle.putInt("search_forum", forum_id);
-            bundle.putInt("search_group", -1);
-
-            search_intent.putExtras(bundle);*/
-        }
-
-        //startActivity(search_intent);
-
-        return true;
-    }
-
-    public boolean onQueryTextChange(String newText) {
-        return false;
-    }
-
+    public void onNothingSelected (AdapterView<?> parent) { }
 
     private class WatchedThreadTask extends AsyncTask<String, Void, Void> {
 
