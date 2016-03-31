@@ -189,7 +189,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
                     ArrayList<String> group_list = new ArrayList<>();
                     group_list.add(bundle.getString("forum_name") + "  ");
                     groupAdapter = new GroupAdapter(getActivity(), R.layout.spinner_item, group_list);
-                    groupAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+                    groupAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
 
                     Spinner spinner = (Spinner) getActivity().findViewById(R.id.spinner);
                     spinner.setAdapter(groupAdapter);

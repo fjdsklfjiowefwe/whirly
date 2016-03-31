@@ -26,6 +26,7 @@
 	    android:ellipsize="marquee"
 	    android:singleLine="true"
         android:paddingLeft="4dp"
+        android:textColor="#b3ffffff"
 	    android:textSize="16sp" />
 
 </LinearLayout>
