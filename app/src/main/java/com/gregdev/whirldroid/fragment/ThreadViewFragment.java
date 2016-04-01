@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -26,7 +27,9 @@ import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.WhirlpoolApi;
 import com.gregdev.whirldroid.WhirlpoolApiException;
+import com.gregdev.whirldroid.layout.TwoLineSpinnerAdapter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +46,7 @@ public class ThreadViewFragment extends Fragment {
     private boolean gotoBottom = false;
     private String threadTitle = null;
     private MenuBuilder menuBuilder;
+    private TwoLineSpinnerAdapter viewAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -127,17 +131,36 @@ public class ThreadViewFragment extends Fragment {
         super.onResume();
 
         MainActivity mainActivity = ((MainActivity) getActivity());
-        mainActivity.resetActionBar();
 
-        if (threadTitle != null){
-            mainActivity.setTitle(threadTitle);
-        } else {
-            mainActivity.setTitle("Thread");
-        }
+        String subtitle = "";
 
         if (pageCount != 0) {
-            mainActivity.getSupportActionBar().setSubtitle("Page " + (currentIndex + 1) + " of " + pageCount);
+            subtitle = "Page " + (currentIndex + 1) + " of " + pageCount;
         }
+
+        ArrayList<String> group_list = new ArrayList<>();
+
+        if (threadTitle != null){
+            group_list.add(threadTitle);
+        } else {
+            group_list.add("Thread");
+        }
+
+        group_list.add("Posts by me");
+        group_list.add("Posts by OP");
+        group_list.add("Posts by moderators");
+        group_list.add("Posts by reps");
+
+        viewAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, group_list, subtitle, "All posts in thread");
+        viewAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+
+        Spinner spinner = (Spinner) getActivity().findViewById(R.id.spinner);
+        spinner.setAdapter(viewAdapter);
+        spinner.setVisibility(View.VISIBLE);
+
+        //spinner.setOnItemSelectedListener(this);
+
+        mainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         mTracker.setScreenName("ThreadView");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());

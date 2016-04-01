@@ -37,6 +37,7 @@ import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.WhirlpoolApi;
 import com.gregdev.whirldroid.WhirlpoolApiException;
+import com.gregdev.whirldroid.layout.TwoLineSpinnerAdapter;
 import com.gregdev.whirldroid.model.Forum;
 
 import java.util.ArrayList;
@@ -52,7 +53,8 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
     private int currentIndex = 0;
     private int pageCount = 0;
     private MenuBuilder menuBuilder;
-    private GroupAdapter groupAdapter;
+    private TwoLineSpinnerAdapter groupAdapter;
+    Spinner spinner;
     View rootView;
 
     private Forum forum;
@@ -186,12 +188,17 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
             default:
                 if (WhirlpoolApi.isActualForum(forumId) && WhirlpoolApi.isPublicForum(forumId)) {
 
+                    String subtitle = "Page " + (currentIndex + 1);
+                    if (forum != null) {
+                        subtitle += " of " + forum.getPageCount();
+                    }
+
                     ArrayList<String> group_list = new ArrayList<>();
-                    group_list.add(bundle.getString("forum_name") + "  ");
-                    groupAdapter = new GroupAdapter(getActivity(), R.layout.spinner_item, group_list);
+                    group_list.add(bundle.getString("forum_name"));
+                    groupAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, group_list, subtitle);
                     groupAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
 
-                    Spinner spinner = (Spinner) getActivity().findViewById(R.id.spinner);
+                    spinner = (Spinner) getActivity().findViewById(R.id.spinner);
                     spinner.setAdapter(groupAdapter);
                     spinner.setVisibility(View.VISIBLE);
 
@@ -250,21 +257,25 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
             forum = f;
 
             if (forum.getGroups() != null) {
+                groupAdapter.setSubtitleValue("Page " + (currentIndex + 1) + " of " + forum.getPageCount());
                 groupAdapter.clear();
-                groupAdapter.add(forumTitle + "  ");
-                String currentGroupName = "";
+                groupAdapter.add(forumTitle);
+                int currentGroupIndex = 0;
+                int i = 0;
 
                 for (Map.Entry<String, Integer> group : forum.getGroups().entrySet()) {
                     groupAdapter.add(group.getKey());
 
                     if (group.getValue() == currentGroup) {
-                        currentGroupName = group.getKey();
+                        currentGroupIndex = i;
                     }
+
+                    i++;
                 }
 
                 if (currentGroup != 0) {
                     try {
-                        ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(groupAdapter.getPosition(currentGroupName));
+                        spinner.setSelection(currentGroupIndex);
                     } catch (Exception e) { }
                 }
             }
@@ -436,44 +447,6 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
         @Override
         protected void onPostExecute(final Void result) {
 
-        }
-    }
-
-    public class GroupAdapter extends ArrayAdapter<String> {
-
-        List<String> group_items;
-        Context context;
-
-        public GroupAdapter(Context context, int resource, List<String> group_items) {
-            super(context, resource, group_items);
-            this.group_items = group_items;
-            this.context = context;
-        }
-
-        @Override
-        public View getView(int position, View convert_view, ViewGroup parent) {
-            String group_name = group_items.get(position);
-
-            if (convert_view == null) {
-                LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convert_view = vi.inflate(R.layout.spinner_item, null);
-            }
-            if (group_name != null) {
-                TextView title = (TextView) convert_view.findViewById(R.id.title);
-                TextView subtitle = (TextView) convert_view.findViewById(R.id.subtitle);
-
-                if (title != null) {
-                    title.setText(group_name);
-                }
-                if (subtitle != null) {
-                    String subtitle_value = "Page " + (currentIndex + 1);
-                    if (forum != null) {
-                        subtitle_value += " of " + forum.getPageCount();
-                    }
-                    subtitle.setText(subtitle_value);
-                }
-            }
-            return convert_view;
         }
     }
 

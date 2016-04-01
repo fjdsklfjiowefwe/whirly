@@ -215,11 +215,12 @@ public class ForumPageFragment extends ListFragment {
                         if (result != null) {
                             if (parent != null) {
                                 ThreadListFragment.ForumPageFragmentPagerAdapter pagerAdapter = (ThreadListFragment.ForumPageFragmentPagerAdapter) parent.getAdapter();
-                                pagerAdapter.setCount(forum.getPageCount());
 
                                 if (pagerAdapter.getHeaderForum() == null) {
                                     pagerAdapter.setHeader(forum);
                                 }
+
+                                pagerAdapter.setCount(forum.getPageCount());
                             }
 
                             getActivity().invalidateOptionsMenu();
