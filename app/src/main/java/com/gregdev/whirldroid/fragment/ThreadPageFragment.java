@@ -26,6 +26,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +58,9 @@ public class ThreadPageFragment extends ListFragment {
     private boolean bottom = false;
     private int goto_num = 0;
     private int from_forum;
+    private int filter = 0;
+    private String filter_user = null;
+    private String filter_user_id = null;
     private boolean pages_loaded = false;
     private boolean no_page_select = true;
     private String font_size_option = "0";
@@ -91,7 +95,7 @@ public class ThreadPageFragment extends ListFragment {
 
                 Thread thread = null;
                 try {
-                    thread = Whirldroid.getApi().downloadThread(thread_id, thread_title, current_page);
+                    thread = Whirldroid.getApi().downloadThread(thread_id, thread_title, current_page, filter, filter_user_id);
                 } catch (final WhirlpoolApiException e) {
                     error_message = e.getMessage();
 
@@ -126,7 +130,9 @@ public class ThreadPageFragment extends ListFragment {
                             last_updated = System.currentTimeMillis() / 1000;
 
                             page_count = result.getPageCount();
-                            ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setCount(page_count);
+                            if (parent != null) {
+                                ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setCount(page_count);
+                            }
 
                             if (current_page == -1) { // -1 indicates we're on the last page
                                 current_page = page_count;
@@ -286,7 +292,13 @@ public class ThreadPageFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.thread_list, container, false);
-        parent = (ViewPager) container;
+
+        try {
+            parent = (ViewPager) container;
+        } catch (ClassCastException e) {
+            parent = null;
+        }
+
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         return rootView;
     }
@@ -297,12 +309,15 @@ public class ThreadPageFragment extends ListFragment {
         Bundle bundle = getArguments();
 
         if (bundle != null) {
-            thread_id = bundle.getInt("thread_id");
-            thread_title = bundle.getString("thread_title");
-            current_page = bundle.getInt("page_number");
-            bottom = bundle.getBoolean("bottom");
-            goto_num = bundle.getInt("goto_num");
-            from_forum = bundle.getInt("from_forum");
+            thread_id       = bundle.getInt("thread_id");
+            thread_title    = bundle.getString("thread_title");
+            current_page    = bundle.getInt("page_number");
+            bottom          = bundle.getBoolean("bottom");
+            goto_num        = bundle.getInt("goto_num");
+            from_forum      = bundle.getInt("from_forum");
+            filter          = bundle.getInt("filter");
+            filter_user     = bundle.getString("filter_user", null);
+            filter_user_id  = bundle.getString("filter_user_id", null);
 
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
             font_size_option = settings.getString("pref_postfontsize", "0");
@@ -327,6 +342,18 @@ public class ThreadPageFragment extends ListFragment {
         mTracker.setScreenName("ThreadView");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
+        if (filter_user_id != null) {
+            MainActivity mainActivity = (MainActivity) getActivity();
+
+            Spinner filterSpinner = (Spinner) mainActivity.findViewById(R.id.spinner);
+            filterSpinner.setVisibility(View.GONE);
+
+            mainActivity.getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+            mainActivity.setTitle("Posts by " + filter_user);
+            mainActivity.getSupportActionBar().setSubtitle("");
+        }
+
         if (last_updated == 0 || thread == null) {
             getThread();
         }
@@ -336,9 +363,9 @@ public class ThreadPageFragment extends ListFragment {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menu_info) {
         menu.setHeaderTitle(R.string.ctxmenu_post);
 
-        //menu.add(Menu.NONE, 0, 0, "View in Browser");
         menu.add(Menu.NONE, 1, 1, getResources().getText(R.string.ctxmenu_reply_in_browser));
         menu.add(Menu.NONE, 2, 2, getResources().getText(R.string.ctxmenu_user_info));
+        menu.add(Menu.NONE, 3, 3, getResources().getText(R.string.ctxmenu_user_posts));
     }
 
     @Override
@@ -388,6 +415,10 @@ public class ThreadPageFragment extends ListFragment {
                     Bundle bundle = new Bundle();
                     bundle.putParcelable("user", post.getUser());
                     ((MainActivity) getActivity()).switchFragment("UserInfo", true, bundle);
+                    return true;
+
+                case 3: // view user's posts
+                    ((ThreadViewFragment) getParentFragment()).setFilterUser(post.getUser().getName(), post.getUser().getId());
                     return true;
             }
         }

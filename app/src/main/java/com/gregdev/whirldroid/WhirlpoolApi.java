@@ -105,6 +105,11 @@ public class WhirlpoolApi extends Activity {
     private final int MAX_AGE_POPULAR = 14;
     private final int MAX_AGE_FORUMS  = 10080;
 
+    private final int FILTER_NONE   = 0;
+    private final int FILTER_ME     = 1;
+    private final int FILTER_MOD    = 2;
+    private final int FILTER_REP    = 3;
+
     // these forum IDs are public, and we can scrape the data from them
     private static int[] PUBLIC_FORUMS = {92, 100, 142, 82, 9, 107, 135, 80, 136, 125, 116, 63,
             127, 139, 7, 129, 130, 131, 10, 38, 39, 91, 87, 112, 132, 8, 83, 138, 143, 133, 58, 106,
@@ -713,16 +718,41 @@ public class WhirlpoolApi extends Activity {
     }
 
     public Thread downloadThread(int thread_id, String thread_title) throws WhirlpoolApiException {
-        return downloadThread(thread_id, thread_title, 1);
+        return downloadThread(thread_id, thread_title, 1, FILTER_NONE, null);
     }
 
     public Thread downloadThread(int thread_id, String thread_title, int page) throws WhirlpoolApiException {
+        return downloadThread(thread_id, thread_title, page, FILTER_NONE, null);
+    }
 
-        ArrayList<Post> posts = new ArrayList<Post>();
+    public Thread downloadThread(int thread_id, String thread_title, int page, int filter, String filter_user_id) throws WhirlpoolApiException {
+
+        ArrayList<Post> posts = new ArrayList<>();
 
         String thread_url = THREAD_URL + thread_id;
-        if (page != 1) {
-            thread_url += "&p=" + page;
+
+        if (filter_user_id != null) {
+            thread_url += "&ux=" + filter_user_id;
+
+        } else if (filter != FILTER_NONE) {
+            switch (filter) {
+                case FILTER_ME:
+                    thread_url += "&ux=" + Whirldroid.getOwnWhirlpoolId();
+                    break;
+
+                case FILTER_MOD:
+                    thread_url += "&um=1";
+                    break;
+
+                case FILTER_REP:
+                    thread_url += "&ur=1";
+                    break;
+            }
+
+        } else {
+            if (page != 1) {
+                thread_url += "&p=" + page;
+            }
         }
 
         Document doc = downloadPage(thread_url);

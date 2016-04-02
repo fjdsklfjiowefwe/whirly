@@ -18,6 +18,7 @@ public class TwoLineSpinnerAdapter extends ArrayAdapter<String> {
     Context context;
     String subtitleValue;
     String firstItemDropdownValue;
+    View currentVisibleView;
 
     public TwoLineSpinnerAdapter(Context context, int resource, List<String> items, String subtitleValue) {
         super(context, resource, items);
@@ -55,11 +56,19 @@ public class TwoLineSpinnerAdapter extends ArrayAdapter<String> {
             }
         }
 
+        currentVisibleView = convertView;
         return convertView;
     }
 
     public void setSubtitleValue(String subtitleValue) {
         this.subtitleValue = subtitleValue;
+    }
+
+    public void refreshSubtitle() {
+        if (currentVisibleView != null) {
+            TextView subtitle = (TextView) currentVisibleView.findViewById(R.id.subtitle);
+            subtitle.setText(subtitleValue);
+        }
     }
 
     @Override

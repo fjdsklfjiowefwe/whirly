@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ThreadViewFragment extends Fragment {
+public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private ViewPager viewPager;
     private Tracker mTracker;
@@ -46,7 +47,10 @@ public class ThreadViewFragment extends Fragment {
     private boolean gotoBottom = false;
     private String threadTitle = null;
     private MenuBuilder menuBuilder;
-    private TwoLineSpinnerAdapter viewAdapter;
+    private Spinner filterSpinner;
+    private TwoLineSpinnerAdapter filterAdapter;
+
+    private int currentFilter = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,7 +87,10 @@ public class ThreadViewFragment extends Fragment {
             public void onPageSelected(int position) {
                 currentIndex = position;
 
-                ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Page " + (currentIndex + 1) + " of " + pageCount);
+                if (filterAdapter != null) {
+                    filterAdapter.setSubtitleValue("Page " + (currentIndex + 1) + " of " + pageCount);
+                    filterAdapter.refreshSubtitle();
+                }
             }
 
             @Override
@@ -147,18 +154,16 @@ public class ThreadViewFragment extends Fragment {
         }
 
         group_list.add("Posts by me");
-        group_list.add("Posts by OP");
         group_list.add("Posts by moderators");
         group_list.add("Posts by reps");
 
-        viewAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, group_list, subtitle, "All posts in thread");
-        viewAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        filterAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, group_list, subtitle, "All posts in thread");
+        filterAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
 
-        Spinner spinner = (Spinner) getActivity().findViewById(R.id.spinner);
-        spinner.setAdapter(viewAdapter);
-        spinner.setVisibility(View.VISIBLE);
-
-        //spinner.setOnItemSelectedListener(this);
+        filterSpinner = (Spinner) getActivity().findViewById(R.id.spinner);
+        filterSpinner.setAdapter(filterAdapter);
+        filterSpinner.setVisibility(View.VISIBLE);
+        filterSpinner.setOnItemSelectedListener(this);
 
         mainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
@@ -179,7 +184,8 @@ public class ThreadViewFragment extends Fragment {
             if (count != pageCount) { // count has changed, let's do some things
                 pageCount = count;
                 notifyDataSetChanged();
-                ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Page " + (viewPager.getCurrentItem() + 1) + " of " + pageCount);
+                filterAdapter.setSubtitleValue("Page " + (viewPager.getCurrentItem() + 1) + " of " + pageCount);
+                filterAdapter.refreshSubtitle();
             }
         }
 
@@ -203,6 +209,7 @@ public class ThreadViewFragment extends Fragment {
                 bundle.putInt("thread_id"       , threadId);
                 bundle.putInt("page_number"     , position + 1);
                 bundle.putInt("page_count"      , pageCount);
+                bundle.putInt("filter", currentFilter);
 
                 if (!doneInitialPage && (position + 1) == initialPage) {
                     bundle.putInt("goto_num", gotoNum);
@@ -337,6 +344,36 @@ public class ThreadViewFragment extends Fragment {
         protected void onPostExecute(final Void result) {
 
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int itemPosition, long itemId) {
+        try {
+            if (itemPosition == currentFilter) { // selected item didn't change
+                return;
+
+            } else {
+                currentFilter = itemPosition;
+                viewPager.setAdapter(null);
+                viewPager.setAdapter(new ThreadPageFragmentPagerAdapter());
+            }
+
+        } catch (NullPointerException e) { }
+    }
+
+    public void onNothingSelected (AdapterView<?> parent) { }
+
+    public void setFilterUser(String userName, String userId) {
+        Bundle bundle = new Bundle();
+
+        bundle.putString("thread_title"     , threadTitle);
+        bundle.putInt("thread_id", threadId);
+        bundle.putInt("page_number"         , 1);
+        bundle.putInt("page_count"          , 1);
+        bundle.putString("filter_user_id"   , userId);
+        bundle.putString("filter_user"      , userName);
+
+        ((MainActivity) getActivity()).switchFragment("ThreadPage", true, bundle);
     }
 
 }

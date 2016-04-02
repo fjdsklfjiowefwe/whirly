@@ -44,6 +44,7 @@
     <string name="ctxmenu_go_to_last_post">Go to last post</string>
     <string name="ctxmenu_go_to_forum">Go to forum</string>
     <string name="ctxmenu_user_info">View user info</string>
+    <string name="ctxmenu_user_posts">View user\'s posts</string>
 
     <!-- Dashboard Icon Titles -->
     <string name="btn_news">News</string>

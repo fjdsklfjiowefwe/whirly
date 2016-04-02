@@ -71,7 +71,7 @@ public class Whirldroid extends Application {
      * Logs something to the console; Greg's debugging
      */
     public static void log(String message) {
-        Log.d("Whirldroid", message);
+        Log.d("Whirldroid", "Whirldroidm " + message);
     }
 
     public static void updateAlarm() {
