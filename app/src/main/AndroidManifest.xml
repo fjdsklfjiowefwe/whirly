@@ -34,6 +34,11 @@
                 <data android:scheme="whirldroid-thread" android:host="com.gregdev.whirldroid" />
             </intent-filter>
 
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="com.gregdev.whirldroid.notification" />
+            </intent-filter>
+
             <meta-data android:name="android.app.default_searchable" android:value=".MainActivity" />
 
         </activity>

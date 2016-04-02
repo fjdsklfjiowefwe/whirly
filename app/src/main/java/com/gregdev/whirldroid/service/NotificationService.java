@@ -279,11 +279,14 @@ public class NotificationService extends Service {
         Bundle bundle = new Bundle();
         bundle.putInt("notification", notificationType);
 
-        Intent resultIntent = new Intent(this, MainActivity.class);
-        resultIntent.putExtras(bundle);
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent = new Intent();
+        intent.putExtras(bundle);
+        intent.setAction("com.gregdev.whirldroid.notification");
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        builder.setContentIntent(resultPendingIntent);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        builder.setContentIntent(pendingIntent);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(notificationType, builder.build());

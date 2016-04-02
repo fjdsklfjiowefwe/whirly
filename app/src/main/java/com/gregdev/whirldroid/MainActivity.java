@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         spinner = (Spinner) findViewById(R.id.spinner);
         setSupportActionBar(myToolbar);
 
-        mTitle = getTitle();
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mTitle          = getTitle();
+        mDrawerLayout   = (DrawerLayout  ) findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView) findViewById(R.id.vNavigation);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -142,7 +142,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             switchFragment("Login", false);
 
         } else {
-
             Bundle bundle;
 
             switch (PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext()).getString("pref_homepage", "ForumList")) {
@@ -179,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     public void onResume() {
         super.onResume();
 
-        try {
+        if (getIntent().getAction().equals("com.gregdev.whirldroid.notification")) {
             Bundle bundle = getIntent().getExtras();
 
             switch (bundle.getInt("notification")) {
@@ -191,12 +190,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     switchFragment("WhimList", true);
                     break;
             }
-        } catch (Exception e) { }
-
+        }
     }
 
     @Override
     protected void onNewIntent(final Intent intent) {
+        super.onNewIntent(intent);
+
         try {
             if (intent.getScheme().equals("whirldroid-thread")) {
                 int thread_id = Integer.parseInt(intent.getData().getQueryParameter("threadid"));
@@ -210,7 +210,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
                 switchFragment("ThreadView", true, bundle);
             }
-        } catch (NullPointerException e) { } // we don't really care if this happens; just don't open a thread
+
+        } catch (NullPointerException e) { }
+
+        try {
+            if (intent.getAction().equals("com.gregdev.whirldroid.notification")) {
+                setIntent(intent);
+            }
+
+        } catch (NullPointerException e) { }
     }
 
     public void switchFragment(String fragmentName, boolean addToBackStack) {
@@ -389,9 +397,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     public void resetActionBar() {
         getSupportActionBar().setSubtitle("");
-
         getSupportActionBar().setDisplayShowTitleEnabled(true);
-
         spinner.setVisibility(View.GONE);
     }
 }
