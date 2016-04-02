@@ -52,6 +52,8 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
     private int currentFilter = 0;
 
+    ArrayList<String> filterList = new ArrayList<>();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +79,18 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         viewPager.setAdapter(new ThreadPageFragmentPagerAdapter());
         viewPager.setOffscreenPageLimit(3);
 
+        filterList.clear();
+
+        if (threadTitle != null){
+            filterList.add(threadTitle);
+        } else {
+            filterList.add("Thread");
+        }
+
+        filterList.add("Posts by me");
+        filterList.add("Posts by moderators");
+        filterList.add("Posts by reps");
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -86,11 +100,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
             @Override
             public void onPageSelected(int position) {
                 currentIndex = position;
-
-                if (filterAdapter != null) {
-                    filterAdapter.setSubtitleValue("Page " + (currentIndex + 1) + " of " + pageCount);
-                    filterAdapter.refreshSubtitle();
-                }
+                setFilterAdapter();
             }
 
             @Override
@@ -137,35 +147,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     public void onResume() {
         super.onResume();
 
-        MainActivity mainActivity = ((MainActivity) getActivity());
-
-        String subtitle = "";
-
-        if (pageCount != 0) {
-            subtitle = "Page " + (currentIndex + 1) + " of " + pageCount;
-        }
-
-        ArrayList<String> group_list = new ArrayList<>();
-
-        if (threadTitle != null){
-            group_list.add(threadTitle);
-        } else {
-            group_list.add("Thread");
-        }
-
-        group_list.add("Posts by me");
-        group_list.add("Posts by moderators");
-        group_list.add("Posts by reps");
-
-        filterAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, group_list, subtitle, "All posts in thread");
-        filterAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-
-        filterSpinner = (Spinner) getActivity().findViewById(R.id.spinner);
-        filterSpinner.setAdapter(filterAdapter);
-        filterSpinner.setVisibility(View.VISIBLE);
-        filterSpinner.setOnItemSelectedListener(this);
-
-        mainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+        setFilterAdapter();
 
         mTracker.setScreenName("ThreadView");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
@@ -374,6 +356,26 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         bundle.putString("filter_user"      , userName);
 
         ((MainActivity) getActivity()).switchFragment("ThreadPage", true, bundle);
+    }
+
+    private void setFilterAdapter() {
+        MainActivity mainActivity = ((MainActivity) getActivity());
+
+        String subtitle = "";
+
+        if (pageCount != 0) {
+            subtitle = "Page " + (currentIndex + 1) + " of " + pageCount;
+        }
+
+        filterAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, filterList, subtitle, "All posts in thread");
+        filterAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+
+        filterSpinner = (Spinner) getActivity().findViewById(R.id.spinner);
+        filterSpinner.setAdapter(filterAdapter);
+        filterSpinner.setVisibility(View.VISIBLE);
+        filterSpinner.setOnItemSelectedListener(this);
+
+        mainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
 }

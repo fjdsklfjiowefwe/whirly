@@ -322,6 +322,10 @@ public class ThreadPageFragment extends ListFragment {
             font_size_option = settings.getString("pref_postfontsize", "0");
         }
 
+        if (filter_user_id != null) {
+            getListView().setPadding(0, 0, 0, 0);
+        }
+
         registerForContextMenu(getListView());
 
         loading = (ProgressBar) view.findViewById(R.id.loading);
