@@ -139,7 +139,6 @@ public class ThreadPageFragment extends ListFragment {
                             }
 
                             thread_title = result.getTitle();
-                            getActivity().setTitle(thread_title);
 
                             thread = result;
                             setPosts(result.getPosts()); // display the posts in the list
