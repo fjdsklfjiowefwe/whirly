@@ -3,7 +3,10 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
 	android:orientation="vertical"
-	android:padding="18dip"
+	android:paddingTop="8dp"
+	android:paddingRight="18dp"
+	android:paddingBottom="8dp"
+	android:paddingLeft="18dp"
     android:descendantFocusability="blocksDescendants" >
 	
 	<TextView
