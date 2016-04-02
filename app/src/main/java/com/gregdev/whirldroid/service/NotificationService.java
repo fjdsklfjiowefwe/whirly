@@ -126,16 +126,16 @@ public class NotificationService extends Service {
                 for (Thread thread : watchedThreads) {
                     // check if this thread has any unread posts
                     if (thread.hasUnreadPosts()) {
-                        unreadThreadCount++;
-                        unreadReplyCount += thread.getUnread();
+                        if (!ignoreOwnReplies || !thread.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId())) {
+                            unreadThreadCount++;
+                            unreadReplyCount += thread.getUnread();
 
-                        if (!threadTitles.equals("")) {
-                            threadTitles += ", ";
-                        }
-                        threadTitles += thread.getTitle();
+                            if (!threadTitles.equals("")) {
+                                threadTitles += ", ";
+                            }
+                            threadTitles += thread.getTitle();
 
-                        if (!hasBeenNotified(Whirldroid.NEW_WATCHED_NOTIFICATION_ID, thread.getLastDate())) {
-                            if (!ignoreOwnReplies || !thread.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId())) {
+                            if (!hasBeenNotified(Whirldroid.NEW_WATCHED_NOTIFICATION_ID, thread.getLastDate())) {
                                 needToNotify = true;
                             }
                         }
