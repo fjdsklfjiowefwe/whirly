@@ -178,19 +178,21 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     public void onResume() {
         super.onResume();
 
-        if (getIntent().getAction().equals("com.gregdev.whirldroid.notification")) {
-            Bundle bundle = getIntent().getExtras();
+        try {
+            if (getIntent().getAction().equals("com.gregdev.whirldroid.notification")) {
+                Bundle bundle = getIntent().getExtras();
 
-            switch (bundle.getInt("notification")) {
-                case Whirldroid.NEW_WATCHED_NOTIFICATION_ID:
-                    switchFragment("WatchedThreads", true);
-                    break;
+                switch (bundle.getInt("notification")) {
+                    case Whirldroid.NEW_WATCHED_NOTIFICATION_ID:
+                        switchFragment("WatchedThreads", true);
+                        break;
 
-                case Whirldroid.NEW_WHIM_NOTIFICATION_ID:
-                    switchFragment("WhimList", true);
-                    break;
+                    case Whirldroid.NEW_WHIM_NOTIFICATION_ID:
+                        switchFragment("WhimList", true);
+                        break;
+                }
             }
-        }
+        } catch (NullPointerException e) { }
     }
 
     @Override
