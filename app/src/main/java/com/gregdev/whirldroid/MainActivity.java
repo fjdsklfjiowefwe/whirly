@@ -1,5 +1,10 @@
 package com.gregdev.whirldroid;
 
+import android.app.ActivityManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -14,6 +19,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -46,6 +52,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         spinner = (Spinner) findViewById(R.id.spinner);
         setSupportActionBar(myToolbar);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            TypedValue typedValue = new TypedValue();
+            Resources.Theme theme = getTheme();
+            theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
+            int color = typedValue.data;
+
+            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.wd_launcher_white);
+            ActivityManager.TaskDescription td = new ActivityManager.TaskDescription(null, bm, color);
+
+            setTaskDescription(td);
+            bm.recycle();
+        }
 
         mTitle          = getTitle();
         mDrawerLayout   = (DrawerLayout  ) findViewById(R.id.drawer_layout);
