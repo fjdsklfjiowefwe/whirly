@@ -76,6 +76,7 @@ public class UserInfoFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        container.removeAllViews();
         View rootView = inflater.inflate(R.layout.user_info, container, false);
 
         user_details = (TextView) rootView.findViewById(R.id.user_details);

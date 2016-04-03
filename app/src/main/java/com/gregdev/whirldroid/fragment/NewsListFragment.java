@@ -185,6 +185,7 @@ public class NewsListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        container.removeAllViews();
         rootView = inflater.inflate(R.layout.news_list, container, false);
         setHasOptionsMenu(true);
 

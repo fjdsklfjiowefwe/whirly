@@ -33,6 +33,7 @@ public class WatchedThreadsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        container.removeAllViews();
         View rootView = inflater.inflate(R.layout.tab_view_pager, container, false);
         viewPager = (ViewPager) rootView.findViewById(R.id.pager);
         viewPager.setAdapter(new WatchedFragmentPagerAdapter());

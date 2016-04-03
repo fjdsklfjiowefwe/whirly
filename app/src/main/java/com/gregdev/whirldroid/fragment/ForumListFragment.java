@@ -234,6 +234,7 @@ public class ForumListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        container.removeAllViews();
         rootView = inflater.inflate(R.layout.forum_list, container, false);
         ((MainActivity) getActivity()).selectMenuItem("ForumList");
         setHasOptionsMenu(true);

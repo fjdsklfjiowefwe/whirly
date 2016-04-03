@@ -65,6 +65,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        container.removeAllViews();
         View rootView = inflater.inflate(R.layout.view_pager, container, false);
 
         fromForum   = getArguments().getInt("from_forum");
@@ -72,7 +73,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         initialPage = getArguments().getInt("page_number");
         pageCount   = getArguments().getInt("page_count");
         gotoNum     = getArguments().getInt("goto_num");
-        gotoBottom  = getArguments().getBoolean("bottom");
+        gotoBottom = getArguments().getBoolean("bottom");
         threadTitle = getArguments().getString("thread_title");
 
         viewPager = (ViewPager) rootView.findViewById(R.id.pager);

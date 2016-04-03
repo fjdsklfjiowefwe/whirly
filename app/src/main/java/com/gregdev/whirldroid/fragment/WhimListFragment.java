@@ -261,6 +261,7 @@ public class WhimListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        container.removeAllViews();
         View rootView = inflater.inflate(R.layout.whim_list, container, false);
 
         setHasOptionsMenu(true);
