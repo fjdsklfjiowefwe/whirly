@@ -198,9 +198,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         super.onResume();
 
         try {
-            if (getIntent().getAction().equals("com.gregdev.whirldroid.notification")) {
-                Bundle bundle = getIntent().getExtras();
+            Bundle bundle = getIntent().getExtras();
 
+            if (getIntent().getAction().equals("com.gregdev.whirldroid.notification")) {
                 switch (bundle.getInt("notification")) {
                     case Whirldroid.NEW_WATCHED_NOTIFICATION_ID:
                         switchFragment("WatchedThreads", true);

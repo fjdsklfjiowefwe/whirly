@@ -56,6 +56,10 @@
                 <action android:name="com.gregdev.whirldroid.service.NotificationService" />
             </intent-filter>
         </service>
+
+        <receiver android:name=".receiver.MarkWhimReadReceiver"/>
+        <receiver android:name=".receiver.MarkWatchedReadReceiver"/>
+        <receiver android:name=".receiver.UnwatchReceiver"/>
     </application>
 
 </manifest>

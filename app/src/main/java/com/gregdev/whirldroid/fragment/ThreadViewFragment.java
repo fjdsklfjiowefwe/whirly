@@ -315,7 +315,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         @Override
         protected Void doInBackground(String... params) {
             try {
-                Whirldroid.getApi().downloadWatched(mode, mark_as_read, unwatch, watch);
+                Whirldroid.getApi().downloadWatched(mode, mark_as_read + "", unwatch + "", watch);
             }
             catch (final WhirlpoolApiException e) {
                 return null;

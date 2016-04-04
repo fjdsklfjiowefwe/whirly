@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -12,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -28,6 +30,9 @@ import com.gregdev.whirldroid.WhirlpoolApiException;
 import com.gregdev.whirldroid.model.Forum;
 import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.model.Whim;
+import com.gregdev.whirldroid.receiver.MarkWatchedReadReceiver;
+import com.gregdev.whirldroid.receiver.MarkWhimReadReceiver;
+import com.gregdev.whirldroid.receiver.UnwatchReceiver;
 
 /**
  * Whirldroid Notification Service
@@ -40,6 +45,11 @@ public class NotificationService extends Service {
     private WakeLock wakeLock;
     private boolean whimNotify;
     private boolean watchedNotify;
+
+    private static final int ACTION_WHIM_MARK_READ = 0;
+    private static final int ACTION_WATCHED_MARK_READ = 1;
+    private static final int ACTION_UNWATCH = 2;
+    private static final int ACTION_REPLY = 3;
 
     /**
      * Simply return null, since our Service will not be communicating with
@@ -112,12 +122,15 @@ public class NotificationService extends Service {
         @Override
         protected void onPostExecute(Void result) {
             if (watchedNotify) {
+                NotificationCompat.InboxStyle watchedInboxStyle = new NotificationCompat.InboxStyle();
+                ArrayList<NotificationCompat.Action> actions = new ArrayList<>();
+                ArrayList<Integer> threadIds = new ArrayList<>();
+
                 Forum forum = Whirldroid.getApi().getThreads(WhirlpoolApi.UNREAD_WATCHED_THREADS, 0, 0);
                 List<Thread> watchedThreads = forum.getThreads();
 
                 int unreadThreadCount = 0;
                 int unreadReplyCount  = 0;
-                String threadTitles   = "";
                 boolean needToNotify  = false;
 
                 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -129,11 +142,9 @@ public class NotificationService extends Service {
                         if (!ignoreOwnReplies || !thread.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId())) {
                             unreadThreadCount++;
                             unreadReplyCount += thread.getUnread();
+                            threadIds.add(thread.getId());
 
-                            if (!threadTitles.equals("")) {
-                                threadTitles += ", ";
-                            }
-                            threadTitles += thread.getTitle();
+                            watchedInboxStyle.addLine(thread.getTitle());
 
                             if (!hasBeenNotified(Whirldroid.NEW_WATCHED_NOTIFICATION_ID, thread.getLastDate())) {
                                 needToNotify = true;
@@ -144,20 +155,35 @@ public class NotificationService extends Service {
 
                 // there's at least one thread with unread replies
                 if (needToNotify) {
-                    String notification_title = null;
+                    String text;
+                    String title;
 
                     if (unreadThreadCount == 1) { // only one unread thread
+                        title = "New watched thread reply";
+
                         String plural_reply = "post";
                         if (unreadReplyCount > 1) {
                             plural_reply = "posts";
                         }
-                        notification_title = unreadReplyCount + " unread " + plural_reply;
-                    }
-                    else { // multiple unread threads
-                        notification_title = unreadReplyCount + " new replies in " + unreadThreadCount + " threads";
+                        text = unreadReplyCount + " unread " + plural_reply;
+
+                    } else { // multiple unread threads
+                        title = "New watched thread replies";
+                        text = unreadReplyCount + " new replies in " + unreadThreadCount + " threads";
                     }
 
-                    sendNotification("New watched thread reply", notification_title, threadTitles, Whirldroid.NEW_WATCHED_NOTIFICATION_ID, R.drawable.ic_visibility_white_24dp);
+                    Intent markRead = new Intent(getApplicationContext(), MarkWatchedReadReceiver.class);
+                    markRead.putExtra("ids", threadIds);
+                    PendingIntent pendingMarkRead = PendingIntent.getBroadcast(getApplicationContext(), 1, markRead, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                    Intent unwatch = new Intent(getApplicationContext(), UnwatchReceiver.class);
+                    unwatch.putExtra("ids", threadIds);
+                    PendingIntent pendingUnwatch = PendingIntent.getBroadcast(getApplicationContext(), 1, unwatch, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                    actions.add(new NotificationCompat.Action(R.drawable.ic_done_white_24dp, "Mark Read", pendingMarkRead));
+                    actions.add(new NotificationCompat.Action(R.drawable.ic_visibility_off_white_24dp, "Unwatch", pendingUnwatch));
+
+                    sendNotification(title, text, Whirldroid.NEW_WATCHED_NOTIFICATION_ID, R.drawable.ic_visibility_white_24dp, watchedInboxStyle, actions, threadIds);
                 }
 
                 // no unread threads, cancel existing notification (if any)
@@ -169,36 +195,52 @@ public class NotificationService extends Service {
             }
 
             if (whimNotify) {
-                ArrayList<Whim> whims = Whirldroid.getApi().getWhims();
+                NotificationCompat.InboxStyle whimInboxStyle = new NotificationCompat.InboxStyle();
+                ArrayList<NotificationCompat.Action> actions = new ArrayList<>();
+                ArrayList<Integer> whimIds = new ArrayList<>();
 
                 int newWhimCount        = 0;
                 String whimFrom         = "";
                 boolean needToNotify    = false;
 
-                for (Whim whim : whims) {
+                for (Whim whim : Whirldroid.getApi().getWhims()) {
                     // check if this whim has been read
                     if (!whim.isRead()) {
                         newWhimCount++;
+                        whimIds.add(whim.getId());
 
                         // check if we have already sent a notification for this whim
                         if (!hasBeenNotified(Whirldroid.NEW_WHIM_NOTIFICATION_ID, whim.getDate())) {
                             needToNotify = true;
-                            whimFrom = whim.getFromName();
+                            whimInboxStyle.addLine(whim.getFromName());
                         }
                     }
                 }
 
                 // if there is at least one new notification that we haven't notified for
                 if (needToNotify) {
+
+                    Intent markRead = new Intent(getApplicationContext(), MarkWhimReadReceiver.class);
+                    markRead.putExtra("ids", whimIds);
+                    PendingIntent pendingMarkRead = PendingIntent.getBroadcast(getApplicationContext(), 0, markRead, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                    Intent reply = new Intent(Intent.ACTION_VIEW, Uri.parse("https://whirlpool.net.au/whim/?action=write&rt=" + whimIds.get(0)));
+                    PendingIntent pendingReply = PendingIntent.getActivity(getApplicationContext(), 1, reply, PendingIntent.FLAG_UPDATE_CURRENT);
+
                     String whimTitle;
                     if (newWhimCount == 1) { // only one whim, show who it's from
                         whimTitle = "New whim from " + whimFrom;
-                    }
-                    else { // multiple whims, show count
+
+                        actions.add(new NotificationCompat.Action(R.drawable.ic_done_white_24dp, "Mark Read", pendingMarkRead));
+                        actions.add(new NotificationCompat.Action(R.drawable.ic_reply_white_24dp, "Reply", pendingReply));
+
+                    } else { // multiple whims, show count
                         whimTitle = newWhimCount + " new whims";
+
+                        actions.add(new NotificationCompat.Action(R.drawable.ic_done_white_24dp, "Mark All Read", pendingMarkRead));
                     }
 
-                    sendNotification("New whim", whimTitle, "", Whirldroid.NEW_WHIM_NOTIFICATION_ID, R.drawable.ic_chat_white_24dp);
+                    sendNotification("New whim", whimTitle, Whirldroid.NEW_WHIM_NOTIFICATION_ID, R.drawable.ic_chat_white_24dp, whimInboxStyle, actions, whimIds);
                 }
 
                 // no unread whims, cancel existing notification (if any)
@@ -229,7 +271,7 @@ public class NotificationService extends Service {
         return (date.getTime() <= lastNotifiedTime);
     }
 
-    private void sendNotification(String ticker, String title, String text, int notificationType, int icon) {
+    private void sendNotification(String title, String text, int notificationType, int icon, NotificationCompat.InboxStyle inboxLayout, ArrayList<NotificationCompat.Action> actions, ArrayList<Integer> actionItemIds) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = settings.edit();
 
@@ -248,10 +290,15 @@ public class NotificationService extends Service {
         builder.setSmallIcon(icon)
                 .setContentTitle(title)
                 .setContentText(text)
-                .setTicker(ticker)
                 .setOnlyAlertOnce(true)
                 .setWhen(System.currentTimeMillis())
-                .setAutoCancel(true);
+                .setAutoCancel(true)
+                .setColor(getApplicationContext().getResources().getColor(R.color.colorPrimary))
+                .setStyle(inboxLayout);
+
+        for (NotificationCompat.Action action : actions) {
+            builder.addAction(action);
+        }
 
         // do we want to vibrate?
         boolean do_vibrate = settings.getBoolean("pref_notifyvibrate", false);

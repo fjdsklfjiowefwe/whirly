@@ -10,15 +10,15 @@ import com.gregdev.whirldroid.Whirldroid;
 
 public class Whim implements Parcelable, Serializable {
 	private static final long serialVersionUID = -8647082511775037802L;
-	private String id;
-	private String from_id;
+	private int id;
+	private int from_id;
 	private String from_name;
 	private int viewed;
 	private int replied;
 	private Date date;
 	private String content;
 
-	public Whim(String id, String from_id, String from_name, int viewed, int replied, Date date, String content) {
+	public Whim(int id, int from_id, String from_name, int viewed, int replied, Date date, String content) {
 		this.id        = id;
 		this.from_id   = from_id;
 		this.from_name = from_name;
@@ -29,8 +29,8 @@ public class Whim implements Parcelable, Serializable {
 	}
 	
 	private Whim(Parcel in) {
-		id        = in.readString();
-		from_id   = in.readString();
+		id        = in.readInt();
+		from_id   = in.readInt();
 		from_name = in.readString();
 		viewed    = in.readInt();
 		replied   = in.readInt();
@@ -38,7 +38,7 @@ public class Whim implements Parcelable, Serializable {
 		content   = in.readString();
 	}
 	
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -93,8 +93,8 @@ public class Whim implements Parcelable, Serializable {
 	}
 
 	public void writeToParcel(Parcel out, int flags) {
-		out.writeString(id);
-		out.writeString(from_id);
+		out.writeInt(id);
+		out.writeInt(from_id);
 		out.writeString(from_name);
 		out.writeInt(viewed);
 		out.writeInt(replied);

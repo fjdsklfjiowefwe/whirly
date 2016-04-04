@@ -80,7 +80,7 @@ public class ForumPageFragment extends ListFragment {
         @Override
         protected Boolean doInBackground(String... params) {
             try {
-                Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, 0, 0, thread_id);
+                Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, null, null, thread_id);
                 return true;
             }
             catch (final WhirlpoolApiException e) {
@@ -119,7 +119,7 @@ public class ForumPageFragment extends ListFragment {
         @Override
         protected Boolean doInBackground(String... params) {
             try {
-                Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, thread_id, 0, 0);
+                Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, thread_id + "", null, 0);
                 return true;
             }
             catch (final WhirlpoolApiException e) {
@@ -166,10 +166,10 @@ public class ForumPageFragment extends ListFragment {
                 try {
                     switch (forum_id) {
                         case WhirlpoolApi.UNREAD_WATCHED_THREADS:
-                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, mark_thread_as_read, unwatch_thread, 0);
+                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, mark_thread_as_read + "", unwatch_thread + "", 0);
                             break;
                         case WhirlpoolApi.ALL_WATCHED_THREADS:
-                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, mark_thread_as_read, unwatch_thread, 0);
+                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, mark_thread_as_read + "", unwatch_thread + "", 0);
                             break;
                         case WhirlpoolApi.RECENT_THREADS:
                             Whirldroid.getApi().downloadRecent();

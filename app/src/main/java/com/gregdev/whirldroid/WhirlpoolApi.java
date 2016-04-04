@@ -901,6 +901,8 @@ public class WhirlpoolApi extends Activity {
             }
         }
 
+        Whirldroid.log(url);
+
         // fetch the data
         String data = null;
         try {
@@ -1009,13 +1011,13 @@ public class WhirlpoolApi extends Activity {
         downloadData(get, null);
     }
 
-    public void downloadWhims(String mark_as_read) throws WhirlpoolApiException {
-        List<String> get = new ArrayList<String>();
-        Map<String, String> params = new HashMap<String, String>();
+    public void downloadWhims(int mark_as_read) throws WhirlpoolApiException {
+        List<String> get = new ArrayList<>();
+        Map<String, String> params = new HashMap<>();
 
-        if (mark_as_read != null) {
+        if (mark_as_read != 0) {
             get.add("whim");
-            params.put("whimid", mark_as_read);
+            params.put("whimid", mark_as_read + "");
         }
 
         get.add("whims");
@@ -1035,19 +1037,19 @@ public class WhirlpoolApi extends Activity {
         downloadData(get, params);
     }
 
-    public void downloadWatched(int mode, int mark_thread_as_read, int unwatch_thread, int watch_thread) throws WhirlpoolApiException {
+    public void downloadWatched(int mode, String mark_thread_as_read, String unwatch_thread, int watch_thread) throws WhirlpoolApiException {
         List<String> get = new ArrayList<String>();
         Map<String, String> params = new HashMap<String, String>();
 
         get.add("watched");
         params.put("watchedmode", mode + "");
 
-        if (mark_thread_as_read != 0) {
-            params.put("watchedread", mark_thread_as_read + "");
+        if (mark_thread_as_read != null) {
+            params.put("watchedread", mark_thread_as_read);
         }
 
-        if (unwatch_thread != 0) {
-            params.put("watchedremove", unwatch_thread + "");
+        if (unwatch_thread != null) {
+            params.put("watchedremove", unwatch_thread);
         }
 
         if (watch_thread != 0) {
@@ -1079,10 +1081,10 @@ public class WhirlpoolApi extends Activity {
 
     private ArrayList<Whim> getWhimsFromJson(JSONArray json_whims, JSONArray json_whim) throws JSONException {
         // check if we have an individual whim (we'll assume just one)
-        String single_whim_id = null;
+        int single_whim_id = 0;
         if (json_whim != null) {
             JSONObject single_whim = json_whim.getJSONObject(0);
-            single_whim_id = single_whim.getString("ID");
+            single_whim_id = single_whim.getInt("ID");
         }
 
         ArrayList<Whim> whims = new ArrayList<Whim>();
@@ -1091,15 +1093,15 @@ public class WhirlpoolApi extends Activity {
             JSONObject e = json_whims.getJSONObject(i);
             JSONObject from = e.getJSONObject("FROM");
 
-            String id = e.getString("ID");
-            String from_id = from.getString("ID");
+            int id = e.getInt("ID");
+            int from_id = from.getInt("ID");
             String from_name = from.getString("NAME");
             int viewed = e.getInt("VIEWED");
             int replied = e.getInt("REPLIED");
             String date_time = e.getString("DATE");
             String content = e.getString("MESSAGE").replace('\r', ' ');
 
-            if (single_whim_id != null && id.equals(single_whim_id)) {
+            if (single_whim_id != 0 && id == single_whim_id) {
                 viewed = 1;
             }
 

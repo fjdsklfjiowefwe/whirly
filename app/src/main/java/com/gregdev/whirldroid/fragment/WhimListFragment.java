@@ -115,7 +115,7 @@ public class WhimListFragment extends ListFragment {
                     }
                 });
                 try {
-                    Whirldroid.getApi().downloadWhims(null);
+                    Whirldroid.getApi().downloadWhims(0);
                 }
                 catch (final WhirlpoolApiException e) {
                     error_message = e.getMessage();
