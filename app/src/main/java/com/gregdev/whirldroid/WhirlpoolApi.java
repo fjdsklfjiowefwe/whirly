@@ -489,6 +489,7 @@ public class WhirlpoolApi extends Activity {
         }
 
         Document doc = downloadPage(forum_url);
+
         if (doc == null) {
             return null;
         }
@@ -900,8 +901,6 @@ public class WhirlpoolApi extends Activity {
                 url += "&" + param.getKey() + "=" + param.getValue();
             }
         }
-
-        Whirldroid.log(url);
 
         // fetch the data
         String data = null;
