@@ -256,7 +256,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
         public void setHeader(Forum f) {
             forum = f;
 
-            if (forum.getGroups() != null) {
+            if (forum.getGroups() != null && groupAdapter.getCount() == 1) {
                 groupAdapter.setSubtitleValue("Page " + (currentIndex + 1) + " of " + forum.getPageCount());
                 groupAdapter.clear();
                 groupAdapter.add(forumTitle);
