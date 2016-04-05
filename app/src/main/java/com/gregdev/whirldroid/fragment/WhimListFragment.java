@@ -199,15 +199,7 @@ public class WhimListFragment extends ListFragment {
 
             if (convert_view == null) {
                 LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-                switch (type) {
-                    case 1:
-                        convert_view = vi.inflate(R.layout.list_row_highlighted, null);
-                        break;
-                    default:
-                        convert_view = vi.inflate(R.layout.list_row, null);
-                        break;
-                }
+                convert_view = vi.inflate(R.layout.list_row, null);
             }
 
             if (whim != null) {
