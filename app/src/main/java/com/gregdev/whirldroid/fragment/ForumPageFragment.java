@@ -136,10 +136,10 @@ public class ForumPageFragment extends ListFragment {
     private class RetrieveThreadsTask extends AsyncTask<String, Void, List<Thread>> {
 
         private boolean clear_cache = false;
-        private int mark_thread_as_read = 0;
-        private int unwatch_thread = 0;
+        private String mark_thread_as_read = null;
+        private String unwatch_thread = null;
 
-        public RetrieveThreadsTask(boolean clear_cache, int mark_thread_as_read, int unwatch_thread) {
+        public RetrieveThreadsTask(boolean clear_cache, String mark_thread_as_read, String unwatch_thread) {
             this.clear_cache = clear_cache;
             this.mark_thread_as_read = mark_thread_as_read;
             this.unwatch_thread = unwatch_thread;
@@ -166,10 +166,10 @@ public class ForumPageFragment extends ListFragment {
                 try {
                     switch (forum_id) {
                         case WhirlpoolApi.UNREAD_WATCHED_THREADS:
-                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, mark_thread_as_read + "", unwatch_thread + "", 0);
+                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, mark_thread_as_read, unwatch_thread, 0);
                             break;
                         case WhirlpoolApi.ALL_WATCHED_THREADS:
-                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, mark_thread_as_read + "", unwatch_thread + "", 0);
+                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, mark_thread_as_read, unwatch_thread, 0);
                             break;
                         case WhirlpoolApi.RECENT_THREADS:
                             Whirldroid.getApi().downloadRecent();
@@ -206,8 +206,6 @@ public class ForumPageFragment extends ListFragment {
                         if (!mSwipeRefreshLayout.isRefreshing()) {
                             loading.setVisibility(View.GONE);
                             thread_listview.setAlpha(1F);
-                        } else {
-                            Toast.makeText(getActivity(), "Threads refreshed", Toast.LENGTH_SHORT).show();
                         }
 
                         mSwipeRefreshLayout.setRefreshing(false);
@@ -392,11 +390,11 @@ public class ForumPageFragment extends ListFragment {
                                     return true;
 
                                 case R.id.unwatch:
-                                    getThreads(true, 0, thread.getId());
+                                    getThreads(true, null, thread.getId() + "");
                                     return true;
 
                                 case R.id.mark_read:
-                                    getThreads(true, thread.getId(), 0);
+                                    getThreads(true, thread.getId() + "", null);
                                     return true;
 
                                 case R.id.watch:
@@ -507,7 +505,7 @@ public class ForumPageFragment extends ListFragment {
         task.execute();
     }
 
-    private void getThreads(boolean clear_cache, int mark_thread_as_read, int unwatch_thread) {
+    private void getThreads(boolean clear_cache, String mark_thread_as_read, String unwatch_thread) {
         task = new RetrieveThreadsTask(clear_cache, mark_thread_as_read, unwatch_thread); // start new thread to retrieve threads
         task.execute();
     }

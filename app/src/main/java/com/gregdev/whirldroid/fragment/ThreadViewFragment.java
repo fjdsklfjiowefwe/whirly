@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -102,6 +103,13 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
             public void onPageSelected(int position) {
                 currentIndex = position;
                 setFilterAdapter();
+
+                String subtitle = "";
+                if (pageCount != 0) {
+                    subtitle = "Page " + (currentIndex + 1) + " of " + pageCount;
+                }
+
+                ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
             }
 
             @Override
@@ -150,6 +158,14 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
         setFilterAdapter();
 
+        String subtitle = "Page " + (viewPager.getCurrentItem() + 1);
+        if (pageCount != 0) {
+            subtitle += " of " + pageCount;
+        }
+
+        ((MainActivity) getActivity()).showTwoLineSpinner();
+        ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
+
         mTracker.setScreenName("ThreadView");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
@@ -167,8 +183,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
             if (count != pageCount) { // count has changed, let's do some things
                 pageCount = count;
                 notifyDataSetChanged();
-                filterAdapter.setSubtitleValue("Page " + (viewPager.getCurrentItem() + 1) + " of " + pageCount);
-                filterAdapter.refreshSubtitle();
+                ((MainActivity) getActivity()).setTwoLineSubtitle("Page " + (viewPager.getCurrentItem() + 1) + " of " + pageCount);
             }
         }
 
@@ -362,13 +377,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     private void setFilterAdapter() {
         MainActivity mainActivity = ((MainActivity) getActivity());
 
-        String subtitle = "";
-
-        if (pageCount != 0) {
-            subtitle = "Page " + (currentIndex + 1) + " of " + pageCount;
-        }
-
-        filterAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, filterList, subtitle, "All posts in thread");
+        filterAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, filterList, "All posts in thread");
         filterAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
 
         filterSpinner = (Spinner) getActivity().findViewById(R.id.spinner);

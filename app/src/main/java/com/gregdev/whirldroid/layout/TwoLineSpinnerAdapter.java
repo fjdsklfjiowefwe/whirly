@@ -16,23 +16,20 @@ public class TwoLineSpinnerAdapter extends ArrayAdapter<String> {
 
     List<String> items;
     Context context;
-    String subtitleValue;
     String firstItemDropdownValue;
     View currentVisibleView;
 
-    public TwoLineSpinnerAdapter(Context context, int resource, List<String> items, String subtitleValue) {
+    public TwoLineSpinnerAdapter(Context context, int resource, List<String> items) {
         super(context, resource, items);
         this.items = items;
         this.context = context;
-        this.subtitleValue = subtitleValue;
         firstItemDropdownValue = null;
     }
 
-    public TwoLineSpinnerAdapter(Context context, int resource, List<String> items, String subtitleValue, String firstItemDropdownValue) {
+    public TwoLineSpinnerAdapter(Context context, int resource, List<String> items, String firstItemDropdownValue) {
         super(context, resource, items);
         this.items = items;
         this.context = context;
-        this.subtitleValue = subtitleValue;
         this.firstItemDropdownValue = firstItemDropdownValue;
     }
 
@@ -46,29 +43,14 @@ public class TwoLineSpinnerAdapter extends ArrayAdapter<String> {
         }
         if (groupName != null) {
             TextView title = (TextView) convertView.findViewById(R.id.title);
-            TextView subtitle = (TextView) convertView.findViewById(R.id.subtitle);
 
             if (title != null) {
                 title.setText(groupName);
-            }
-            if (subtitle != null) {
-                subtitle.setText(subtitleValue);
             }
         }
 
         currentVisibleView = convertView;
         return convertView;
-    }
-
-    public void setSubtitleValue(String subtitleValue) {
-        this.subtitleValue = subtitleValue;
-    }
-
-    public void refreshSubtitle() {
-        if (currentVisibleView != null) {
-            TextView subtitle = (TextView) currentVisibleView.findViewById(R.id.subtitle);
-            subtitle.setText(subtitleValue);
-        }
     }
 
     @Override

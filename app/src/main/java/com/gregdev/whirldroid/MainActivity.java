@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private NavigationView mNavigationView;
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mTitle;
-    private Spinner spinner;
+    private View twoLineSpinner;
 
     public final int SEARCH_FORUMS = 0;
     public final int SEARCH_THREADS = 1;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         setContentView(R.layout.activity_main);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
-        spinner = (Spinner) findViewById(R.id.spinner);
+        twoLineSpinner = findViewById(R.id.two_line_spinner);
         setSupportActionBar(myToolbar);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -416,9 +417,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         return false;
     }
 
+    public void showTwoLineSpinner() {
+        twoLineSpinner.setVisibility(View.VISIBLE);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
+
+    public void setTwoLineSubtitle(String subtitle) {
+        TextView subtitleView = (TextView) findViewById(R.id.my_subtitle);
+        subtitleView.setText(subtitle);
+    }
+
     public void resetActionBar() {
         getSupportActionBar().setSubtitle("");
         getSupportActionBar().setDisplayShowTitleEnabled(true);
-        spinner.setVisibility(View.GONE);
+        twoLineSpinner.setVisibility(View.GONE);
     }
 }

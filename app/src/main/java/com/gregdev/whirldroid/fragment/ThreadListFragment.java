@@ -97,6 +97,13 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
             public void onPageSelected(int position) {
                 currentIndex = position;
                 ((ForumPageFragmentPagerAdapter) viewPager.getAdapter()).setHeader(forum);
+
+                String subtitle = "Page " + (currentIndex + 1);
+                if (forum != null) {
+                    subtitle += " of " + forum.getPageCount();
+                }
+
+                ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
             }
 
             @Override
@@ -195,17 +202,16 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
 
                     ArrayList<String> group_list = new ArrayList<>();
                     group_list.add(bundle.getString("forum_name"));
-                    groupAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, group_list, subtitle);
+                    groupAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, group_list);
                     groupAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+
+                    ((MainActivity) getActivity()).showTwoLineSpinner();
+                    ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
 
                     spinner = (Spinner) getActivity().findViewById(R.id.spinner);
                     spinner.setAdapter(groupAdapter);
-                    spinner.setVisibility(View.VISIBLE);
 
                     spinner.setOnItemSelectedListener(this);
-
-                    mainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-
 
                 } else if (!WhirlpoolApi.isPublicForum(forumId)) {
                     getActivity().setTitle(forumTitle);
@@ -254,37 +260,46 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
         }
 
         public void setHeader(Forum f) {
-            forum = f;
+            try {
+                forum = f;
 
-            if (forum.getGroups() != null && groupAdapter.getCount() == 1) {
-                groupAdapter.setSubtitleValue("Page " + (currentIndex + 1) + " of " + forum.getPageCount());
-                groupAdapter.clear();
-                groupAdapter.add(forumTitle);
-                int currentGroupIndex = 0;
-                int i = 0;
+                if (forum.getGroups() != null) {
+                    if (groupAdapter.getCount() == 1) {
+                        int currentGroupIndex = 0;
+                        int i = 0;
 
-                for (Map.Entry<String, Integer> group : forum.getGroups().entrySet()) {
-                    groupAdapter.add(group.getKey());
+                        for (Map.Entry<String, Integer> group : forum.getGroups().entrySet()) {
+                            groupAdapter.add(group.getKey());
 
-                    if (group.getValue() == currentGroup) {
-                        currentGroupIndex = i;
+                            if (group.getValue() == currentGroup) {
+                                currentGroupIndex = i;
+                            }
+
+                            i++;
+                        }
+
+                        if (currentGroup != 0) {
+                            try {
+                                spinner.setSelection(currentGroupIndex);
+                            } catch (Exception e) {
+                            }
+                        }
                     }
-
-                    i++;
                 }
-
-                if (currentGroup != 0) {
-                    try {
-                        spinner.setSelection(currentGroupIndex);
-                    } catch (Exception e) { }
-                }
-            }
+            } catch (NullPointerException e) { }
         }
 
         public void setCount(int count) {
             if (count != pageCount) { // count has changed, let's do some things
                 pageCount = count;
                 notifyDataSetChanged();
+
+                String subtitle = "Page " + (currentIndex + 1);
+                if (forum != null) {
+                    subtitle += " of " + forum.getPageCount();
+                }
+
+                ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
             }
         }
 
