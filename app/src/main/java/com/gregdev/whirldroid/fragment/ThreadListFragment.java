@@ -56,6 +56,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
     private TwoLineSpinnerAdapter groupAdapter;
     Spinner spinner;
     View rootView;
+    private Boolean doneInitialSelect = false;
 
     private Forum forum;
     private int forumId;
@@ -100,7 +101,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
 
                 String subtitle = "Page " + (currentIndex + 1);
                 if (forum != null) {
-                    subtitle += " of " + forum.getPageCount();
+                    subtitle += " of " + pageCount;
                 }
 
                 ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
@@ -148,6 +149,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
     @Override
     public void onResume() {
         super.onResume();
+        doneInitialSelect = false;
 
         MainActivity mainActivity = ((MainActivity) getActivity());
         mainActivity.resetActionBar();
@@ -196,22 +198,23 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
                 if (WhirlpoolApi.isActualForum(forumId) && WhirlpoolApi.isPublicForum(forumId)) {
 
                     String subtitle = "Page " + (currentIndex + 1);
-                    if (forum != null) {
-                        subtitle += " of " + forum.getPageCount();
+                    if (pageCount != 0) {
+                        subtitle += " of " + pageCount;
                     }
 
                     ArrayList<String> group_list = new ArrayList<>();
                     group_list.add(bundle.getString("forum_name"));
-                    groupAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, group_list);
-                    groupAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-
-                    ((MainActivity) getActivity()).showTwoLineSpinner();
-                    ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
+                    if (groupAdapter == null) {
+                        groupAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, group_list);
+                        groupAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+                    }
 
                     spinner = (Spinner) getActivity().findViewById(R.id.spinner);
                     spinner.setAdapter(groupAdapter);
-
                     spinner.setOnItemSelectedListener(this);
+
+                    ((MainActivity) getActivity()).showTwoLineSpinner();
+                    ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
 
                 } else if (!WhirlpoolApi.isPublicForum(forumId)) {
                     getActivity().setTitle(forumTitle);
@@ -265,7 +268,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
 
                 if (forum.getGroups() != null) {
                     if (groupAdapter.getCount() == 1) {
-                        int currentGroupIndex = 0;
+                        int currentGroupIndex = 1;
                         int i = 0;
 
                         for (Map.Entry<String, Integer> group : forum.getGroups().entrySet()) {
@@ -402,6 +405,10 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int itemPosition, long itemId) {
+        if (!doneInitialSelect) {
+            doneInitialSelect = true;
+            return;
+        }
         try {
             if (itemPosition == 0 && currentGroup == 0) {
                 return;
