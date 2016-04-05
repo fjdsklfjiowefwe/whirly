@@ -348,10 +348,7 @@ public class ThreadPageFragment extends ListFragment {
         if (filter_user_id != null) {
             MainActivity mainActivity = (MainActivity) getActivity();
 
-            Spinner filterSpinner = (Spinner) mainActivity.findViewById(R.id.spinner);
-            filterSpinner.setVisibility(View.GONE);
-
-            mainActivity.getSupportActionBar().setDisplayShowTitleEnabled(true);
+            mainActivity.resetActionBar();
 
             mainActivity.setTitle("Posts by " + filter_user);
             mainActivity.getSupportActionBar().setSubtitle("");
