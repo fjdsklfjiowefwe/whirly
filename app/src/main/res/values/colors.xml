@@ -5,6 +5,9 @@
     <color name="colorAccent">#616CA3</color>
     <color name="colorAccentDark">#818bc2</color>
 
+    <color name="AppBackgroundLight">#eeeeee</color>
+    <color name="AppBackgroundDark">#222222</color>
+
     <color name="custom_theme_colour">#ffffff</color>
     <color name="url_colour">#0077cc</color>
     <color name="widget_background">#aa000000</color>

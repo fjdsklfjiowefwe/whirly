@@ -2,6 +2,7 @@
 <resources>
     <declare-styleable name="WhirldroidTheme">
         <attr name="MenuButton" format="reference" />
+        <attr name="AppBackground" format="color" />
         <attr name="StickyThreadBackground" format="color" />
         <attr name="NavigationDrawerBackground" format="color" />
         <attr name="NavigationDrawerTextColour" format="color" />
