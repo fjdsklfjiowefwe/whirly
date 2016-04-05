@@ -294,9 +294,9 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
                 pageCount = count;
                 notifyDataSetChanged();
 
-                String subtitle = "Page " + (currentIndex + 1);
+                String subtitle = "Page 1";
                 if (forum != null) {
-                    subtitle += " of " + forum.getPageCount();
+                    subtitle += " of " + pageCount;
                 }
 
                 ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
