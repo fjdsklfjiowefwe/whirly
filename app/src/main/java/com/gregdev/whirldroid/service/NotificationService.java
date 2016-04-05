@@ -208,6 +208,7 @@ public class NotificationService extends Service {
                     if (!whim.isRead()) {
                         newWhimCount++;
                         whimIds.add(whim.getId());
+                        whimFrom = whim.getFromName();
 
                         // check if we have already sent a notification for this whim
                         if (!hasBeenNotified(Whirldroid.NEW_WHIM_NOTIFICATION_ID, whim.getDate())) {
