@@ -21,6 +21,7 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.NotificationCompat;
+import android.text.Html;
 
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.MainActivity;
@@ -213,7 +214,7 @@ public class NotificationService extends Service {
                         // check if we have already sent a notification for this whim
                         if (!hasBeenNotified(Whirldroid.NEW_WHIM_NOTIFICATION_ID, whim.getDate())) {
                             needToNotify = true;
-                            whimInboxStyle.addLine(whim.getFromName());
+                            whimInboxStyle.addLine(Html.fromHtml("<b>" + whim.getFromName() + "</b> " + whim.getContent()));
                         }
                     }
                 }
