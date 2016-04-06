@@ -76,21 +76,22 @@ public class ForumListFragment extends ListFragment {
 
         @Override
         protected void onPostExecute(final ArrayList<Forum> result) {
+            try {
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        if (result != null) {
+                            if (mSwipeRefreshLayout.isRefreshing()) {
+                                Toast.makeText(getActivity(), "Forums refreshed", Toast.LENGTH_SHORT).show();
+                            }
 
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    if (result != null) {
-                        if (mSwipeRefreshLayout.isRefreshing()) {
-                            Toast.makeText(getActivity(), "Forums refreshed", Toast.LENGTH_SHORT).show();
+                            setForums(forum_list); // display the forums in the list
+                        } else {
+                            Toast.makeText(getActivity(), "Error: " + error_message, Toast.LENGTH_LONG).show();
                         }
-
-                        setForums(forum_list); // display the forums in the list
-                    } else {
-                        Toast.makeText(getActivity(), "Error: " + error_message, Toast.LENGTH_LONG).show();
                     }
-                }
-            });
-            mSwipeRefreshLayout.setRefreshing(false);
+                });
+                mSwipeRefreshLayout.setRefreshing(false);
+            } catch (NullPointerException e) { }
         }
     }
 
