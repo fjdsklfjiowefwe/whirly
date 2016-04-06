@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +51,9 @@ public class WhimListFragment extends ListFragment {
     private RetrieveWhimsTask task;
     private TextView no_whims;
     private Tracker mTracker;
+    private ProgressBar loading;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private boolean showUnreadOnly = false;
 
     private class MarkWhimAsReadTask extends AsyncTask<String, Void, Boolean> {
         private Whim whim;
@@ -105,15 +110,16 @@ public class WhimListFragment extends ListFragment {
         @Override
         protected ArrayList<Whim> doInBackground(String... params) {
             if (clear_cache || Whirldroid.getApi().needToDownloadWhims()) {
-                getActivity().runOnUiThread(new Runnable() {
-                    public void run() {
-                        try {
-                            progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Loading whims...", true, true);
-                            progress_dialog.setOnCancelListener(new CancelTaskOnCancelListener(task));
-                        } catch (BadTokenException e) {
+                try {
+                    getActivity().runOnUiThread(new Runnable() {
+                        public void run() {
+                            if (!mSwipeRefreshLayout.isRefreshing()) {
+                                loading.setVisibility(View.VISIBLE);
+                            }
                         }
-                    }
-                });
+                    });
+                } catch (NullPointerException e) { }
+
                 try {
                     Whirldroid.getApi().downloadWhims(0);
                 }
@@ -128,31 +134,26 @@ public class WhimListFragment extends ListFragment {
 
         @Override
         protected void onPostExecute(final ArrayList<Whim> result) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    if (progress_dialog != null) {
-                        try {
-                            progress_dialog.dismiss(); // hide the progress dialog
-                            progress_dialog = null;
-                        } catch (Exception e) {
-                        }
+            try {
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        if (mSwipeRefreshLayout.isRefreshing()) {
+                            mSwipeRefreshLayout.setRefreshing(false);
 
-                        if (result != null) {
-                            Toast.makeText(getActivity(), "Whims refreshed", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                    if (result != null) {
-                        if (whim_list.size() == 0) {
-                            no_whims.setVisibility(View.VISIBLE);
+                            if (result != null) {
+                                Toast.makeText(getActivity(), "Whims refreshed", Toast.LENGTH_SHORT).show();
+                            }
                         } else {
-                            no_whims.setVisibility(View.GONE);
-                            setWhims(whim_list); // display the news in the list
+                            loading.setVisibility(View.GONE);
                         }
-                    } else {
-                        Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
+                        if (result != null) {
+                            setWhims(whim_list); // display the whims in the list
+                        } else {
+                            Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
+                        }
                     }
-                }
-            });
+                });
+            } catch (NullPointerException e) { }
         }
     }
 
@@ -253,13 +254,16 @@ public class WhimListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        container.removeAllViews();
         View rootView = inflater.inflate(R.layout.whim_list, container, false);
 
         setHasOptionsMenu(true);
 
+        loading = (ProgressBar) rootView.findViewById(R.id.loading);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
+
         no_whims = (TextView) rootView.findViewById(R.id.no_whims);
-        getWhims(false);
+
+        showUnreadOnly = getArguments().getBoolean("unread", false);
 
         return rootView;
     }
@@ -267,6 +271,14 @@ public class WhimListFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         registerForContextMenu(getListView());
+        getWhims(false);
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                initiateRefresh();
+            }
+        });
     }
 
     @Override
@@ -368,19 +380,37 @@ public class WhimListFragment extends ListFragment {
             ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Updated " + ago + " ago");
         }
 
-
-        if (whim_list == null || whim_list.size() == 0) { // no whims found
+        if (whim_list == null) { // no whims found
             return;
+        }
+
+        if (showUnreadOnly) {
+            ArrayList<Whim> whim_list_clone = new ArrayList<>();
+
+            for (Whim whim : whim_list) {
+                if (!whim.isRead()) {
+                    whim_list_clone.add(whim);
+                }
+            }
+
+            whim_list = whim_list_clone;
+        }
+
+        if ( whim_list.size() == 0) { // no whims found
+            no_whims.setVisibility(View.VISIBLE);
+
+            if (showUnreadOnly) {
+                no_whims.setText("No unread whims");
+            } else {
+                no_whims.setText("No whims");
+            }
+
+        } else {
+            no_whims.setVisibility(View.GONE);
         }
 
         whim_adapter = new WhimAdapter(getActivity(), R.layout.list_row, whim_list);
         setListAdapter(whim_adapter);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.refresh, menu);
-        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -398,5 +428,12 @@ public class WhimListFragment extends ListFragment {
                 return true;
         }
         return false;
+    }
+
+    public boolean initiateRefresh() {
+        //mSwipeRefreshLayout.setRefreshing(true);
+        getWhims(true);
+
+        return true;
     }
 }

@@ -73,13 +73,16 @@ public class NewsListFragment extends ListFragment {
         @Override
         protected ArrayList<NewsArticle> doInBackground(String... params) {
             if (clear_cache || Whirldroid.getApi().needToDownloadNews()) {
-                getActivity().runOnUiThread(new Runnable() {
-                    public void run() {
-                        if (!mSwipeRefreshLayout.isRefreshing()) {
-                            loading.setVisibility(View.VISIBLE);
+                try {
+                    getActivity().runOnUiThread(new Runnable() {
+                        public void run() {
+                            if (!mSwipeRefreshLayout.isRefreshing()) {
+                                loading.setVisibility(View.VISIBLE);
+                            }
                         }
-                    }
-                });
+                    });
+                } catch (NullPointerException e) { }
+
                 try {
                     Whirldroid.getApi().downloadNews();
                 }

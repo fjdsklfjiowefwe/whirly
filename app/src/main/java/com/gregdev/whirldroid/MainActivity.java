@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         break;
 
                     case R.id.drawer_item_whims:
-                        switchFragment("WhimList", true);
+                        switchFragment("Whims", true);
                         break;
 
                     case R.id.drawer_item_recent:
@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     switchFragment("NewsList", false);
                     break;
                 case "WhimList":
-                    switchFragment("WhimList", false);
+                    switchFragment("Whims", false);
                     break;
                 case "RecentThreads":
                     bundle = new Bundle();
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         break;
 
                     case Whirldroid.NEW_WHIM_NOTIFICATION_ID:
-                        switchFragment("WhimList", true);
+                        switchFragment("Whims", true);
                         break;
                 }
 
