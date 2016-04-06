@@ -211,6 +211,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         switchFragment("WhimList", true);
                         break;
                 }
+
+                getIntent().setAction(null);
             }
         } catch (NullPointerException e) { }
     }
