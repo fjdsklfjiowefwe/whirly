@@ -211,6 +211,27 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
 
                     spinner = (Spinner) getActivity().findViewById(R.id.spinner);
                     spinner.setAdapter(groupAdapter);
+
+                    if (currentGroup != 0) {
+                        int currentGroupIndex = 0;
+                        int i = 1;
+                        spinner.setOnItemSelectedListener(null);
+
+                        for (Map.Entry<String, Integer> group : forum.getGroups().entrySet()) {
+                            if (group.getValue() == currentGroup) {
+                                currentGroupIndex = i;
+                            }
+
+                            i++;
+                        }
+
+                        if (currentGroupIndex != 0) {
+                            try {
+                                spinner.setSelection(currentGroupIndex);
+                            } catch (Exception e) { }
+                        }
+                    }
+
                     spinner.setOnItemSelectedListener(this);
 
                     ((MainActivity) getActivity()).showTwoLineSpinner();
