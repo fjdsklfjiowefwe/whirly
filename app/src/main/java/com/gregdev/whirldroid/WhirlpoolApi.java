@@ -1043,11 +1043,11 @@ public class WhirlpoolApi extends Activity {
         get.add("watched");
         params.put("watchedmode", mode + "");
 
-        if (mark_thread_as_read != null) {
+        if (mark_thread_as_read != null && !mark_thread_as_read.equals("0")) {
             params.put("watchedread", mark_thread_as_read);
         }
 
-        if (unwatch_thread != null) {
+        if (unwatch_thread != null && !unwatch_thread.equals("0")) {
             params.put("watchedremove", unwatch_thread);
         }
 
