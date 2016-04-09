@@ -372,7 +372,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     }
 
     @Override
-    public void taskComplete(final WhirldroidTask task, Boolean result) {
+    public void onWhirldroidTaskCompleted(final WhirldroidTask task, Boolean result) {
         if (progressDialog != null) {
             progressDialog.dismiss(); // hide the progress dialog
             progressDialog = null;

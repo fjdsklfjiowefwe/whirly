@@ -23,7 +23,7 @@ public abstract class WhirldroidTask<R> extends AsyncTask<String, Void, Boolean>
     @Override
     protected void onPostExecute(final Boolean result) {
         if (listener != null) {
-            listener.taskComplete(this, result);
+            listener.onWhirldroidTaskCompleted(this, result);
         }
     }
 

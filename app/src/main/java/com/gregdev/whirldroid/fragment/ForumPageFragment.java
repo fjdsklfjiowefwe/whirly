@@ -677,7 +677,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     }
 
     @Override
-    public void taskComplete(final WhirldroidTask task, final Boolean result) {
+    public void onWhirldroidTaskCompleted(final WhirldroidTask task, final Boolean result) {
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 if (progress_dialog != null) {
