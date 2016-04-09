@@ -1,7 +1,9 @@
 package com.gregdev.whirldroid.fragment;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -11,8 +13,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.ActionMenuView;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,6 +54,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     private MenuBuilder menuBuilder;
     private Spinner filterSpinner;
     private TwoLineSpinnerAdapter filterAdapter;
+    private ProgressDialog progressDialog;
 
     private int currentFilter = 0;
 
@@ -257,9 +262,12 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
             case R.id.menu_markread:
                 try {
-                    WatchedThreadTask markread_task = new WatchedThreadTask(WhirlpoolApi.WATCHMODE_UNREAD, threadId, 0, 0);
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+                    WatchedThreadTask markread_task = new WatchedThreadTask(WhirlpoolApi.WATCHMODE_UNREAD, threadId, 0, 0, preferences.getBoolean("pref_watchedbacktolist", false), "Thread marked as read");
                     markread_task.execute();
-                    Toast.makeText(getActivity(), "Marking thread as read", Toast.LENGTH_SHORT).show();
+
+                    progressDialog = ProgressDialog.show(getActivity(), "Just a sec...", "Marking thread as read", true, true);
 
                 } catch (Exception e) {
                     Toast.makeText(getActivity(), "Error marking thread as read", Toast.LENGTH_SHORT).show();
@@ -317,14 +325,22 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
         private int mark_as_read = 0;
         private int unwatch = 0;
+        private Boolean goBack = false;
+        private String toastMessage = null;
         public int watch = 0;
         public int mode = 0;
 
         public WatchedThreadTask(int mode, int mark_as_read, int unwatch, int watch) {
+            this(mode, mark_as_read, unwatch, watch, false, null);
+        }
+
+        public WatchedThreadTask(int mode, int mark_as_read, int unwatch, int watch, Boolean goBack, String toastMessage) {
             this.mark_as_read = mark_as_read;
             this.unwatch = unwatch;
             this.watch = watch;
             this.mode = mode;
+            this.goBack = goBack;
+            this.toastMessage = toastMessage;
         }
 
         @Override
@@ -340,7 +356,23 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
         @Override
         protected void onPostExecute(final Void result) {
+            if (progressDialog != null) {
+                progressDialog.dismiss(); // hide the progress dialog
+                progressDialog = null;
+            }
 
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    if (toastMessage != null) {
+                        Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+            if (goBack) {
+                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
+            }
         }
     }
 

@@ -156,6 +156,12 @@
             android:summary="Automatically mark watched threads as read when viewed"
             android:key="pref_watchedautomarkasread" />
 
+        <CheckBoxPreference
+            android:title="Return to list on mark as read"
+            android:defaultValue="false"
+            android:summary="Go back to the list of watched threads when the 'mark as read' button is pressed"
+            android:key="pref_watchedbacktolist" />
+
     </PreferenceCategory>
 
 
