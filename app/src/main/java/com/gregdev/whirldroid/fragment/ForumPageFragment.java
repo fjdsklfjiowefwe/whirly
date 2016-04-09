@@ -1,5 +1,6 @@
 package com.gregdev.whirldroid.fragment;
 
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -13,7 +14,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,6 +35,11 @@ import com.gregdev.whirldroid.WhirlpoolApiException;
 import com.gregdev.whirldroid.layout.SeparatedListAdapter;
 import com.gregdev.whirldroid.model.Forum;
 import com.gregdev.whirldroid.model.Thread;
+import com.gregdev.whirldroid.task.MarkThreadReadTask;
+import com.gregdev.whirldroid.task.UnwatchThreadTask;
+import com.gregdev.whirldroid.task.WatchThreadTask;
+import com.gregdev.whirldroid.task.WhirldroidTask;
+import com.gregdev.whirldroid.task.WhirldroidTaskComplete;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,7 +49,7 @@ import java.util.Map;
 /**
  * Created by Greg on 10/03/2016.
  */
-public class ForumPageFragment extends ListFragment {
+public class ForumPageFragment extends ListFragment implements WhirldroidTaskComplete {
 
     private SeparatedListAdapter threads_adapter;
     private ThreadAdapter threads_adapter_no_headings;
@@ -52,7 +57,6 @@ public class ForumPageFragment extends ListFragment {
     private List<Thread> thread_list;
     private ProgressDialog progress_dialog;
     private RetrieveThreadsTask task;
-    private WatchThreadTask watch_task;
     Map<String, List<Thread>> sorted_threads;
     private String forum_title;
     private int forum_id;
@@ -69,69 +73,6 @@ public class ForumPageFragment extends ListFragment {
     private int search_forum = -1;
     private int search_group = -1;
     private String search_query;
-
-    private class WatchThreadTask extends AsyncTask<String, Void, Boolean> {
-        private int thread_id;
-
-        public WatchThreadTask(int thread_id) {
-            this.thread_id = thread_id;
-        }
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-            try {
-                Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, null, null, thread_id);
-                return true;
-            }
-            catch (final WhirlpoolApiException e) {
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean result) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    if (progress_dialog != null) {
-                        try {
-                            progress_dialog.dismiss(); // hide the progress dialog
-                            progress_dialog = null;
-                        } catch (Exception e) {
-                        }
-                    }
-                    if (result) {
-                        Toast.makeText(getActivity(), "Added thread to watch list", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getActivity(), "Error downloading data", Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
-        }
-    }
-
-    private class MarkReadTask extends AsyncTask<String, Void, Boolean> {
-        private int thread_id;
-
-        public MarkReadTask(int thread_id) {
-            this.thread_id = thread_id;
-        }
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-            try {
-                Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, thread_id + "", null, 0);
-                return true;
-            }
-            catch (final WhirlpoolApiException e) {
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean result) {
-            // do nothing
-        }
-    }
 
     private class RetrieveThreadsTask extends AsyncTask<String, Void, List<Thread>> {
 
@@ -494,10 +435,10 @@ public class ForumPageFragment extends ListFragment {
         openThread(thread, 1, false);
     }
 
-    public void markThreadAsWatched(int thread_id) {
+    public void markThreadAsWatched(int threadId) {
         progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Watching thread...", true, true);
-        watch_task = new WatchThreadTask(thread_id); // start new thread to retrieve threads
-        watch_task.execute();
+        WatchThreadTask watchTask = new WatchThreadTask(this, threadId);
+        watchTask.execute();
     }
 
     public void getThreads(boolean clear_cache) {
@@ -631,8 +572,8 @@ public class ForumPageFragment extends ListFragment {
         }
 
         if (auto_mark_read && thread.hasUnreadPosts()) {
-            MarkReadTask mark_read = new MarkReadTask(thread.getId()); // start new thread to retrieve threads
-            mark_read.execute();
+            MarkThreadReadTask markRead = new MarkThreadReadTask(this, thread.getId() + "");
+            markRead.execute();
         }
 
         // set to open threads in browser
@@ -732,5 +673,42 @@ public class ForumPageFragment extends ListFragment {
         getThreads(true);
 
         return true;
+    }
+
+    @Override
+    public void taskComplete(final WhirldroidTask task, final Boolean result) {
+        getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                if (progress_dialog != null) {
+                    try {
+                        progress_dialog.dismiss(); // hide the progress dialog
+                        progress_dialog = null;
+                    } catch (Exception e) { }
+                }
+
+                if (result) {
+                    switch (task.getTag()) {
+                        case WhirldroidTask.TAG_THREAD_WATCH:
+                            final Snackbar snackbar = Snackbar.make(thread_listview, "Added thread to watch list", Snackbar.LENGTH_LONG);
+
+                            snackbar.setAction("UNDO", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    snackbar.dismiss();
+                                    UnwatchThreadTask unwatchTask = new UnwatchThreadTask(ForumPageFragment.this, task.getSubject() + "");
+                                    unwatchTask.execute();
+                                    Snackbar snackbar1 = Snackbar.make(thread_listview, "Removed thread from watch list", Snackbar.LENGTH_SHORT);
+                                    snackbar1.show();
+                                }
+                            });
+
+                            snackbar.show();
+                            break;
+                    }
+                } else {
+                    Toast.makeText(getActivity(), "Error downloading data", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 }
