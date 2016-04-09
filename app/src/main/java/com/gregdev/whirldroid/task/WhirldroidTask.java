@@ -8,18 +8,23 @@ public abstract class WhirldroidTask<R> extends AsyncTask<String, Void, Boolean>
     public static final int TAG_THREAD_UNWATCH  = 1;
     public static final int TAG_THREAD_READ     = 2;
 
-    protected WhirldroidTaskCompletedListener caller;
+    protected WhirldroidTaskOnCompletedListener listener = null;
     protected int tag;
     protected R subject;
 
-    public WhirldroidTask(WhirldroidTaskCompletedListener caller, R subject) {
-        this.caller     = caller;
-        this.subject    = subject;
+    public WhirldroidTask(R subject) {
+        this.subject = subject;
+    }
+
+    public void setOnCompletedListener(WhirldroidTaskOnCompletedListener listener) {
+        this.listener = listener;
     }
 
     @Override
     protected void onPostExecute(final Boolean result) {
-        caller.taskComplete(this, result);
+        if (listener != null) {
+            listener.taskComplete(this, result);
+        }
     }
 
     public R getSubject() {

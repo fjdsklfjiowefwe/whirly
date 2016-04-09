@@ -6,8 +6,8 @@ import com.gregdev.whirldroid.WhirlpoolApiException;
 
 public class MarkThreadReadTask extends WhirldroidTask<String> {
 
-    public MarkThreadReadTask(WhirldroidTaskCompletedListener caller, String subject) {
-        super(caller, subject);
+    public MarkThreadReadTask(String subject) {
+        super(subject);
         setTag(WhirldroidTask.TAG_THREAD_READ);
     }
 

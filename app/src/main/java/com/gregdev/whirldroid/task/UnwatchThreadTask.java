@@ -6,8 +6,8 @@ import com.gregdev.whirldroid.WhirlpoolApiException;
 
 public class UnwatchThreadTask extends WhirldroidTask<String> {
 
-    public UnwatchThreadTask(WhirldroidTaskCompletedListener caller, String subject) {
-        super(caller, subject);
+    public UnwatchThreadTask(String subject) {
+        super(subject);
         setTag(WhirldroidTask.TAG_THREAD_UNWATCH);
     }
 

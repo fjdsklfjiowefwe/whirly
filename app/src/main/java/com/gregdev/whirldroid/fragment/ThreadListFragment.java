@@ -1,17 +1,14 @@
 package com.gregdev.whirldroid.fragment;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.ActionMenuView;
@@ -461,37 +458,6 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
     }
 
     public void onNothingSelected (AdapterView<?> parent) { }
-
-    private class WatchedThreadTask extends AsyncTask<String, Void, Void> {
-
-        private int mark_as_read = 0;
-        private int unwatch = 0;
-        public int watch = 0;
-        public int mode = 0;
-
-        public WatchedThreadTask(int mode, int mark_as_read, int unwatch, int watch) {
-            this.mark_as_read = mark_as_read;
-            this.unwatch = unwatch;
-            this.watch = watch;
-            this.mode = mode;
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-            try {
-                Whirldroid.getApi().downloadWatched(mode, mark_as_read + "", unwatch + "", watch);
-            }
-            catch (final WhirlpoolApiException e) {
-                return null;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(final Void result) {
-
-        }
-    }
 
     public void initiateRefresh() {
         try {

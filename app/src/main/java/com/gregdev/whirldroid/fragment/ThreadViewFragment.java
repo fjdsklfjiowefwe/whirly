@@ -6,9 +6,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -23,7 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
@@ -32,14 +31,18 @@ import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.WhirlpoolApi;
-import com.gregdev.whirldroid.WhirlpoolApiException;
 import com.gregdev.whirldroid.layout.TwoLineSpinnerAdapter;
+import com.gregdev.whirldroid.task.MarkThreadReadTask;
+import com.gregdev.whirldroid.task.UnwatchThreadTask;
+import com.gregdev.whirldroid.task.WatchThreadTask;
+import com.gregdev.whirldroid.task.WhirldroidTask;
+import com.gregdev.whirldroid.task.WhirldroidTaskOnCompletedListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSelectedListener, WhirldroidTaskOnCompletedListener {
 
     private ViewPager viewPager;
     private Tracker mTracker;
@@ -262,10 +265,9 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
             case R.id.menu_markread:
                 try {
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-                    WatchedThreadTask markread_task = new WatchedThreadTask(WhirlpoolApi.WATCHMODE_UNREAD, threadId, 0, 0, preferences.getBoolean("pref_watchedbacktolist", false), "Thread marked as read");
-                    markread_task.execute();
+                    MarkThreadReadTask markReadTask = new MarkThreadReadTask(threadId + "");
+                    markReadTask.setOnCompletedListener(this);
+                    markReadTask.execute();
 
                     progressDialog = ProgressDialog.show(getActivity(), "Just a sec...", "Marking thread as read", true, true);
 
@@ -290,15 +292,19 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
                 return true;
 
             case R.id.menu_watch:
-                WatchedThreadTask watch_task = new WatchedThreadTask(WhirlpoolApi.WATCHMODE_ALL, 0, 0, threadId);
-                watch_task.execute();
-                Toast.makeText(getActivity(), "Adding thread to watch list", Toast.LENGTH_SHORT).show();
+                WatchThreadTask watchTask = new WatchThreadTask(threadId);
+                watchTask.setOnCompletedListener(this);
+                watchTask.execute();
+
+                progressDialog = ProgressDialog.show(getActivity(), "Just a sec...", "Adding thread to watch list", true, true);
                 return true;
 
             case R.id.menu_unwatch:
-                WatchedThreadTask unwatch_task = new WatchedThreadTask(WhirlpoolApi.WATCHMODE_ALL, 0, threadId, 0);
-                unwatch_task.execute();
-                Toast.makeText(getActivity(), "Removing thread from watch list", Toast.LENGTH_SHORT).show();
+                UnwatchThreadTask unwatchTask = new UnwatchThreadTask(threadId + "");
+                unwatchTask.setOnCompletedListener(this);
+                unwatchTask.execute();
+
+                progressDialog = ProgressDialog.show(getActivity(), "Just a sec...", "Removing thread from watch list", true, true);
                 return true;
 
             case R.id.menu_replythread:
@@ -319,61 +325,6 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
                 return true;
         }
         return false;
-    }
-
-    private class WatchedThreadTask extends AsyncTask<String, Void, Void> {
-
-        private int mark_as_read = 0;
-        private int unwatch = 0;
-        private Boolean goBack = false;
-        private String toastMessage = null;
-        public int watch = 0;
-        public int mode = 0;
-
-        public WatchedThreadTask(int mode, int mark_as_read, int unwatch, int watch) {
-            this(mode, mark_as_read, unwatch, watch, false, null);
-        }
-
-        public WatchedThreadTask(int mode, int mark_as_read, int unwatch, int watch, Boolean goBack, String toastMessage) {
-            this.mark_as_read = mark_as_read;
-            this.unwatch = unwatch;
-            this.watch = watch;
-            this.mode = mode;
-            this.goBack = goBack;
-            this.toastMessage = toastMessage;
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-            try {
-                Whirldroid.getApi().downloadWatched(mode, mark_as_read + "", unwatch + "", watch);
-            }
-            catch (final WhirlpoolApiException e) {
-                return null;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(final Void result) {
-            if (progressDialog != null) {
-                progressDialog.dismiss(); // hide the progress dialog
-                progressDialog = null;
-            }
-
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    if (toastMessage != null) {
-                        Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-
-            if (goBack) {
-                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
-                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
-            }
-        }
     }
 
     @Override
@@ -418,6 +369,66 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         filterSpinner.setOnItemSelectedListener(this);
 
         mainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
+
+    @Override
+    public void taskComplete(final WhirldroidTask task, Boolean result) {
+        if (progressDialog != null) {
+            progressDialog.dismiss(); // hide the progress dialog
+            progressDialog = null;
+        }
+
+        getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                switch (task.getTag()) {
+                    case WhirldroidTask.TAG_THREAD_READ:
+                        Toast.makeText(getActivity(), "Thread marked as read", Toast.LENGTH_SHORT).show();
+                        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+                        if (settings.getBoolean("pref_watchedbacktolist", false)) {
+                            getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+                            getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
+                        }
+                        break;
+
+                    case WhirldroidTask.TAG_THREAD_WATCH:
+                        final Snackbar watchedSnackbar = Snackbar.make(viewPager, "Added thread to watch list", Snackbar.LENGTH_LONG);
+
+                        watchedSnackbar.setAction("UNDO", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                watchedSnackbar.dismiss();
+                                UnwatchThreadTask unwatchTask = new UnwatchThreadTask(task.getSubject() + "");
+                                unwatchTask.execute();
+                                Snackbar watchedSnackbar1 = Snackbar.make(viewPager, "Removed thread from watch list", Snackbar.LENGTH_SHORT);
+                                watchedSnackbar1.show();
+                            }
+                        });
+
+                        watchedSnackbar.show();
+                        break;
+
+                    case WhirldroidTask.TAG_THREAD_UNWATCH:
+                        final Snackbar unwatchedSnackbar = Snackbar.make(viewPager, "Removed thread from watch list", Snackbar.LENGTH_LONG);
+
+                        unwatchedSnackbar.setAction("UNDO", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                unwatchedSnackbar.dismiss();
+                                UnwatchThreadTask unwatchTask = new UnwatchThreadTask(task.getSubject() + "");
+                                unwatchTask.execute();
+                                Snackbar unwatchedSnackbar1 = Snackbar.make(viewPager, "Added thread to watch list", Snackbar.LENGTH_SHORT);
+                                unwatchedSnackbar1.show();
+                            }
+                        });
+
+                        unwatchedSnackbar.show();
+                        break;
+                }
+            }
+        });
+
+
     }
 
 }

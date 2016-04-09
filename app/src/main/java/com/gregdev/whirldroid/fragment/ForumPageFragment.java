@@ -39,7 +39,7 @@ import com.gregdev.whirldroid.task.MarkThreadReadTask;
 import com.gregdev.whirldroid.task.UnwatchThreadTask;
 import com.gregdev.whirldroid.task.WatchThreadTask;
 import com.gregdev.whirldroid.task.WhirldroidTask;
-import com.gregdev.whirldroid.task.WhirldroidTaskComplete;
+import com.gregdev.whirldroid.task.WhirldroidTaskOnCompletedListener;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,7 +49,7 @@ import java.util.Map;
 /**
  * Created by Greg on 10/03/2016.
  */
-public class ForumPageFragment extends ListFragment implements WhirldroidTaskComplete {
+public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnCompletedListener {
 
     private SeparatedListAdapter threads_adapter;
     private ThreadAdapter threads_adapter_no_headings;
@@ -437,7 +437,8 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskCom
 
     public void markThreadAsWatched(int threadId) {
         progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Watching thread...", true, true);
-        WatchThreadTask watchTask = new WatchThreadTask(this, threadId);
+        WatchThreadTask watchTask = new WatchThreadTask(threadId);
+        watchTask.setOnCompletedListener(this);
         watchTask.execute();
     }
 
@@ -572,7 +573,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskCom
         }
 
         if (auto_mark_read && thread.hasUnreadPosts()) {
-            MarkThreadReadTask markRead = new MarkThreadReadTask(this, thread.getId() + "");
+            MarkThreadReadTask markRead = new MarkThreadReadTask(thread.getId() + "");
             markRead.execute();
         }
 
@@ -695,7 +696,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskCom
                                 @Override
                                 public void onClick(View view) {
                                     snackbar.dismiss();
-                                    UnwatchThreadTask unwatchTask = new UnwatchThreadTask(ForumPageFragment.this, task.getSubject() + "");
+                                    UnwatchThreadTask unwatchTask = new UnwatchThreadTask(task.getSubject() + "");
                                     unwatchTask.execute();
                                     Snackbar snackbar1 = Snackbar.make(thread_listview, "Removed thread from watch list", Snackbar.LENGTH_SHORT);
                                     snackbar1.show();

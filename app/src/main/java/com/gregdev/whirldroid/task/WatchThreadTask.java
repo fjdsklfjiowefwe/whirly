@@ -6,8 +6,8 @@ import com.gregdev.whirldroid.WhirlpoolApiException;
 
 public class WatchThreadTask extends WhirldroidTask<Integer> {
 
-    public WatchThreadTask(WhirldroidTaskCompletedListener caller, int subject) {
-        super(caller, subject);
+    public WatchThreadTask(int subject) {
+        super(subject);
         setTag(WhirldroidTask.TAG_THREAD_WATCH);
     }
 
