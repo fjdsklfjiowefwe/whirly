@@ -202,7 +202,7 @@ public class NotificationService extends Service {
                 String whimFrom         = "";
                 boolean needToNotify    = false;
 
-                for (Whim whim : Whirldroid.getApi().getWhims()) {
+                for (Whim whim : Whirldroid.getApi().getWhimManager().getItems()) {
                     // check if this whim has been read
                     if (!whim.isRead()) {
                         newWhimCount++;

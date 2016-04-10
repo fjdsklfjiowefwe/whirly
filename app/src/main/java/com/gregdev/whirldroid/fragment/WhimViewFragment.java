@@ -34,7 +34,7 @@ public class WhimViewFragment extends Fragment {
         @Override
         protected Integer doInBackground(Whim... whims) {
             try {
-                Whirldroid.getApi().downloadWhims(whims[0].getId());
+                Whirldroid.getApi().getWhimManager().download(whims[0].getId());
             }
             catch (WhirlpoolApiException e) {
                 // error marking whim as read, meh

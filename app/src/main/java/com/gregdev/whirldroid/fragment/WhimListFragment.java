@@ -35,6 +35,7 @@ import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.model.Whim;
+import com.gregdev.whirldroid.whirlpool.manager.WhimManager;
 
 /**
  * Displays the latest Whirlpool whims in a nice list format
@@ -63,10 +64,10 @@ public class WhimListFragment extends ListFragment {
         @Override
         protected Boolean doInBackground(String... params) {
             try {
-                Whirldroid.getApi().downloadWhims(whim.getId());
+                Whirldroid.getApi().getWhimManager().download(whim.getId());
                 return true;
-            }
-            catch (final WhirlpoolApiException e) {
+
+            } catch (final WhirlpoolApiException e) {
                 return false;
             }
         }
@@ -79,8 +80,7 @@ public class WhimListFragment extends ListFragment {
                         try {
                             progress_dialog.dismiss(); // hide the progress dialog
                             progress_dialog = null;
-                        } catch (Exception e) {
-                        }
+                        } catch (Exception e) { }
                     }
                     if (result) {
                         Toast.makeText(getActivity(), "Marked whim as read", Toast.LENGTH_SHORT).show();
@@ -107,7 +107,9 @@ public class WhimListFragment extends ListFragment {
 
         @Override
         protected ArrayList<Whim> doInBackground(String... params) {
-            if (clear_cache || Whirldroid.getApi().needToDownloadWhims()) {
+            WhimManager whimManager = Whirldroid.getApi().getWhimManager();
+
+            if (clear_cache || whimManager.needToDownload()) {
                 try {
                     getActivity().runOnUiThread(new Runnable() {
                         public void run() {
@@ -119,14 +121,15 @@ public class WhimListFragment extends ListFragment {
                 } catch (NullPointerException e) { }
 
                 try {
-                    Whirldroid.getApi().downloadWhims(0);
-                }
-                catch (final WhirlpoolApiException e) {
+                    Whirldroid.getApi().getWhimManager().download();
+
+                } catch (final WhirlpoolApiException e) {
                     error_message = e.getMessage();
                     return null;
                 }
             }
-            whim_list = Whirldroid.getApi().getWhims();
+
+            whim_list = whimManager.getItems();
             return whim_list;
         }
 
@@ -368,7 +371,7 @@ public class WhimListFragment extends ListFragment {
      * @param whim_list Whims
      */
     private void setWhims(ArrayList<Whim> whim_list) {
-        long last_updated = System.currentTimeMillis() / 1000 - Whirldroid.getApi().getWhimsLastUpdated();
+        long last_updated = System.currentTimeMillis() / 1000 - Whirldroid.getApi().getWhimManager().getLastUpdated();
 
         if (last_updated < 10) { // updated less than 10 seconds ago
             ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Updated just a moment ago");
@@ -417,7 +420,7 @@ public class WhimListFragment extends ListFragment {
             case R.id.menu_refresh:
                 long now = System.currentTimeMillis() / 1000;
                 // don't refresh too often
-                if (now - Whirldroid.getApi().getWhimsLastUpdated() > WhirlpoolApi.REFRESH_INTERVAL) {
+                if (now - Whirldroid.getApi().getWhimManager().getLastUpdated() > WhirlpoolApi.REFRESH_INTERVAL) {
                     getWhims(true);
                 }
                 else {

@@ -25,7 +25,7 @@ public class MarkWhimReadReceiver extends BroadcastReceiver {
             public void run() {
                 try {
                     for (int whimId : whimIds) {
-                        Whirldroid.getApi().downloadWhims(whimId);
+                        Whirldroid.getApi().getWhimManager().download(whimId);
                     }
                 } catch (WhirlpoolApiException e) { }
             }

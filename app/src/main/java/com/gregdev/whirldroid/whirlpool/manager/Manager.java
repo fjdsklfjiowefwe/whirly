@@ -33,6 +33,10 @@ public abstract class Manager<T> {
         this.items = items;
     }
 
+    public long getLastUpdated() {
+        return lastUpdated;
+    }
+
     public abstract void download() throws WhirlpoolApiException;
 
     public boolean needToDownload() {
