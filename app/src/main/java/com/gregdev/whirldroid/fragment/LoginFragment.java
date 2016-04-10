@@ -24,7 +24,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
-import com.gregdev.whirldroid.WhirlpoolApiException;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 
 import java.util.ArrayList;
 import java.util.List;

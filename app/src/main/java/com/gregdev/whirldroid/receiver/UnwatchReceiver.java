@@ -6,8 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.gregdev.whirldroid.Whirldroid;
-import com.gregdev.whirldroid.WhirlpoolApi;
-import com.gregdev.whirldroid.WhirlpoolApiException;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 
 import java.util.ArrayList;
 

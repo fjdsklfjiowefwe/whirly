@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -24,10 +23,9 @@ import android.support.v7.app.NotificationCompat;
 import android.text.Html;
 
 import com.gregdev.whirldroid.R;
-import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.Whirldroid;
-import com.gregdev.whirldroid.WhirlpoolApi;
-import com.gregdev.whirldroid.WhirlpoolApiException;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.model.Forum;
 import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.model.Whim;

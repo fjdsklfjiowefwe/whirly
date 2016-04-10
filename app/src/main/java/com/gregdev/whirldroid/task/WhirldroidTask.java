@@ -2,8 +2,6 @@ package com.gregdev.whirldroid.task;
 
 import android.os.AsyncTask;
 
-import com.gregdev.whirldroid.R;
-
 public abstract class WhirldroidTask<T> extends AsyncTask<String, Void, Boolean> {
 
     public static final int TAG_THREAD_WATCH    = 0;

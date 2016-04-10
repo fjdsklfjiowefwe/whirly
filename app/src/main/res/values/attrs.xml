@@ -7,5 +7,6 @@
         <attr name="NavigationDrawerBackground" format="color" />
         <attr name="NavigationDrawerTextColour" format="color" />
         <attr name="NavigationDrawerIconTint" format="color" />
+        <attr name="ForegroundColour" format="color" />
     </declare-styleable>
 </resources>

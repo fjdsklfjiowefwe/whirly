@@ -1,4 +1,4 @@
-package com.gregdev.whirldroid;
+package com.gregdev.whirldroid.whirlpool;
 
 public class WhirlpoolApiException extends Exception {
 

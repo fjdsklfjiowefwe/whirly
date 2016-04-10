@@ -30,8 +30,8 @@ import android.widget.Toast;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
-import com.gregdev.whirldroid.WhirlpoolApi;
-import com.gregdev.whirldroid.WhirlpoolApiException;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.layout.SeparatedListAdapter;
 import com.gregdev.whirldroid.model.Forum;
 import com.gregdev.whirldroid.model.Thread;
@@ -55,12 +55,10 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     private ThreadAdapter threads_adapter_no_headings;
     private Forum forum;
     private List<Thread> thread_list;
-    private ProgressDialog progress_dialog;
+    private ProgressDialog progressDialog;
     private RetrieveThreadsTask task;
     Map<String, List<Thread>> sorted_threads;
-    private String forum_title;
     private int forum_id;
-    private int list_position;
     private int page = 1;
     private int current_page = 1;
     private int group = 0;
@@ -77,14 +75,6 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     private class RetrieveThreadsTask extends AsyncTask<String, Void, List<Thread>> {
 
         private boolean clear_cache = false;
-        private String mark_thread_as_read = null;
-        private String unwatch_thread = null;
-
-        public RetrieveThreadsTask(boolean clear_cache, String mark_thread_as_read, String unwatch_thread) {
-            this.clear_cache = clear_cache;
-            this.mark_thread_as_read = mark_thread_as_read;
-            this.unwatch_thread = unwatch_thread;
-        }
 
         public RetrieveThreadsTask(boolean clear_cache) {
             this.clear_cache = clear_cache;
@@ -98,7 +88,6 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
                         public void run() {
                             if (!mSwipeRefreshLayout.isRefreshing()) {
                                 loading.setVisibility(View.VISIBLE);
-                                thread_listview.setAlpha(0.5F);
                             }
                         }
                     });
@@ -107,10 +96,10 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
                 try {
                     switch (forum_id) {
                         case WhirlpoolApi.UNREAD_WATCHED_THREADS:
-                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, mark_thread_as_read, unwatch_thread, 0);
+                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, null, null, 0);
                             break;
                         case WhirlpoolApi.ALL_WATCHED_THREADS:
-                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, mark_thread_as_read, unwatch_thread, 0);
+                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, null, null, 0);
                             break;
                         case WhirlpoolApi.RECENT_THREADS:
                             Whirldroid.getApi().downloadRecent();
@@ -146,7 +135,6 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
                     public void run() {
                         if (!mSwipeRefreshLayout.isRefreshing()) {
                             loading.setVisibility(View.GONE);
-                            thread_listview.setAlpha(1F);
                         }
 
                         mSwipeRefreshLayout.setRefreshing(false);
@@ -331,15 +319,18 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
                                     return true;
 
                                 case R.id.unwatch:
-                                    getThreads(true, null, thread.getId() + "");
+                                    unwatchThread(thread.getId());
                                     return true;
 
                                 case R.id.mark_read:
-                                    getThreads(true, thread.getId() + "", null);
+                                    progressDialog = ProgressDialog.show(getActivity(), "Just a sec...", "Marking thread as read...", true, true);
+                                    MarkThreadReadTask markReadTask = new MarkThreadReadTask(thread.getId() + "");
+                                    markReadTask.setOnCompletedListener(ForumPageFragment.this);
+                                    markReadTask.execute();
                                     return true;
 
                                 case R.id.watch:
-                                    markThreadAsWatched(thread.getId());
+                                    watchThread(thread.getId());
                                     return true;
 
                                 case R.id.goto_last:
@@ -363,6 +354,20 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
 
             return convert_view;
         }
+    }
+
+    public void unwatchThread(int threadId) {
+        progressDialog = ProgressDialog.show(getActivity(), "Just a sec...", "Removing thread from watch list...", true, true);
+        UnwatchThreadTask unwatchTask = new UnwatchThreadTask(threadId + "");
+        unwatchTask.setOnCompletedListener(ForumPageFragment.this);
+        unwatchTask.execute();
+    }
+
+    public void watchThread(int threadId) {
+        progressDialog = ProgressDialog.show(getActivity(), "Just a sec...", "Adding thread to watch list...", true, true);
+        WatchThreadTask watchTask = new WatchThreadTask(threadId);
+        watchTask.setOnCompletedListener(ForumPageFragment.this);
+        watchTask.execute();
     }
 
     @Override
@@ -435,20 +440,8 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
         openThread(thread, 1, false);
     }
 
-    public void markThreadAsWatched(int threadId) {
-        progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Watching thread...", true, true);
-        WatchThreadTask watchTask = new WatchThreadTask(threadId);
-        watchTask.setOnCompletedListener(this);
-        watchTask.execute();
-    }
-
     public void getThreads(boolean clear_cache) {
         task = new RetrieveThreadsTask(clear_cache); // start new thread to retrieve threads
-        task.execute();
-    }
-
-    private void getThreads(boolean clear_cache, String mark_thread_as_read, String unwatch_thread) {
-        task = new RetrieveThreadsTask(clear_cache, mark_thread_as_read, unwatch_thread); // start new thread to retrieve threads
         task.execute();
     }
 
@@ -680,30 +673,47 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     public void onWhirldroidTaskCompleted(final WhirldroidTask task, final Boolean result) {
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
-                if (progress_dialog != null) {
+                if (progressDialog != null) {
                     try {
-                        progress_dialog.dismiss(); // hide the progress dialog
-                        progress_dialog = null;
+                        progressDialog.dismiss(); // hide the progress dialog
+                        progressDialog = null;
                     } catch (Exception e) { }
                 }
 
                 if (result) {
                     switch (task.getTag()) {
                         case WhirldroidTask.TAG_THREAD_WATCH:
-                            final Snackbar snackbar = Snackbar.make(thread_listview, "Added thread to watch list", Snackbar.LENGTH_LONG);
+                            final Snackbar watchSnackbar = Snackbar.make(thread_listview, "Added thread to watch list", Snackbar.LENGTH_LONG);
 
-                            snackbar.setAction("UNDO", new View.OnClickListener() {
+                            watchSnackbar.setAction("UNDO", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    snackbar.dismiss();
-                                    UnwatchThreadTask unwatchTask = new UnwatchThreadTask(task.getSubject() + "");
-                                    unwatchTask.execute();
-                                    Snackbar snackbar1 = Snackbar.make(thread_listview, "Removed thread from watch list", Snackbar.LENGTH_SHORT);
-                                    snackbar1.show();
+                                    watchSnackbar.dismiss();
+                                    unwatchThread(Integer.parseInt(task.getSubject() + ""));
                                 }
                             });
 
-                            snackbar.show();
+                            watchSnackbar.show();
+                            break;
+
+                        case WhirldroidTask.TAG_THREAD_UNWATCH:
+                            final Snackbar unwatchSnackbar = Snackbar.make(thread_listview, "Removed thread from watch list", Snackbar.LENGTH_LONG);
+
+                            unwatchSnackbar.setAction("UNDO", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    unwatchSnackbar.dismiss();
+                                    watchThread(Integer.parseInt(task.getSubject() + ""));
+                                }
+                            });
+
+                            unwatchSnackbar.show();
+                            getThreads(false);
+                            break;
+
+                        case WhirldroidTask.TAG_THREAD_READ:
+                            Toast.makeText(getActivity(), "Thread marked as read", Toast.LENGTH_SHORT).show();
+                            getThreads(false);
                             break;
                     }
                 } else {

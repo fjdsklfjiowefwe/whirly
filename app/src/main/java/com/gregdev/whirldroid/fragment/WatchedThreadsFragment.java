@@ -16,7 +16,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
-import com.gregdev.whirldroid.WhirlpoolApi;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 
 public class WatchedThreadsFragment extends Fragment {
 

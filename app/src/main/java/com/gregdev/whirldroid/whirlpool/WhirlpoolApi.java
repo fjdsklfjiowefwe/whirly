@@ -1,4 +1,4 @@
-package com.gregdev.whirldroid;
+package com.gregdev.whirldroid.whirlpool;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +31,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.model.Forum;
 import com.gregdev.whirldroid.model.NewsArticle;
 import com.gregdev.whirldroid.model.Post;
@@ -38,6 +39,7 @@ import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.model.User;
 import com.gregdev.whirldroid.model.Whim;
 import com.gregdev.whirldroid.service.HttpFetch;
+import com.gregdev.whirldroid.whirlpool.manager.NewsManager;
 
 /**
  * Whirlpool API - dowloads, caches and retrieves all data from Whirlpool.
@@ -70,7 +72,6 @@ public class WhirlpoolApi extends Activity {
     private SharedPreferences settings;
 
     // store the data
-    private ArrayList<NewsArticle> news_articles;
     private ArrayList<Whim>        whims;
     private ArrayList<Thread>      all_watched_threads;
     private ArrayList<Thread>      unread_watched_threads;
@@ -80,7 +81,6 @@ public class WhirlpoolApi extends Activity {
     private ArrayList<Thread>      forum_threads;
 
     // cache file names
-    private static final String NEWS_CACHE_FILE             = "cache_news.txt";
     private static final String WHIM_CACHE_FILE             = "cache_whims.txt";
     private static final String RECENT_CACHE_FILE           = "cache_recent_threads.txt";
     private static final String ALL_WATCHED_CACHE_FILE      = "all_cache_watched_threads.txt";
@@ -89,7 +89,6 @@ public class WhirlpoolApi extends Activity {
     private static final String FORUMS_CACHE_FILE           = "cache_forums.txt";
 
     // keep track of the last time we downloaded each set of data
-    private long last_update_news           = 0;
     private long last_update_whims          = 0;
     private long last_update_watched_all    = 0;
     private long last_update_watched_unread = 0;
@@ -98,7 +97,6 @@ public class WhirlpoolApi extends Activity {
     private long last_update_forums         = 0;
 
     // maximum time in minutes that each type of data can be out of date by before we download it again
-    private final int MAX_AGE_NEWs    = 60;
     private final int MAX_AGE_WHIMS   = 14;
     private final int MAX_AGE_RECENT  = 14;
     private final int MAX_AGE_WATCHED = 14;
@@ -127,18 +125,28 @@ public class WhirlpoolApi extends Activity {
     // number of posts Whirlpool displays on each page
     public static final int POSTS_PER_PAGE = 20;
 
+    private NewsManager newsManager;
+
     public WhirlpoolApi() {
         settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
 
         http = new HttpFetch();
 
-        news_articles           = new ArrayList<>();
         whims                   = new ArrayList<>();
         all_watched_threads     = new ArrayList<>();
         unread_watched_threads  = new ArrayList<>();
         recent_threads          = new ArrayList<>();
         popular_threads         = new ArrayList<>();
+        popular_threads         = new ArrayList<>();
         forums                  = new ArrayList<>();
+    }
+
+    public NewsManager getNewsManager() {
+        if (newsManager == null) {
+            newsManager = new NewsManager();
+        }
+
+        return newsManager;
     }
 
     public String getApiKey() {
@@ -184,15 +192,6 @@ public class WhirlpoolApi extends Activity {
         }
 
         return true;
-    }
-
-    @SuppressWarnings("unchecked")
-    public ArrayList<NewsArticle> getNewsArticles() {
-        if (news_articles == null || news_articles.isEmpty()) { // no data in memory, get from cache file
-            news_articles = (ArrayList<NewsArticle>) readFromCacheFile(NEWS_CACHE_FILE);
-        }
-
-        return news_articles;
     }
 
     @SuppressWarnings("unchecked")
@@ -282,10 +281,6 @@ public class WhirlpoolApi extends Activity {
         return true;
     }
 
-    public boolean needToDownloadNews() {
-        return needToDownload(NEWS_CACHE_FILE, news_articles, last_update_news, MAX_AGE_NEWs);
-    }
-
     public boolean needToDownloadWhims() {
         return needToDownload(WHIM_CACHE_FILE, whims, last_update_whims, MAX_AGE_WHIMS);
     }
@@ -329,13 +324,6 @@ public class WhirlpoolApi extends Activity {
 
     public boolean needToDownloadForums() {
         return needToDownload(FORUMS_CACHE_FILE, forums, last_update_forums, MAX_AGE_FORUMS);
-    }
-
-    public long getNewsLastUpdated() {
-        if (last_update_news != 0) {
-            return last_update_news;
-        }
-        return Whirldroid.getContext().getFileStreamPath(NEWS_CACHE_FILE).lastModified() / 1000;
     }
 
     public long getWhimsLastUpdated() {
@@ -937,7 +925,7 @@ public class WhirlpoolApi extends Activity {
         /** Extract News Articles **/
         try {
             JSONArray json_news = json.getJSONArray("NEWS");
-            setNewsArticles(getNewsFromJson(json_news));
+            getNewsManager().setItems(getNewsFromJson(json_news));
         }
         catch (JSONException e) {
             // no news in fetched data
@@ -994,13 +982,6 @@ public class WhirlpoolApi extends Activity {
         }
 
         return true;
-    }
-
-    public void downloadNews() throws WhirlpoolApiException {
-        List<String> get = new ArrayList<String>();
-        get.add("news");
-
-        downloadData(get, null);
     }
 
     public void downloadForums() throws WhirlpoolApiException {
@@ -1172,12 +1153,6 @@ public class WhirlpoolApi extends Activity {
         }
 
         return forums;
-    }
-
-    private void setNewsArticles(ArrayList<NewsArticle> news_articles) {
-        last_update_news = System.currentTimeMillis() / 1000;
-        writeToCacheFile(NEWS_CACHE_FILE, news_articles);
-        this.news_articles = news_articles;
     }
 
     private void setWhims(ArrayList<Whim> whims) {

@@ -22,7 +22,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager.BadTokenException;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -32,12 +31,13 @@ import android.widget.Toast;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
-import com.gregdev.whirldroid.WhirlpoolApi;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
-import com.gregdev.whirldroid.WhirlpoolApiException;
+import com.gregdev.whirldroid.layout.NewsAdapter;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.layout.SeparatedListAdapter;
 import com.gregdev.whirldroid.model.NewsArticle;
+import com.gregdev.whirldroid.whirlpool.manager.NewsManager;
 
 /**
  * Displays the latest Whirlpool news in a nice list format
@@ -47,11 +47,8 @@ import com.gregdev.whirldroid.model.NewsArticle;
 public class NewsListFragment extends ListFragment {
 
     private SeparatedListAdapter sla;
-    private ArrayList<NewsArticle> news_list;
-    private ProgressDialog progress_dialog;
-    private RetrieveNewsTask task;
+    private ArrayList<NewsArticle> newsList;
     private View rootView;
-    private ListView newsListView;
     private Tracker mTracker;
     private ProgressBar loading;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -72,7 +69,9 @@ public class NewsListFragment extends ListFragment {
 
         @Override
         protected ArrayList<NewsArticle> doInBackground(String... params) {
-            if (clear_cache || Whirldroid.getApi().needToDownloadNews()) {
+            NewsManager newsManager = Whirldroid.getApi().getNewsManager();
+
+            if (clear_cache || newsManager.needToDownload()) {
                 try {
                     getActivity().runOnUiThread(new Runnable() {
                         public void run() {
@@ -84,15 +83,16 @@ public class NewsListFragment extends ListFragment {
                 } catch (NullPointerException e) { }
 
                 try {
-                    Whirldroid.getApi().downloadNews();
-                }
-                catch (final WhirlpoolApiException e) {
+                    newsManager.download();
+
+                } catch (final WhirlpoolApiException e) {
                     error_message = e.getMessage();
                     return null;
                 }
             }
-            news_list = Whirldroid.getApi().getNewsArticles();
-            return news_list;
+
+            newsList = newsManager.getItems();
+            return newsList;
         }
 
         @Override
@@ -111,70 +111,13 @@ public class NewsListFragment extends ListFragment {
                         }
 
                         if (result != null) {
-                            setNews(news_list); // display the news in the list
+                            setNews(newsList); // display the news in the list
                         } else {
                             Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
                         }
                     }
                 });
             } catch (NullPointerException e) { }
-        }
-    }
-
-    /**
-     * A private class to format the news list items
-     * @author Greg
-     *
-     */
-    public class NewsAdapter extends ArrayAdapter<NewsArticle> {
-
-        private ArrayList<NewsArticle> news_articles;
-
-        public NewsAdapter(Context context, int textViewResourceId, ArrayList<NewsArticle> newsItems) {
-            super(context, textViewResourceId, newsItems);
-            this.news_articles = newsItems;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = vi.inflate(R.layout.list_row, null);
-            }
-
-            final NewsArticle article = news_articles.get(position);
-
-            if (article != null) {
-                TextView tt = (TextView) convertView.findViewById(R.id.top_text);
-                TextView bt = (TextView) convertView.findViewById(R.id.bottom_text);
-                if (tt != null) {
-                    tt.setText(article.getTitle());
-                }
-                if (bt != null){
-                    bt.setText(article.getBlurb());
-                }
-            }
-
-            return convertView;
-        }
-
-    }
-
-    /**
-     * Cancels the fetching of news if the back button is pressed
-     * @author Greg
-     *
-     */
-    private class CancelTaskOnCancelListener implements OnCancelListener {
-        private AsyncTask<?, ?, ?> task;
-        public CancelTaskOnCancelListener(AsyncTask<?, ?, ?> task) {
-            this.task = task;
-        }
-
-        public void onCancel(DialogInterface dialog) {
-            if (task != null) {
-                task.cancel(true);
-            }
         }
     }
 
@@ -199,7 +142,6 @@ public class NewsListFragment extends ListFragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        newsListView = getListView();
         getNews(false);
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -226,7 +168,7 @@ public class NewsListFragment extends ListFragment {
 
 
     private void getNews(boolean clear_cache) {
-        task = new RetrieveNewsTask(clear_cache); // start new thread to retrieve the news
+        RetrieveNewsTask task = new RetrieveNewsTask(clear_cache); // start new thread to retrieve the news
         task.execute();
     }
 
@@ -235,16 +177,6 @@ public class NewsListFragment extends ListFragment {
      * @param news_list News items
      */
     private void setNews(ArrayList<NewsArticle> news_list) {
-        long last_updated = System.currentTimeMillis() / 1000 - Whirldroid.getApi().getNewsLastUpdated();
-
-        if (last_updated < 10) { // updated less than 10 seconds ago
-            //getActivity().getActionBar().setSubtitle("Updated just a moment ago");
-        }
-        else {
-            String ago = Whirldroid.getTimeSince(last_updated);
-            //getActivity().getActionBar().setSubtitle("Updated " + ago + " ago");
-        }
-
         if (news_list == null || news_list.size() == 0) { // no news found
             return;
         }
@@ -263,7 +195,7 @@ public class NewsListFragment extends ListFragment {
 
             if (day != current_day) { // new day
                 if (!articles.isEmpty()) {
-                    NewsAdapter na = new NewsAdapter(getActivity(), android.R.layout.simple_list_item_1, articles);
+                    NewsAdapter na = new NewsAdapter(getActivity(), articles);
                     sla.addSection(current_day_name, na);
                     articles = new ArrayList<>();
                 }
@@ -274,7 +206,7 @@ public class NewsListFragment extends ListFragment {
         }
 
         if (!articles.isEmpty()) {
-            NewsAdapter na = new NewsAdapter(getActivity(), android.R.layout.simple_list_item_1, articles);
+            NewsAdapter na = new NewsAdapter(getActivity(), articles);
             sla.addSection(current_day_name, na);
         }
 

@@ -22,6 +22,7 @@ import android.util.Log;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.model.Thread;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 
 public class Whirldroid extends Application {
 

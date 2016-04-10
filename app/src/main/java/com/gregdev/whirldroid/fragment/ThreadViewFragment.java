@@ -30,7 +30,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
-import com.gregdev.whirldroid.WhirlpoolApi;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.layout.TwoLineSpinnerAdapter;
 import com.gregdev.whirldroid.task.MarkThreadReadTask;
 import com.gregdev.whirldroid.task.UnwatchThreadTask;
@@ -292,19 +292,11 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
                 return true;
 
             case R.id.menu_watch:
-                WatchThreadTask watchTask = new WatchThreadTask(threadId);
-                watchTask.setOnCompletedListener(this);
-                watchTask.execute();
-
-                progressDialog = ProgressDialog.show(getActivity(), "Just a sec...", "Adding thread to watch list", true, true);
+                watchThread(threadId);
                 return true;
 
             case R.id.menu_unwatch:
-                UnwatchThreadTask unwatchTask = new UnwatchThreadTask(threadId + "");
-                unwatchTask.setOnCompletedListener(this);
-                unwatchTask.execute();
-
-                progressDialog = ProgressDialog.show(getActivity(), "Just a sec...", "Removing thread from watch list", true, true);
+                unwatchThread(threadId);
                 return true;
 
             case R.id.menu_replythread:
@@ -325,6 +317,22 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
                 return true;
         }
         return false;
+    }
+
+    public void watchThread(int threadId) {
+        WatchThreadTask watchTask = new WatchThreadTask(threadId);
+        watchTask.setOnCompletedListener(this);
+        watchTask.execute();
+
+        progressDialog = ProgressDialog.show(getActivity(), "Just a sec...", "Adding thread to watch list", true, true);
+    }
+
+    public void unwatchThread(int threadId) {
+        UnwatchThreadTask unwatchTask = new UnwatchThreadTask(threadId + "");
+        unwatchTask.setOnCompletedListener(this);
+        unwatchTask.execute();
+
+        progressDialog = ProgressDialog.show(getActivity(), "Just a sec...", "Removing thread from watch list", true, true);
     }
 
     @Override
@@ -398,10 +406,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
                             @Override
                             public void onClick(View view) {
                                 watchedSnackbar.dismiss();
-                                UnwatchThreadTask unwatchTask = new UnwatchThreadTask(task.getSubject() + "");
-                                unwatchTask.execute();
-                                Snackbar watchedSnackbar1 = Snackbar.make(viewPager, "Removed thread from watch list", Snackbar.LENGTH_SHORT);
-                                watchedSnackbar1.show();
+                                unwatchThread(Integer.parseInt(task.getSubject() + ""));
                             }
                         });
 
@@ -415,10 +420,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
                             @Override
                             public void onClick(View view) {
                                 unwatchedSnackbar.dismiss();
-                                UnwatchThreadTask unwatchTask = new UnwatchThreadTask(task.getSubject() + "");
-                                unwatchTask.execute();
-                                Snackbar unwatchedSnackbar1 = Snackbar.make(viewPager, "Added thread to watch list", Snackbar.LENGTH_SHORT);
-                                unwatchedSnackbar1.show();
+                                watchThread(Integer.parseInt(task.getSubject() + ""));
                             }
                         });
 
