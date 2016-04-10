@@ -2,7 +2,9 @@ package com.gregdev.whirldroid.task;
 
 import android.os.AsyncTask;
 
-public abstract class WhirldroidTask<R> extends AsyncTask<String, Void, Boolean> {
+import com.gregdev.whirldroid.R;
+
+public abstract class WhirldroidTask<T> extends AsyncTask<String, Void, Boolean> {
 
     public static final int TAG_THREAD_WATCH    = 0;
     public static final int TAG_THREAD_UNWATCH  = 1;
@@ -10,9 +12,9 @@ public abstract class WhirldroidTask<R> extends AsyncTask<String, Void, Boolean>
 
     protected WhirldroidTaskOnCompletedListener listener = null;
     protected int tag;
-    protected R subject;
+    protected T subject;
 
-    public WhirldroidTask(R subject) {
+    public WhirldroidTask(T subject) {
         this.subject = subject;
     }
 
@@ -27,7 +29,7 @@ public abstract class WhirldroidTask<R> extends AsyncTask<String, Void, Boolean>
         }
     }
 
-    public R getSubject() {
+    public T getSubject() {
         return subject;
     }
 
