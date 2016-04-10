@@ -33,6 +33,7 @@ import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.layout.SeparatedListAdapter;
 import com.gregdev.whirldroid.model.Forum;
 import com.gregdev.whirldroid.service.DatabaseHandler;
+import com.gregdev.whirldroid.whirlpool.manager.ForumManager;
 
 import java.util.ArrayList;
 
@@ -41,7 +42,6 @@ public class ForumListFragment extends ListFragment {
     private SeparatedListAdapter forum_adapter;
     private ArrayList<Forum> forum_list;
     private RetrieveForumsTask task;
-    private int list_position;
     private ListView forum_listview;
     private View rootView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -61,16 +61,19 @@ public class ForumListFragment extends ListFragment {
 
         @Override
         protected ArrayList<Forum> doInBackground(String... params) {
-            if (clear_cache || Whirldroid.getApi().needToDownloadForums()) {
+            ForumManager forumManager = Whirldroid.getApi().getForumManager();
+
+            if (clear_cache || forumManager.needToDownload()) {
                 try {
-                    Whirldroid.getApi().downloadForums();
+                    forumManager.download();
                 }
                 catch (final WhirlpoolApiException e) {
                     error_message = e.getMessage();
                     return null;
                 }
             }
-            forum_list = Whirldroid.getApi().getForums();
+
+            forum_list = forumManager.getItems();
             return forum_list;
         }
 
