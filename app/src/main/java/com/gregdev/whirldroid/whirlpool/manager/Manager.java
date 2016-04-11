@@ -61,7 +61,7 @@ public abstract class Manager<T> {
      * Returns the age of the cache file in milliseconds
      * @return file age in seconds
      */
-    private long getCacheFileAge(String cacheFileName) {
+    protected long getCacheFileAge(String cacheFileName) {
         File cacheFile = Whirldroid.getContext().getFileStreamPath(cacheFileName);
         long now = System.currentTimeMillis();
         long fileLastModified = cacheFile.lastModified();
@@ -73,7 +73,7 @@ public abstract class Manager<T> {
         return diff / 1000;
     }
 
-    private void writeToCacheFile(String cache_file, ArrayList<T> data) {
+    protected void writeToCacheFile(String cache_file, ArrayList<T> data) {
         FileOutputStream fos = null;
         ObjectOutputStream out = null;
         try {
@@ -87,7 +87,7 @@ public abstract class Manager<T> {
         }
     }
 
-    private ArrayList<T> readFromCacheFile(String cache_file) {
+    protected ArrayList<T> readFromCacheFile(String cache_file) {
         FileInputStream fis     = null;
         ObjectInputStream in    = null;
         ArrayList<T> data       = null;

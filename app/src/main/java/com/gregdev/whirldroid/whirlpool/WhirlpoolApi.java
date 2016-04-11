@@ -41,6 +41,7 @@ import com.gregdev.whirldroid.model.Whim;
 import com.gregdev.whirldroid.service.HttpFetch;
 import com.gregdev.whirldroid.whirlpool.manager.ForumManager;
 import com.gregdev.whirldroid.whirlpool.manager.NewsManager;
+import com.gregdev.whirldroid.whirlpool.manager.RecentThreadsManager;
 import com.gregdev.whirldroid.whirlpool.manager.WhimManager;
 
 /**
@@ -76,12 +77,10 @@ public class WhirlpoolApi extends Activity {
     // store the data
     private ArrayList<Thread>      all_watched_threads;
     private ArrayList<Thread>      unread_watched_threads;
-    private ArrayList<Thread>      recent_threads;
     private ArrayList<Thread>      popular_threads;
     private ArrayList<Thread>      forum_threads;
 
     // cache file names
-    private static final String RECENT_CACHE_FILE           = "cache_recent_threads.txt";
     private static final String ALL_WATCHED_CACHE_FILE      = "all_cache_watched_threads.txt";
     private static final String UNREAD_WATCHED_CACHE_FILE   = "unread_cache_watched_threads.txt";
     private static final String POPULAR_CACHE_FILE          = "cache_popular_threads.txt";
@@ -89,11 +88,9 @@ public class WhirlpoolApi extends Activity {
     // keep track of the last time we downloaded each set of data
     private long last_update_watched_all    = 0;
     private long last_update_watched_unread = 0;
-    private long last_update_recent         = 0;
     private long last_update_popular        = 0;
 
     // maximum time in minutes that each type of data can be out of date by before we download it again
-    private final int MAX_AGE_RECENT  = 14;
     private final int MAX_AGE_WATCHED = 14;
     private final int MAX_AGE_POPULAR = 14;
 
@@ -119,9 +116,10 @@ public class WhirlpoolApi extends Activity {
     // number of posts Whirlpool displays on each page
     public static final int POSTS_PER_PAGE = 20;
 
-    private NewsManager     newsManager ;
-    private WhimManager     whimManager ;
-    private ForumManager    forumManager;
+    private NewsManager             newsManager         ;
+    private WhimManager             whimManager         ;
+    private ForumManager            forumManager        ;
+    private RecentThreadsManager    recentThreadsManager;
 
     public WhirlpoolApi() {
         settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
@@ -130,7 +128,6 @@ public class WhirlpoolApi extends Activity {
 
         all_watched_threads     = new ArrayList<>();
         unread_watched_threads  = new ArrayList<>();
-        recent_threads          = new ArrayList<>();
         popular_threads         = new ArrayList<>();
     }
 
@@ -156,6 +153,14 @@ public class WhirlpoolApi extends Activity {
         }
 
         return forumManager;
+    }
+
+    public RecentThreadsManager getRecentThreadsManager() {
+        if (recentThreadsManager == null) {
+            recentThreadsManager = new RecentThreadsManager();
+        }
+
+        return recentThreadsManager;
     }
 
     public String getApiKey() {
@@ -209,12 +214,8 @@ public class WhirlpoolApi extends Activity {
 
         switch (forum_id) {
             case RECENT_THREADS:
-                if (recent_threads == null || recent_threads.isEmpty()) { // no data in memory, get from cache file
-                    recent_threads = (ArrayList<Thread>) readFromCacheFile(RECENT_CACHE_FILE);
-                }
-
                 forum = new Forum(forum_id, "Recent Threads", 0, null);
-                forum.setThreads(recent_threads);
+                forum.setThreads(getRecentThreadsManager().getItems());
                 return forum;
 
             case ALL_WATCHED_THREADS:
@@ -280,11 +281,7 @@ public class WhirlpoolApi extends Activity {
 
         switch (forum_id) {
             case RECENT_THREADS:
-                cache_file = RECENT_CACHE_FILE;
-                threads = recent_threads;
-                last_update = last_update_recent;
-                max_age = MAX_AGE_RECENT;
-                break;
+                return getRecentThreadsManager().needToDownload();
             case ALL_WATCHED_THREADS:
                 cache_file = ALL_WATCHED_CACHE_FILE;
                 threads = all_watched_threads;
@@ -307,13 +304,6 @@ public class WhirlpoolApi extends Activity {
                 return true; // don't cache forum threads
         }
         return needToDownload(cache_file, threads, last_update, max_age);
-    }
-
-    public long getRecentLastUpdated() {
-        if (last_update_recent != 0) {
-            return last_update_recent;
-        }
-        return Whirldroid.getContext().getFileStreamPath(RECENT_CACHE_FILE).lastModified() / 1000;
     }
 
     public long getUnreadWatchedLastUpdated() {
@@ -935,7 +925,7 @@ public class WhirlpoolApi extends Activity {
         /** Extract Recent Threads **/
         try {
             JSONArray json_recent = json.getJSONArray("RECENT");
-            setRecentThreads(getThreadsFromJson(json_recent));
+            getRecentThreadsManager().setItems(getThreadsFromJson(json_recent));
         }
         catch (JSONException e) {
             // no recent threads in fetched data
@@ -951,18 +941,6 @@ public class WhirlpoolApi extends Activity {
         }
 
         return true;
-    }
-
-    public void downloadRecent() throws WhirlpoolApiException {
-        List<String> get = new ArrayList<String>();
-        get.add("recent");
-
-        String recent_age = settings.getString("pref_recenthistory", "7");
-
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("recentdays", recent_age);
-
-        downloadData(get, params);
     }
 
     public void downloadWatched(int mode, String mark_thread_as_read, String unwatch_thread, int watch_thread) throws WhirlpoolApiException {
@@ -1101,26 +1079,6 @@ public class WhirlpoolApi extends Activity {
         }
 
         return forums;
-    }
-
-    private void setRecentThreads(ArrayList<Thread> recent_threads) {
-        ArrayList<Thread> new_recent_threads = new ArrayList<Thread>();
-
-        boolean ignore_own = settings.getBoolean("pref_ignoreownrepliesrecent", false);
-
-        if (ignore_own) {
-            for (Thread t : recent_threads) {
-                if (!t.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId())) {
-                    new_recent_threads.add(t);
-                }
-            }
-
-            recent_threads = new_recent_threads;
-        }
-
-        last_update_recent = System.currentTimeMillis() / 1000;
-        writeToCacheFile(RECENT_CACHE_FILE, recent_threads);
-        this.recent_threads = recent_threads;
     }
 
     private void setAllWatchedThreads(ArrayList<Thread> watched_threads) {

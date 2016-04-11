@@ -102,7 +102,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
                             Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, null, null, 0);
                             break;
                         case WhirlpoolApi.RECENT_THREADS:
-                            Whirldroid.getApi().downloadRecent();
+                            Whirldroid.getApi().getRecentThreadsManager().download();
                             break;
                         case WhirlpoolApi.POPULAR_THREADS:
                             Whirldroid.getApi().downloadPopularThreads();
@@ -462,7 +462,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
         long last_updated = System.currentTimeMillis() / 1000;
         switch (forum_id) {
             case WhirlpoolApi.RECENT_THREADS:
-                last_updated -= Whirldroid.getApi().getRecentLastUpdated();
+                last_updated -= Whirldroid.getApi().getRecentThreadsManager().getLastUpdated();
                 break;
             case WhirlpoolApi.UNREAD_WATCHED_THREADS:
                 last_updated -= Whirldroid.getApi().getUnreadWatchedLastUpdated();
