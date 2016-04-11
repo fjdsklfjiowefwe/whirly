@@ -105,7 +105,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
                             Whirldroid.getApi().getRecentThreadsManager().download();
                             break;
                         case WhirlpoolApi.POPULAR_THREADS:
-                            Whirldroid.getApi().downloadPopularThreads();
+                            Whirldroid.getApi().getPopularThreadsManager().download();
                             break;
                         case WhirlpoolApi.SEARCH_RESULTS:
                             forum = new Forum(forum_id, "Search Results", 0, null);
@@ -471,7 +471,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
                 last_updated -= Whirldroid.getApi().getAllWatchedLastUpdated();
                 break;
             case WhirlpoolApi.POPULAR_THREADS:
-                last_updated -= Whirldroid.getApi().getPopularLastUpdated();
+                last_updated -= Whirldroid.getApi().getPopularThreadsManager().getLastUpdated();
                 break;
         }
 

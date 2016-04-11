@@ -74,29 +74,26 @@ public abstract class Manager<T> {
     }
 
     protected void writeToCacheFile(String cache_file, ArrayList<T> data) {
-        FileOutputStream fos = null;
-        ObjectOutputStream out = null;
         try {
-            fos = Whirldroid.getContext().openFileOutput(cache_file, 0x0000);
-            out = new ObjectOutputStream(fos);
+            FileOutputStream fos = Whirldroid.getContext().openFileOutput(cache_file, 0x0000);
+            ObjectOutputStream out = new ObjectOutputStream(fos);
             out.writeObject(data);
             out.close();
-        }
-        catch (IOException e) {
+
+        } catch (IOException e) {
             // error writing cache, meh
         }
     }
 
     protected ArrayList<T> readFromCacheFile(String cache_file) {
-        FileInputStream fis     = null;
-        ObjectInputStream in    = null;
-        ArrayList<T> data       = null;
+        ArrayList<T> data = null;
 
         try {
-            fis = Whirldroid.getContext().openFileInput(cache_file);
-            in = new ObjectInputStream(fis);
+            FileInputStream fis = Whirldroid.getContext().openFileInput(cache_file);
+            ObjectInputStream in = new ObjectInputStream(fis);
             data = (ArrayList<T>) in.readObject();
             in.close();
+
         } catch (Exception e) { }
 
         return data;

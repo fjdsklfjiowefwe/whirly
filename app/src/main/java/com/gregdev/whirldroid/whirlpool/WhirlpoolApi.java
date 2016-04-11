@@ -41,6 +41,7 @@ import com.gregdev.whirldroid.model.Whim;
 import com.gregdev.whirldroid.service.HttpFetch;
 import com.gregdev.whirldroid.whirlpool.manager.ForumManager;
 import com.gregdev.whirldroid.whirlpool.manager.NewsManager;
+import com.gregdev.whirldroid.whirlpool.manager.PopularThreadsManager;
 import com.gregdev.whirldroid.whirlpool.manager.RecentThreadsManager;
 import com.gregdev.whirldroid.whirlpool.manager.WhimManager;
 
@@ -77,22 +78,18 @@ public class WhirlpoolApi extends Activity {
     // store the data
     private ArrayList<Thread>      all_watched_threads;
     private ArrayList<Thread>      unread_watched_threads;
-    private ArrayList<Thread>      popular_threads;
     private ArrayList<Thread>      forum_threads;
 
     // cache file names
     private static final String ALL_WATCHED_CACHE_FILE      = "all_cache_watched_threads.txt";
     private static final String UNREAD_WATCHED_CACHE_FILE   = "unread_cache_watched_threads.txt";
-    private static final String POPULAR_CACHE_FILE          = "cache_popular_threads.txt";
 
     // keep track of the last time we downloaded each set of data
     private long last_update_watched_all    = 0;
     private long last_update_watched_unread = 0;
-    private long last_update_popular        = 0;
 
     // maximum time in minutes that each type of data can be out of date by before we download it again
     private final int MAX_AGE_WATCHED = 14;
-    private final int MAX_AGE_POPULAR = 14;
 
     private final int FILTER_NONE   = 0;
     private final int FILTER_ME     = 1;
@@ -107,19 +104,20 @@ public class WhirlpoolApi extends Activity {
 
     // some URLs - most of these shouldn't be hardcoded, but meh, half the app
     // will break if anything is changed on the Whirlpool side anyway
-    private static final String POPULAR_URL   = "http://forums.whirlpool.net.au/forum/?action=popular_views";
-    public static final  String FORUM_URL     = "http://forums.whirlpool.net.au/forum/";
-    public static final  String THREAD_URL    = "http://forums.whirlpool.net.au/forum-replies.cfm?t=";
-    public static final  String REPLY_URL     = "http://forums.whirlpool.net.au/forum/index.cfm?action=reply&t=";
-    public static final  String NEWTHREAD_URL = "http://forums.whirlpool.net.au/forum/index.cfm?action=newthread&f=";
+    public static final String POPULAR_URL   = "http://forums.whirlpool.net.au/forum/?action=popular_views";
+    public static final String FORUM_URL     = "http://forums.whirlpool.net.au/forum/";
+    public static final String THREAD_URL    = "http://forums.whirlpool.net.au/forum-replies.cfm?t=";
+    public static final String REPLY_URL     = "http://forums.whirlpool.net.au/forum/index.cfm?action=reply&t=";
+    public static final String NEWTHREAD_URL = "http://forums.whirlpool.net.au/forum/index.cfm?action=newthread&f=";
 
     // number of posts Whirlpool displays on each page
     public static final int POSTS_PER_PAGE = 20;
 
-    private NewsManager             newsManager         ;
-    private WhimManager             whimManager         ;
-    private ForumManager            forumManager        ;
-    private RecentThreadsManager    recentThreadsManager;
+    private NewsManager             newsManager             ;
+    private WhimManager             whimManager             ;
+    private ForumManager            forumManager            ;
+    private RecentThreadsManager    recentThreadsManager    ;
+    private PopularThreadsManager   popularThreadsManager   ;
 
     public WhirlpoolApi() {
         settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
@@ -128,7 +126,6 @@ public class WhirlpoolApi extends Activity {
 
         all_watched_threads     = new ArrayList<>();
         unread_watched_threads  = new ArrayList<>();
-        popular_threads         = new ArrayList<>();
     }
 
     public NewsManager getNewsManager() {
@@ -161,6 +158,14 @@ public class WhirlpoolApi extends Activity {
         }
 
         return recentThreadsManager;
+    }
+
+    public PopularThreadsManager getPopularThreadsManager() {
+        if (popularThreadsManager == null) {
+            popularThreadsManager = new PopularThreadsManager();
+        }
+
+        return popularThreadsManager;
     }
 
     public String getApiKey() {
@@ -237,12 +242,8 @@ public class WhirlpoolApi extends Activity {
                 return forum;
 
             case POPULAR_THREADS:
-                if (popular_threads == null || popular_threads.isEmpty()) { // no data in memory, get from cache file
-                    popular_threads = (ArrayList<Thread>) readFromCacheFile(POPULAR_CACHE_FILE);
-                }
-
-                forum = new Forum(forum_id, "Recent Threads", 0, null);
-                forum.setThreads(popular_threads);
+                forum = new Forum(forum_id, "Popular Threads", 0, null);
+                forum.setThreads(getPopularThreadsManager().getItems());
                 return forum;
 
             default:
@@ -295,11 +296,7 @@ public class WhirlpoolApi extends Activity {
                 max_age = MAX_AGE_WATCHED;
                 break;
             case POPULAR_THREADS:
-                cache_file = POPULAR_CACHE_FILE;
-                threads = popular_threads;
-                last_update = last_update_popular;
-                max_age = MAX_AGE_POPULAR;
-                break;
+                return getPopularThreadsManager().needToDownload();
             default:
                 return true; // don't cache forum threads
         }
@@ -320,14 +317,7 @@ public class WhirlpoolApi extends Activity {
         return Whirldroid.getContext().getFileStreamPath(ALL_WATCHED_CACHE_FILE).lastModified() / 1000;
     }
 
-    public long getPopularLastUpdated() {
-        if (last_update_popular != 0) {
-            return last_update_popular;
-        }
-        return Whirldroid.getContext().getFileStreamPath(POPULAR_CACHE_FILE).lastModified() / 1000;
-    }
-
-    private Thread getThreadFromTableRow(Element tr, String forum, int forum_id) {
+    public Thread getThreadFromTableRow(Element tr, String forum, int forum_id) {
         int id = 0;
         String title = "";
         String last_poster = "";
@@ -621,48 +611,6 @@ public class WhirlpoolApi extends Activity {
         }
 
         return threads;
-    }
-
-    public boolean downloadPopularThreads() {
-        ArrayList<Thread> threads = new ArrayList<Thread>();
-
-        Document doc = downloadPage(POPULAR_URL);
-        if (doc == null) {
-            return false;
-        }
-
-        Elements trs = doc.select("tr");
-
-        String current_forum = null;
-        int current_forum_id = 0;
-
-        for (Element tr : trs) {
-            Set<String> tr_classes = tr.classNames();
-
-            // section - contains a forum name
-            if (tr_classes.contains("section")) {
-                current_forum = tr.text();
-
-                // get the forum ID
-                String forum_url = tr.select("a").attr("href");
-                Pattern forum_id_regex = Pattern.compile("/forum/([0-9]+)");
-                Matcher m = forum_id_regex.matcher(forum_url);
-                while (m.find()) {
-                    current_forum_id = Integer.parseInt(m.group(1));
-                }
-            }
-            // thread
-            else {
-                if (current_forum == null) continue;
-
-                Thread t = getThreadFromTableRow(tr, current_forum, current_forum_id);
-                threads.add(t);
-            }
-        }
-
-        setPopularThreads(threads);
-
-        return true;
     }
 
     public Thread downloadThread(int thread_id, String thread_title) throws WhirlpoolApiException {
@@ -1095,12 +1043,6 @@ public class WhirlpoolApi extends Activity {
         this.unread_watched_threads = watched_threads;
     }
 
-    private void setPopularThreads(ArrayList<Thread> popular_threads) {
-        last_update_popular = System.currentTimeMillis() / 1000;
-        writeToCacheFile(POPULAR_CACHE_FILE, popular_threads);
-        this.popular_threads = popular_threads;
-    }
-
     /**
      * Returns the age of the cache file in milliseconds
      * @param cache_file Cache file to check
@@ -1154,7 +1096,7 @@ public class WhirlpoolApi extends Activity {
         return data;
     }
 
-    private Document downloadPage(String url) {
+    public Document downloadPage(String url) {
         int connection_attempts = 3;
 
         while (connection_attempts > 0) {
