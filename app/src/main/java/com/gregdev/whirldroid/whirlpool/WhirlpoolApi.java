@@ -132,7 +132,6 @@ public class WhirlpoolApi extends Activity {
         unread_watched_threads  = new ArrayList<>();
         recent_threads          = new ArrayList<>();
         popular_threads         = new ArrayList<>();
-        popular_threads         = new ArrayList<>();
     }
 
     public NewsManager getNewsManager() {
