@@ -9,7 +9,7 @@
         <item name="ForegroundColour">#ffffffff</item>
 
         <item name="MenuButton">@style/MenuButtonDark</item>
-        <item name="StickyThreadBackground">#414559</item>
+        <item name="StickyThreadBackground">#4d3A437B</item>
 
         <item name="NavigationDrawerBackground">#303030</item>
         <item name="NavigationDrawerTextColour">#b2b2b2</item>
@@ -29,7 +29,7 @@
         <item name="ForegroundColour">#de000000</item>
 
         <item name="MenuButton">@style/MenuButtonLight</item>
-        <item name="StickyThreadBackground">#DDDFED</item>
+        <item name="StickyThreadBackground">#263A437B</item>
 
         <item name="NavigationDrawerBackground">#ffffff</item>
         <item name="NavigationDrawerTextColour">#666666</item>
