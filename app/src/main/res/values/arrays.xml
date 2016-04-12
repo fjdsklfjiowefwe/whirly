@@ -63,11 +63,13 @@
     <string-array name="array_pref_theme">
         <item>Light Theme</item>
         <item>Dark Theme</item>
+        <item>Dark at night</item>
     </string-array>
 
     <string-array name="values_pref_theme">
         <item>0</item>
         <item>1</item>
+        <item>2</item>
     </string-array>
 
     <string-array name="array_pref_postfontsize">

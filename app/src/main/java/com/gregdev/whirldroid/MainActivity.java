@@ -198,6 +198,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     public void onResume() {
         super.onResume();
 
+        setTheme(Whirldroid.getCurrentTheme());
+
         try {
             Bundle bundle = getIntent().getExtras();
 

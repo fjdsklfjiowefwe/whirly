@@ -25,6 +25,20 @@
         android:entryValues="@array/values_pref_theme"
         android:defaultValue="0" />
 
+    <com.gregdev.whirldroid.TimePreference
+        android:key="pref_nightmodestart"
+        android:enabled="false"
+        android:title="Night mode start time"
+        android:defaultValue="00:00"
+        android:summary="Set when the dark theme should start being used" />
+
+    <com.gregdev.whirldroid.TimePreference
+        android:key="pref_nightmodeend"
+        android:enabled="false"
+        android:title="Night mode end time"
+        android:defaultValue="00:00"
+        android:summary="Set when the dark theme should stop being used" />
+
     <ListPreference
         android:title="Post Font Size"
         android:summary="Adjust the font size of posts"

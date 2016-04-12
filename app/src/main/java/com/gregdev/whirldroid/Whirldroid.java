@@ -1,7 +1,9 @@
 package com.gregdev.whirldroid;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,7 +38,7 @@ public class Whirldroid extends Application {
     public static final int DARK_THEME = 1;
 
     private static int current_theme;
-    private static int current_theme_id;
+    private static int currentThemeId;
     private static boolean theme_changed = false;
 
     private Tracker mTracker;
@@ -101,9 +103,22 @@ public class Whirldroid extends Application {
      */
     public static int getCurrentTheme() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
-        current_theme_id = Integer.parseInt(settings.getString("pref_theme", "0"));
+        currentThemeId = Integer.parseInt(settings.getString("pref_theme", "0"));
 
-        switch (current_theme_id) {
+        if (currentThemeId == 2) {
+            int startTime    = Integer.parseInt(settings.getString("pref_nightmodestart", "00:00").replace(":", ""));
+            int endTime      = Integer.parseInt(settings.getString("pref_nightmodeend"  , "00:00").replace(":", ""));
+            int currentTime  = Integer.parseInt(Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "" + Calendar.getInstance().get(Calendar.MINUTE));
+
+            if ((endTime < startTime && (currentTime >= startTime || currentTime <= endTime)) ||
+                    (currentTime >= startTime && currentTime <= endTime)) {
+                currentThemeId = DARK_THEME;
+            } else {
+                currentThemeId = LIGHT_THEME;
+            }
+        }
+
+        switch (currentThemeId) {
             case DARK_THEME:
                 current_theme = R.style.WhirldroidDarkTheme;
                 break;
@@ -117,7 +132,7 @@ public class Whirldroid extends Application {
     }
 
     public static int getCurrentThemeId() {
-        return current_theme_id;
+        return currentThemeId;
     }
 
     /**
