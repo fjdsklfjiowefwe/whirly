@@ -23,7 +23,7 @@ public class MarkWatchedReadReceiver extends BroadcastReceiver {
         String markReadIds = "";
 
         for (int threadId : threadIds) {
-            if (markReadIds != "") markReadIds += ",";
+            if (!markReadIds.equals("")) markReadIds += ",";
             markReadIds += threadId;
         }
 
@@ -33,7 +33,7 @@ public class MarkWatchedReadReceiver extends BroadcastReceiver {
             @Override
             public void run() {
                 try {
-                    Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, finalMarkReadIds, null, 0);
+                    Whirldroid.getApi().getUnreadWatchedThreadsManager().download(finalMarkReadIds, null, 0);
                 } catch (WhirlpoolApiException e) { }
             }
         });

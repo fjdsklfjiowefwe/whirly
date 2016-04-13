@@ -23,7 +23,7 @@ public class UnwatchReceiver extends BroadcastReceiver {
         String unwatchIds = "";
 
         for (int threadId : threadIds) {
-            if (unwatchIds != "") unwatchIds += ",";
+            if (!unwatchIds.equals("")) unwatchIds += ",";
             unwatchIds += threadId;
         }
 
@@ -33,7 +33,7 @@ public class UnwatchReceiver extends BroadcastReceiver {
             @Override
             public void run() {
                 try {
-                    Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, null, finalUnwatchIds, 0);
+                    Whirldroid.getApi().getUnreadWatchedThreadsManager().download(null, finalUnwatchIds, 0);
                 } catch (WhirlpoolApiException e) { }
             }
         });

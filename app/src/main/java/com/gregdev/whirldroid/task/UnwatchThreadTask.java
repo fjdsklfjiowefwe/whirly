@@ -14,8 +14,9 @@ public class UnwatchThreadTask extends WhirldroidTask<String> {
     @Override
     protected Boolean doInBackground(String... params) {
         try {
-            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, null, subject, 0);
+            Whirldroid.getApi().getUnreadWatchedThreadsManager().download(null, subject, 0);
             return true;
+
         } catch (final WhirlpoolApiException e) {
             return false;
         }

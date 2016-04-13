@@ -96,10 +96,10 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
                 try {
                     switch (forum_id) {
                         case WhirlpoolApi.UNREAD_WATCHED_THREADS:
-                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_UNREAD, null, null, 0);
+                            Whirldroid.getApi().getUnreadWatchedThreadsManager().download();
                             break;
                         case WhirlpoolApi.ALL_WATCHED_THREADS:
-                            Whirldroid.getApi().downloadWatched(WhirlpoolApi.WATCHMODE_ALL, null, null, 0);
+                            Whirldroid.getApi().getAllWatchedThreadsManager().download();
                             break;
                         case WhirlpoolApi.RECENT_THREADS:
                             Whirldroid.getApi().getRecentThreadsManager().download();
@@ -464,24 +464,15 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
             case WhirlpoolApi.RECENT_THREADS:
                 last_updated -= Whirldroid.getApi().getRecentThreadsManager().getLastUpdated();
                 break;
-            case WhirlpoolApi.UNREAD_WATCHED_THREADS:
-                last_updated -= Whirldroid.getApi().getUnreadWatchedLastUpdated();
-                break;
-            case WhirlpoolApi.ALL_WATCHED_THREADS:
-                last_updated -= Whirldroid.getApi().getAllWatchedLastUpdated();
-                break;
             case WhirlpoolApi.POPULAR_THREADS:
                 last_updated -= Whirldroid.getApi().getPopularThreadsManager().getLastUpdated();
                 break;
         }
 
-        if (WhirlpoolApi.isPublicForum(forum_id) || forum_id == WhirlpoolApi.POPULAR_THREADS
-                || forum_id == WhirlpoolApi.RECENT_THREADS || forum_id == WhirlpoolApi.ALL_WATCHED_THREADS
-                || forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS) {
+        if (forum_id == WhirlpoolApi.POPULAR_THREADS || forum_id == WhirlpoolApi.RECENT_THREADS) {
             if (last_updated < 10) { // updated less than 10 seconds ago
                 ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Updated just a moment ago");
-            }
-            else {
+            } else {
                 String ago = Whirldroid.getTimeSince(last_updated);
                 ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Updated " + ago + " ago");
             }

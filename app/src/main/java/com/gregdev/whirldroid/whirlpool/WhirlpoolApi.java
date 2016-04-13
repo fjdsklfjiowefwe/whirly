@@ -1,11 +1,6 @@
 package com.gregdev.whirldroid.whirlpool;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -26,7 +21,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -39,10 +33,12 @@ import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.model.User;
 import com.gregdev.whirldroid.model.Whim;
 import com.gregdev.whirldroid.service.HttpFetch;
+import com.gregdev.whirldroid.whirlpool.manager.AllWatchedThreadsManager;
 import com.gregdev.whirldroid.whirlpool.manager.ForumManager;
 import com.gregdev.whirldroid.whirlpool.manager.NewsManager;
 import com.gregdev.whirldroid.whirlpool.manager.PopularThreadsManager;
 import com.gregdev.whirldroid.whirlpool.manager.RecentThreadsManager;
+import com.gregdev.whirldroid.whirlpool.manager.UnreadWatchedThreadsManager;
 import com.gregdev.whirldroid.whirlpool.manager.WhimManager;
 
 /**
@@ -55,11 +51,9 @@ import com.gregdev.whirldroid.whirlpool.manager.WhimManager;
  *
  * @author greg
  */
-@SuppressLint("UseSparseArrays") // there's no nice way to iterate through a SparseArray, so they annoy me.
 public class WhirlpoolApi extends Activity {
 
-    // minimum time in seconds between manual refreshes of data,
-    // to avoid hitting the Whirlpool servers too often
+    // minimum time in seconds between manual refreshes of data, to avoid hitting the Whirlpool servers too often
     public static final int REFRESH_INTERVAL = 10;
 
     // Whirldroid-specific forum IDs (so a single activity can be used to display all thread listings)
@@ -76,20 +70,7 @@ public class WhirlpoolApi extends Activity {
     private SharedPreferences settings;
 
     // store the data
-    private ArrayList<Thread>      all_watched_threads;
-    private ArrayList<Thread>      unread_watched_threads;
-    private ArrayList<Thread>      forum_threads;
-
-    // cache file names
-    private static final String ALL_WATCHED_CACHE_FILE      = "all_cache_watched_threads.txt";
-    private static final String UNREAD_WATCHED_CACHE_FILE   = "unread_cache_watched_threads.txt";
-
-    // keep track of the last time we downloaded each set of data
-    private long last_update_watched_all    = 0;
-    private long last_update_watched_unread = 0;
-
-    // maximum time in minutes that each type of data can be out of date by before we download it again
-    private final int MAX_AGE_WATCHED = 14;
+    private ArrayList<Thread> forum_threads;
 
     private final int FILTER_NONE   = 0;
     private final int FILTER_ME     = 1;
@@ -113,19 +94,17 @@ public class WhirlpoolApi extends Activity {
     // number of posts Whirlpool displays on each page
     public static final int POSTS_PER_PAGE = 20;
 
-    private NewsManager             newsManager             ;
-    private WhimManager             whimManager             ;
-    private ForumManager            forumManager            ;
-    private RecentThreadsManager    recentThreadsManager    ;
-    private PopularThreadsManager   popularThreadsManager   ;
+    private NewsManager                 newsManager                 ;
+    private WhimManager                 whimManager                 ;
+    private ForumManager                forumManager                ;
+    private RecentThreadsManager        recentThreadsManager        ;
+    private PopularThreadsManager       popularThreadsManager       ;
+    private AllWatchedThreadsManager    allWatchedThreadsManager    ;
+    private UnreadWatchedThreadsManager unreadWatchedThreadsManager ;
 
     public WhirlpoolApi() {
         settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
-
-        http = new HttpFetch();
-
-        all_watched_threads     = new ArrayList<>();
-        unread_watched_threads  = new ArrayList<>();
+        http     = new HttpFetch();
     }
 
     public NewsManager getNewsManager() {
@@ -168,6 +147,22 @@ public class WhirlpoolApi extends Activity {
         return popularThreadsManager;
     }
 
+    public AllWatchedThreadsManager getAllWatchedThreadsManager() {
+        if (allWatchedThreadsManager == null) {
+            allWatchedThreadsManager = new AllWatchedThreadsManager();
+        }
+
+        return allWatchedThreadsManager;
+    }
+
+    public UnreadWatchedThreadsManager getUnreadWatchedThreadsManager() {
+        if (unreadWatchedThreadsManager == null) {
+            unreadWatchedThreadsManager = new UnreadWatchedThreadsManager();
+        }
+
+        return unreadWatchedThreadsManager;
+    }
+
     public String getApiKey() {
         String api_key = settings.getString("pref_apikey", null);
 
@@ -200,22 +195,17 @@ public class WhirlpoolApi extends Activity {
      * @return
      */
     public static boolean isActualForum(int forum_id) {
-        if (
-            forum_id == WhirlpoolApi.RECENT_THREADS ||
-            forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS ||
-            forum_id == WhirlpoolApi.ALL_WATCHED_THREADS ||
-            forum_id == WhirlpoolApi.POPULAR_THREADS ||
-            forum_id == WhirlpoolApi.SEARCH_RESULTS
-        ) {
-            return false;
-        }
-
-        return true;
+        return
+            forum_id != WhirlpoolApi.RECENT_THREADS &&
+            forum_id != WhirlpoolApi.UNREAD_WATCHED_THREADS &&
+            forum_id != WhirlpoolApi.ALL_WATCHED_THREADS &&
+            forum_id != WhirlpoolApi.POPULAR_THREADS &&
+            forum_id != WhirlpoolApi.SEARCH_RESULTS;
     }
 
     @SuppressWarnings("unchecked")
     public Forum getThreads(int forum_id, int page_number, int group_id) {
-        Forum forum = null;
+        Forum forum;
 
         switch (forum_id) {
             case RECENT_THREADS:
@@ -224,21 +214,13 @@ public class WhirlpoolApi extends Activity {
                 return forum;
 
             case ALL_WATCHED_THREADS:
-                if (all_watched_threads == null || all_watched_threads.isEmpty()) { // no data in memory, get from cache file
-                    all_watched_threads = (ArrayList<Thread>) readFromCacheFile(ALL_WATCHED_CACHE_FILE);
-                }
-
                 forum = new Forum(forum_id, "Watched Threads", 0, null);
-                forum.setThreads(all_watched_threads);
+                forum.setThreads(getAllWatchedThreadsManager().getItems());
                 return forum;
 
             case UNREAD_WATCHED_THREADS:
-                if (unread_watched_threads == null || unread_watched_threads.isEmpty()) { // no data in memory, get from cache file
-                    unread_watched_threads = (ArrayList<Thread>) readFromCacheFile(UNREAD_WATCHED_CACHE_FILE);
-                }
-
                 forum = new Forum(forum_id, "Watched Threads", 0, null);
-                forum.setThreads(unread_watched_threads);
+                forum.setThreads(getUnreadWatchedThreadsManager().getItems());
                 return forum;
 
             case POPULAR_THREADS:
@@ -249,72 +231,25 @@ public class WhirlpoolApi extends Activity {
             default:
                 if (isPublicForum(forum_id)) { // we can scrape this forum
                     return scrapeThreadsFromForum(forum_id, page_number, group_id);
-                }
-                else { // can't scrape, use the API instead
+                } else { // can't scrape, use the API instead
                     return downloadThreadsFromForum(forum_id);
                 }
         }
     }
 
-    private boolean needToDownload(String cache_file, ArrayList<?> cache_data, long last_update_time, int max_age) {
-        long cache_file_age = getCacheFileAge(cache_file);
-        if (cache_file_age != -1) { // cache file exists
-            if (cache_file_age < 60 * max_age) { // file not too old
-                return false;
-            }
-        }
-
-        if (cache_data != null && cache_data.size() > 0) { // data in memory
-            if ((System.currentTimeMillis() / 1000) - last_update_time < 60 * max_age) { // memory data not too old
-                return false;
-            }
-        }
-
-        // if we get here, then we have don't useable cache data
-        return true;
-    }
-
     public boolean needToDownloadThreads(int forum_id) {
-        String cache_file = null;
-        ArrayList<?> threads = null;
-        long last_update = 0;
-        int max_age = 0;
-
         switch (forum_id) {
             case RECENT_THREADS:
                 return getRecentThreadsManager().needToDownload();
             case ALL_WATCHED_THREADS:
-                cache_file = ALL_WATCHED_CACHE_FILE;
-                threads = all_watched_threads;
-                last_update = last_update_watched_all;
-                max_age = MAX_AGE_WATCHED;
-                break;
+                return getAllWatchedThreadsManager().needToDownload();
             case UNREAD_WATCHED_THREADS:
-                cache_file = UNREAD_WATCHED_CACHE_FILE;
-                threads = unread_watched_threads;
-                last_update = last_update_watched_unread;
-                max_age = MAX_AGE_WATCHED;
-                break;
+                return getUnreadWatchedThreadsManager().needToDownload();
             case POPULAR_THREADS:
                 return getPopularThreadsManager().needToDownload();
             default:
                 return true; // don't cache forum threads
         }
-        return needToDownload(cache_file, threads, last_update, max_age);
-    }
-
-    public long getUnreadWatchedLastUpdated() {
-        if (last_update_watched_unread != 0) {
-            return last_update_watched_unread;
-        }
-        return Whirldroid.getContext().getFileStreamPath(UNREAD_WATCHED_CACHE_FILE).lastModified() / 1000;
-    }
-
-    public long getAllWatchedLastUpdated() {
-        if (last_update_watched_all != 0) {
-            return last_update_watched_all;
-        }
-        return Whirldroid.getContext().getFileStreamPath(ALL_WATCHED_CACHE_FILE).lastModified() / 1000;
     }
 
     public Thread getThreadFromTableRow(Element tr, String forum, int forum_id) {
@@ -370,30 +305,25 @@ public class WhirlpoolApi extends Activity {
                     }
 
                     //page_count = Integer.parseInt(page_element.text().replace(" ", ""));
-                }
-                catch (NullPointerException e) {
+                } catch (NullPointerException e) {
                     // no page list, must only be 1 page
-                }
-                catch (IndexOutOfBoundsException e) {
+                } catch (IndexOutOfBoundsException e) {
                     // no page list
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     // not a number, probably a deleted thread; ignore
                 }
-            }
 
-            else if (td_classes.contains("newest")) {
+            } else if (td_classes.contains("newest")) {
                 try {
                     last_poster = td.child(0).child(0).text();
                     last_post_date = td.child(0).ownText();
                 } catch (Exception e) { }
-            }
 
-            else if (td_classes.contains("oldest")) {
+            } else if (td_classes.contains("oldest")) {
                 try {
                     first_poster = td.child(0).text();
                     first_post_date = td.ownText();
-                } catch (Exception e) {}
+                } catch (Exception e) { }
             }
         }
 
@@ -407,7 +337,7 @@ public class WhirlpoolApi extends Activity {
         t.setLastDateText(last_post_date);
         t.setPageCount(page_count);
 
-        if (title == "") {
+        if (title.equals("")) {
             return null;
         }
 
@@ -415,7 +345,7 @@ public class WhirlpoolApi extends Activity {
     }
 
     private Forum scrapeThreadsFromForum(int forum_id, int page_number, int group_id) {
-        ArrayList<Thread> threads = new ArrayList<Thread>();
+        ArrayList<Thread> threads = new ArrayList<>();
 
         int page_count = -1;
 
@@ -436,16 +366,14 @@ public class WhirlpoolApi extends Activity {
         try {
             Element p = doc.select("select[name=p] option").last(); // get the last option
             page_count = Integer.parseInt(p.text());
-        }
-        catch (NullPointerException e) { }
+        } catch (NullPointerException e) { }
 
         if (page_count == -1) {
             // no select box present, get pagination list elements
             try {
                 Element p = doc.select("ul.pagination li").last();
                 page_count = Integer.parseInt(p.text().replace("\u00a0", "").trim());
-            }
-            catch (NullPointerException e) { }
+            } catch (NullPointerException e) { }
         }
 
         // get the forum title
@@ -453,15 +381,14 @@ public class WhirlpoolApi extends Activity {
 
         try {
             forum_title = doc.select("ul#breadcrumb li").last().text();
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             forum_title = "";
         }
 
         // get the groups in this forum
         Map<String, Integer> groups = null;
         try {
-            groups = new LinkedHashMap<String, Integer>();
+            groups = new LinkedHashMap<>();
 
             Elements group_options = doc.select("select[name=g] option");
 
@@ -470,8 +397,7 @@ public class WhirlpoolApi extends Activity {
                     groups.put(group_option.text(), Integer.parseInt(group_option.attr("value")));
                 }
             }
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             // no groups in this forum, do nothing
         }
 
@@ -509,7 +435,7 @@ public class WhirlpoolApi extends Activity {
     }
 
     public Map<String, String> scrapeUserInfo(String user_id) {
-        Map<String, String> user_info = new LinkedHashMap<String, String>();
+        Map<String, String> user_info = new LinkedHashMap<>();
 
         String url = "http://forums.whirlpool.net.au/user/" + user_id;
 
@@ -538,7 +464,7 @@ public class WhirlpoolApi extends Activity {
     }
 
     public Forum downloadThreadsFromForum(int forum_id) {
-        List<String> get = new ArrayList<String>();
+        List<String> get = new ArrayList<>();
         get.add("threads");
         Map<String, String> params = new HashMap<String, String>();
         params.put("forumids", "" + forum_id);
@@ -546,8 +472,7 @@ public class WhirlpoolApi extends Activity {
 
         try {
             downloadData(get, params);
-        }
-        catch (WhirlpoolApiException e) {
+        } catch (WhirlpoolApiException e) {
             return null;
         }
 
@@ -560,10 +485,10 @@ public class WhirlpoolApi extends Activity {
         URI uri;
         try {
             uri = new URI("http", "forums.whirlpool.net.au", "/forum/", "action=threads_search&f=" + forum_id + "&fg=" + group_id + "&q=" + query, null);
-        }
-        catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             return null;
         }
+
         return uri.toASCIIString();
     }
 
@@ -574,7 +499,7 @@ public class WhirlpoolApi extends Activity {
             return null;
         }
 
-        List<Thread> threads = new ArrayList<Thread>();
+        List<Thread> threads = new ArrayList<>();
 
         Document doc = downloadPage(search_url);
         if (doc == null) {
@@ -600,9 +525,8 @@ public class WhirlpoolApi extends Activity {
                 while (m.find()) {
                     current_forum_id = Integer.parseInt(m.group(1));
                 }
-            }
-            // thread
-            else {
+
+            } else { // thread
                 if (current_forum == null) continue;
 
                 Thread t = getThreadFromTableRow(tr, current_forum, current_forum_id);
@@ -677,22 +601,21 @@ public class WhirlpoolApi extends Activity {
         String notebar = null;
         try {
             notebar = doc.select(".notebar").get(0).html();
-        }
-        catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             // no notebar
         }
 
         Elements replies = doc.select("#replylist > div");
 
         for (Element reply : replies) {
-            String id = "";
-            String user_id = "";
-            String user_name = "";
-            String posted_time = "";
-            String content = "";
-            boolean edited = false;
-            boolean op = false;
-            boolean deleted = false;
+            String id           = "";
+            String user_id      = "";
+            String user_name    = "";
+            String posted_time  = "";
+            String content      = "";
+            boolean edited      = false;
+            boolean op          = false;
+            boolean deleted     = false;
 
             // get reply ID
             id = reply.attr("id").replace("r", "");
@@ -734,8 +657,7 @@ public class WhirlpoolApi extends Activity {
             String user_group = "";
             try {
                 user_group = reply.select(".usergroup").get(0).text();
-            }
-            catch (IndexOutOfBoundsException e) {
+            } catch (IndexOutOfBoundsException e) {
                 // no usergroup, probably a deleted post
             }
 
@@ -743,8 +665,7 @@ public class WhirlpoolApi extends Activity {
             try {
                 Element date_element = reply.select(".date").get(0);
                 posted_time = date_element.ownText();
-            }
-            catch (IndexOutOfBoundsException e) {
+            } catch (IndexOutOfBoundsException e) {
                 // no post date, probably a deleted post
                 deleted = true;
             }
@@ -801,8 +722,7 @@ public class WhirlpoolApi extends Activity {
         String data = null;
         try {
             data = http.getDatafromURL(url);
-        }
-        catch (WhirlpoolApiException e) {
+        } catch (WhirlpoolApiException e) {
             throw new WhirlpoolApiException(e.getMessage());
         }
 
@@ -815,8 +735,7 @@ public class WhirlpoolApi extends Activity {
 
         try {
             json = new JSONObject(data);
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             return false;
         }
 
@@ -824,8 +743,7 @@ public class WhirlpoolApi extends Activity {
         try {
             JSONArray json_forums = json.getJSONArray("FORUM");
             getForumManager().setItems(getForumsFromJson(json_forums));
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             // no forums in fetched data
         }
 
@@ -833,8 +751,7 @@ public class WhirlpoolApi extends Activity {
         try {
             JSONArray json_news = json.getJSONArray("NEWS");
             getNewsManager().setItems(getNewsFromJson(json_news));
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             // no news in fetched data
         }
 
@@ -842,8 +759,7 @@ public class WhirlpoolApi extends Activity {
         /** Extract Single Whims (for marking as read) **/
         try {
             json_whim = json.getJSONArray("WHIM");
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             // no single whim in fetched data
         }
 
@@ -851,8 +767,7 @@ public class WhirlpoolApi extends Activity {
         try {
             JSONArray json_whims = json.getJSONArray("WHIMS");
             getWhimManager().setItems(getWhimsFromJson(json_whims, json_whim));
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             // no whims in fetched data
         }
 
@@ -861,12 +776,11 @@ public class WhirlpoolApi extends Activity {
             JSONArray json_watched = json.getJSONArray("WATCHED");
 
             if (params.containsKey("watchedmode") && params.get("watchedmode").equals("1")) {
-                setAllWatchedThreads(getThreadsFromJson(json_watched));
+                getAllWatchedThreadsManager().setItems(getThreadsFromJson(json_watched));
             } else {
-                setUnreadWatchedThreads(getThreadsFromJson(json_watched));
+                getUnreadWatchedThreadsManager().setItems(getThreadsFromJson(json_watched));
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // no watched threads in fetched data
         }
 
@@ -874,8 +788,7 @@ public class WhirlpoolApi extends Activity {
         try {
             JSONArray json_recent = json.getJSONArray("RECENT");
             getRecentThreadsManager().setItems(getThreadsFromJson(json_recent));
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             // no recent threads in fetched data
         }
 
@@ -883,47 +796,24 @@ public class WhirlpoolApi extends Activity {
         try {
             JSONArray json_threads = json.getJSONArray("THREADS");
             forum_threads = getThreadsFromJson(json_threads);
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             // no forum threads in fetched data
         }
 
         return true;
     }
 
-    public void downloadWatched(int mode, String mark_thread_as_read, String unwatch_thread, int watch_thread) throws WhirlpoolApiException {
-        List<String> get = new ArrayList<String>();
-        Map<String, String> params = new HashMap<String, String>();
-
-        get.add("watched");
-        params.put("watchedmode", mode + "");
-
-        if (mark_thread_as_read != null && !mark_thread_as_read.equals("0")) {
-            params.put("watchedread", mark_thread_as_read);
-        }
-
-        if (unwatch_thread != null && !unwatch_thread.equals("0")) {
-            params.put("watchedremove", unwatch_thread);
-        }
-
-        if (watch_thread != 0) {
-            params.put("watchedadd", watch_thread + "");
-        }
-
-        downloadData(get, params);
-    }
-
     private ArrayList<NewsArticle> getNewsFromJson(JSONArray json_news) throws JSONException {
-        ArrayList<NewsArticle> articles = new ArrayList<NewsArticle>();
+        ArrayList<NewsArticle> articles = new ArrayList<>();
 
         for (int i = 0; i < json_news.length(); i++) {
             JSONObject e = json_news.getJSONObject(i);
 
-            String id = e.getString("ID");
-            String title = e.getString("TITLE");
-            String source = e.getString("SOURCE");
-            String blurb = e.getString("BLURB");
-            String date_time = e.getString("DATE");
+            String id           = e.getString("ID");
+            String title        = e.getString("TITLE");
+            String source       = e.getString("SOURCE");
+            String blurb        = e.getString("BLURB");
+            String date_time    = e.getString("DATE");
 
             Date date = Whirldroid.getLocalDateFromString(date_time);
 
@@ -936,24 +826,25 @@ public class WhirlpoolApi extends Activity {
     private ArrayList<Whim> getWhimsFromJson(JSONArray json_whims, JSONArray json_whim) throws JSONException {
         // check if we have an individual whim (we'll assume just one)
         int single_whim_id = 0;
+
         if (json_whim != null) {
-            JSONObject single_whim = json_whim.getJSONObject(0);
-            single_whim_id = single_whim.getInt("ID");
+            JSONObject single_whim  = json_whim.getJSONObject(0);
+            single_whim_id          = single_whim.getInt("ID");
         }
 
-        ArrayList<Whim> whims = new ArrayList<Whim>();
+        ArrayList<Whim> whims = new ArrayList<>();
 
         for (int i = 0; i < json_whims.length(); i++) {
-            JSONObject e = json_whims.getJSONObject(i);
+            JSONObject e    = json_whims.getJSONObject(i);
             JSONObject from = e.getJSONObject("FROM");
 
-            int id = e.getInt("ID");
-            int from_id = from.getInt("ID");
-            String from_name = from.getString("NAME");
-            int viewed = e.getInt("VIEWED");
-            int replied = e.getInt("REPLIED");
-            String date_time = e.getString("DATE");
-            String content = e.getString("MESSAGE").replace('\r', ' ');
+            int id              = e.getInt("ID");
+            int from_id         = from.getInt("ID");
+            String from_name    = from.getString("NAME");
+            int viewed          = e.getInt("VIEWED");
+            int replied         = e.getInt("REPLIED");
+            String date_time    = e.getString("DATE");
+            String content      = e.getString("MESSAGE").replace('\r', ' ');
 
             if (single_whim_id != 0 && id == single_whim_id) {
                 viewed = 1;
@@ -968,30 +859,31 @@ public class WhirlpoolApi extends Activity {
     }
 
     private ArrayList<Thread> getThreadsFromJson(JSONArray json_threads) throws JSONException {
-        ArrayList<Thread> threads = new ArrayList<Thread>();
+        ArrayList<Thread> threads = new ArrayList<>();
 
         for (int i = 0; i < json_threads.length(); i++) {
-            JSONObject e = json_threads.getJSONObject(i);
+            JSONObject e    = json_threads.getJSONObject(i);
             JSONObject last = e.getJSONObject("LAST");
 
-            int id = e.getInt("ID");
-            String title = e.getString("TITLE");
-            String dateTime = e.getString("LAST_DATE");
-            String last_poster = last.getString("NAME");
-            String last_poster_id = last.getString("ID");
-            String forum = e.getString("FORUM_NAME");
-            int forum_id = e.getInt("FORUM_ID");
-            int reply_count = e.getInt("REPLIES");
+            int id                  = e.getInt("ID");
+            String title            = e.getString("TITLE");
+            String dateTime         = e.getString("LAST_DATE");
+            String last_poster      = last.getString("NAME");
+            String last_poster_id   = last.getString("ID");
+            String forum            = e.getString("FORUM_NAME");
+            int forum_id            = e.getInt("FORUM_ID");
+            int reply_count         = e.getInt("REPLIES");
 
-            int unread = 0;
-            int last_page = 0;
-            int last_post = 0;
+            int unread      = 0;
+            int last_page   = 0;
+            int last_post   = 0;
+
             try {
-                unread = e.getInt("UNREAD");
-                last_page = e.getInt("LASTPAGE");
-                last_post = e.getInt("LASTREAD");
-            }
-            catch (JSONException ex) {
+                unread      = e.getInt("UNREAD"     );
+                last_page   = e.getInt("LASTPAGE"   );
+                last_post   = e.getInt("LASTREAD"   );
+
+            } catch (JSONException ex) {
                 // thread wasn't a watched thread, okay to continue
             }
 
@@ -1002,9 +894,11 @@ public class WhirlpoolApi extends Activity {
             thread.setLastPosterId(last_poster_id);
 
             int page_count = (reply_count + 1) / POSTS_PER_PAGE;
+
             if ((reply_count + 1) % POSTS_PER_PAGE != 0) {
                 page_count = page_count + 1;
             }
+
             thread.setPageCount(page_count);
 
             threads.add(thread);
@@ -1014,86 +908,20 @@ public class WhirlpoolApi extends Activity {
     }
 
     private ArrayList<Forum> getForumsFromJson(JSONArray json_forums) throws JSONException {
-        ArrayList<Forum> forums = new ArrayList<Forum>();
+        ArrayList<Forum> forums = new ArrayList<>();
 
         for (int i = 0; i < json_forums.length(); i++) {
             JSONObject e = json_forums.getJSONObject(i);
-            int id = e.getInt("ID");
-            String title = e.getString("TITLE");
-            int sort = e.getInt("SORT");
-            String section = e.getString("SECTION");
+
+            int id          = e.getInt("ID");
+            int sort        = e.getInt("SORT");
+            String title    = e.getString("TITLE");
+            String section  = e.getString("SECTION");
 
             forums.add(new Forum(id, title, sort, section));
         }
 
         return forums;
-    }
-
-    private void setAllWatchedThreads(ArrayList<Thread> watched_threads) {
-        last_update_watched_all = System.currentTimeMillis() / 1000;
-
-        writeToCacheFile(ALL_WATCHED_CACHE_FILE, watched_threads);
-        this.all_watched_threads = watched_threads;
-    }
-
-    private void setUnreadWatchedThreads(ArrayList<Thread> watched_threads) {
-        last_update_watched_unread = System.currentTimeMillis() / 1000;
-
-        writeToCacheFile(UNREAD_WATCHED_CACHE_FILE, watched_threads);
-        this.unread_watched_threads = watched_threads;
-    }
-
-    /**
-     * Returns the age of the cache file in milliseconds
-     * @param cache_file Cache file to check
-     * @return file age in seconds
-     */
-    private long getCacheFileAge(File cache_file) {
-        long now = System.currentTimeMillis();
-        long file_last_modified = cache_file.lastModified();
-
-        if (file_last_modified == 0) return -1; // cache file doesn't exist
-
-        long diff = (now - file_last_modified); // diff in milliseconds
-
-        return diff / 1000;
-    }
-
-    private long getCacheFileAge(String cache_file) {
-        File f = Whirldroid.getContext().getFileStreamPath(cache_file);
-        return this.getCacheFileAge(f);
-    }
-
-    private void writeToCacheFile(String cache_file, ArrayList<?> data) {
-        FileOutputStream fos = null;
-        ObjectOutputStream out = null;
-        try {
-            fos = Whirldroid.getContext().openFileOutput(cache_file, MODE_PRIVATE);
-            out = new ObjectOutputStream(fos);
-            out.writeObject(data);
-            out.close();
-        }
-        catch (IOException ex) {
-            // error writing cache, meh
-        }
-    }
-
-    private ArrayList<?> readFromCacheFile(String cache_file) {
-        FileInputStream fis = null;
-        ObjectInputStream in = null;
-        ArrayList<?> data = null;
-
-        try {
-            fis = Whirldroid.getContext().openFileInput(cache_file);
-            in = new ObjectInputStream(fis);
-            data = (ArrayList<?>) in.readObject();
-            in.close();
-        }
-        catch (Exception e) {
-
-        }
-
-        return data;
     }
 
     public Document downloadPage(String url) {
@@ -1102,8 +930,7 @@ public class WhirlpoolApi extends Activity {
         while (connection_attempts > 0) {
             try {
                 return Jsoup.connect(url).timeout(7000).get();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 // error connecting, try again
             }
 
