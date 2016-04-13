@@ -28,6 +28,9 @@
     <color name="highlight_colour_light">#d4ed8e</color>
     <color name="list_closed_background_light">#e3e3e3</color>
     <color name="user_quote_colour_light">#4455AA</color>
+    <color name="LightNavigationDrawerBackground">#ffffff</color>
+    <color name="LightNavigationDrawerTextColour">#666666</color>
+    <color name="LightNavigationDrawerIconTint">#8b8b8b</color>
 
     <!-- Dark Theme Colours -->
     <color name="background_colour_dark">#131518</color>
@@ -40,4 +43,7 @@
     <color name="highlight_colour_dark">#2c325e</color>
     <color name="list_closed_background_dark">#30313b</color>
     <color name="user_quote_colour_dark">#5569cc</color>
+    <color name="DarkNavigationDrawerBackground">#303030</color>
+    <color name="DarkNavigationDrawerTextColour">#b2b2b2</color>
+    <color name="DarkNavigationDrawerIconTint">#8b8b8b</color>
 </resources>

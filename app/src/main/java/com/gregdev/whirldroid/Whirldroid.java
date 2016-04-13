@@ -110,8 +110,8 @@ public class Whirldroid extends Application {
             int endTime      = Integer.parseInt(settings.getString("pref_nightmodeend"  , "00:00").replace(":", ""));
             int currentTime  = Integer.parseInt(Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "" + Calendar.getInstance().get(Calendar.MINUTE));
 
-            if ((endTime < startTime && (currentTime >= startTime || currentTime <= endTime)) ||
-                    (currentTime >= startTime && currentTime <= endTime)) {
+            if ((endTime <= startTime && (currentTime >= startTime || currentTime < endTime)) ||
+                    (currentTime >= startTime && currentTime < endTime)) {
                 currentThemeId = DARK_THEME;
             } else {
                 currentThemeId = LIGHT_THEME;
@@ -120,10 +120,12 @@ public class Whirldroid extends Application {
 
         switch (currentThemeId) {
             case DARK_THEME:
+                Whirldroid.log("Dark theme");
                 current_theme = R.style.WhirldroidDarkTheme;
                 break;
             case LIGHT_THEME:
             default:
+                Whirldroid.log("Light theme");
                 current_theme = R.style.WhirldroidLightTheme;
                 break;
         }

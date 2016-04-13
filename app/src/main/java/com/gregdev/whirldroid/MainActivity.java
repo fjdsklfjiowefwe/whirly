@@ -1,6 +1,7 @@
 package com.gregdev.whirldroid;
 
 import android.app.ActivityManager;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,8 +17,10 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +28,9 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.widget.TextView;
 
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -44,10 +50,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
         setTheme(Whirldroid.getCurrentTheme());
-
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -197,7 +201,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public void onResume() {
         super.onResume();
-
         setTheme(Whirldroid.getCurrentTheme());
 
         try {
@@ -217,6 +220,49 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 getIntent().setAction(null);
             }
         } catch (NullPointerException e) { }
+    }
+
+    @Override
+    public void setTheme(final int themeResId) {
+        super.setTheme(themeResId);
+
+        try {
+            int[][] state = new int[][] {
+                    new int[] {-android.R.attr.state_enabled}, // disabled
+                    new int[] { android.R.attr.state_enabled}, // enabled
+                    new int[] {-android.R.attr.state_checked}, // unchecked
+                    new int[] { android.R.attr.state_pressed}  // pressed
+            };
+
+            if (themeResId == R.style.WhirldroidDarkTheme) {
+                int[] textColor = new int[] {
+                        getResources().getColor(R.color.DarkNavigationDrawerTextColour),
+                        getResources().getColor(R.color.DarkNavigationDrawerTextColour),
+                        getResources().getColor(R.color.DarkNavigationDrawerTextColour),
+                        getResources().getColor(R.color.DarkNavigationDrawerTextColour)
+                };
+
+                mNavigationView.setBackgroundResource(R.color.DarkNavigationDrawerBackground);
+                mNavigationView.setItemTextColor(new ColorStateList(state, textColor));
+
+            } else {
+                int[] textColor = new int[] {
+                        getResources().getColor(R.color.LightNavigationDrawerTextColour),
+                        getResources().getColor(R.color.LightNavigationDrawerTextColour),
+                        getResources().getColor(R.color.LightNavigationDrawerTextColour),
+                        getResources().getColor(R.color.LightNavigationDrawerTextColour)
+                };
+
+                mNavigationView.setBackgroundResource(R.color.LightNavigationDrawerBackground);
+                mNavigationView.setItemTextColor(new ColorStateList(state, textColor));
+            }
+        } catch (NullPointerException e) {}
+
+        /*try {
+            TypedValue typedValue = new TypedValue();
+            getTheme().resolveAttribute(R.attr.NavigationDrawerBackground, typedValue, true);
+            mNavigationView.setBackgroundResource(typedValue.resourceId);
+        } catch (NullPointerException e) {}*/
     }
 
     @Override
