@@ -464,12 +464,18 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
             case WhirlpoolApi.RECENT_THREADS:
                 last_updated -= Whirldroid.getApi().getRecentThreadsManager().getLastUpdated();
                 break;
+            case WhirlpoolApi.UNREAD_WATCHED_THREADS:
+                last_updated -= Whirldroid.getApi().getUnreadWatchedThreadsManager().getLastUpdated();
+                break;
+            case WhirlpoolApi.ALL_WATCHED_THREADS:
+                last_updated -= Whirldroid.getApi().getAllWatchedThreadsManager().getLastUpdated();
+                break;
             case WhirlpoolApi.POPULAR_THREADS:
                 last_updated -= Whirldroid.getApi().getPopularThreadsManager().getLastUpdated();
                 break;
         }
 
-        if (forum_id == WhirlpoolApi.POPULAR_THREADS || forum_id == WhirlpoolApi.RECENT_THREADS) {
+        if (!WhirlpoolApi.isActualForum(forum_id)) {
             if (last_updated < 10) { // updated less than 10 seconds ago
                 ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Updated just a moment ago");
             } else {

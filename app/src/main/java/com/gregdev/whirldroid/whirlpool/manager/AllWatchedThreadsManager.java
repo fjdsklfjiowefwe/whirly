@@ -6,7 +6,7 @@ import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 public class AllWatchedThreadsManager extends WatchedThreadsManager {
 
     public AllWatchedThreadsManager() {
-        cacheFileName = "all_cache_watched_threads.txt";
+        cacheFileName = "cache_all_watched_threads.txt";
     }
 
     public void download() throws WhirlpoolApiException {
@@ -14,7 +14,7 @@ public class AllWatchedThreadsManager extends WatchedThreadsManager {
     }
 
     public void download(String markAsReadIds, String unwatchIds, int watchId) throws WhirlpoolApiException {
-        download(WhirlpoolApi.WATCHMODE_UNREAD, markAsReadIds, unwatchIds, watchId);
+        download(WhirlpoolApi.WATCHMODE_ALL, markAsReadIds, unwatchIds, watchId);
     }
 
 }

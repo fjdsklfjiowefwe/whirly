@@ -6,7 +6,7 @@ import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 public class UnreadWatchedThreadsManager extends WatchedThreadsManager {
 
     public UnreadWatchedThreadsManager() {
-        cacheFileName = "unread_cache_watched_threads.txt";
+        cacheFileName = "cache_unread_watched_threads.txt";
     }
 
     public void download() throws WhirlpoolApiException {
