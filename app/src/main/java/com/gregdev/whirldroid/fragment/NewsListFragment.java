@@ -22,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -150,6 +151,29 @@ public class NewsListFragment extends ListFragment {
                 initiateRefresh();
             }
         });
+
+        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                NewsArticle article = (NewsArticle) sla.getItem(position);
+
+                String news_url = "http://whirlpool.net.au/news/go.cfm?article=" + article.getId();
+
+                Intent news_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(news_url));
+
+                if (Build.VERSION.SDK_INT >= 18) {
+                    final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+                    final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+
+                    Bundle extras = new Bundle();
+                    extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+                    news_intent.putExtras(extras);
+                    news_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+                }
+
+                startActivity(news_intent);
+            }
+        });
     }
 
     @Override
@@ -233,28 +257,6 @@ public class NewsListFragment extends ListFragment {
             default:
                 return null;
         }
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        NewsArticle article = (NewsArticle) sla.getItem(position);
-
-        String news_url = "http://whirlpool.net.au/news/go.cfm?article=" + article.getId();
-
-        Intent news_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(news_url));
-
-        if (Build.VERSION.SDK_INT >= 18) {
-            final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
-            final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
-
-            Bundle extras = new Bundle();
-            extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
-            news_intent.putExtras(extras);
-            news_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
-        }
-
-        startActivity(news_intent);
     }
 
     @Override
