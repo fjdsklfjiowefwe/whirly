@@ -310,4 +310,17 @@ public class Whirldroid extends Application {
         }
         return mTracker;
     }
+
+    public static ArrayList<Integer> stringToInts(String str) {
+        // Split on `,` and then take every alternate element.
+        String[] tokens = str.split(",");
+
+        ArrayList<Integer> intList = new ArrayList<>();
+
+        for (int i = 0; i < tokens.length; i = i + 2) {
+            intList.add(Integer.parseInt(tokens[i]));
+        }
+
+        return intList;
+    }
 }

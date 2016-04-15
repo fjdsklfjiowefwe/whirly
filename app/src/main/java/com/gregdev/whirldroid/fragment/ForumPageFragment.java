@@ -691,6 +691,10 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
                             });
 
                             watchSnackbar.show();
+                            if (forum_id == WhirlpoolApi.ALL_WATCHED_THREADS) {
+                                getThreads(true);
+                            }
+
                             break;
 
                         case WhirldroidTask.TAG_THREAD_UNWATCH:

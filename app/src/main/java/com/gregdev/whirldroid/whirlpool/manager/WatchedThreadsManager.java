@@ -5,6 +5,7 @@ import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,29 @@ public abstract class WatchedThreadsManager extends Manager<Thread> {
         }
 
         Whirldroid.getApi().downloadData(get, params);
+    }
+
+    public void markRead(String ids) {
+        ArrayList<Integer> threadIds = Whirldroid.stringToInts(ids);
+
+        for (Thread thread : items) {
+            if (threadIds.contains(thread.getId())) {
+                thread.setUnread(0);
+            }
+        }
+    }
+
+    public void unwatch(String ids) {
+        ArrayList<Integer> threadIds = Whirldroid.stringToInts(ids);
+        ArrayList<Thread>  newItems  = new ArrayList<>();
+
+        for (Thread thread : items) {
+            if (!threadIds.contains(thread.getId())) {
+                newItems.add(thread);
+            }
+        }
+
+        setItems(newItems);
     }
 
 }
