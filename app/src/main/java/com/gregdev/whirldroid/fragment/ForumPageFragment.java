@@ -20,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -401,6 +402,14 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         thread_listview = getListView();
+
+        thread_listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                view.findViewById(R.id.menu_button).callOnClick();
+                return true;
+            }
+        });
 
         if (!WhirlpoolApi.isActualForum(forum_id)) {
             thread_listview.setPadding(0, 0, 0, 0);
