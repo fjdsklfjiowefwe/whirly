@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:padding="18dp"
         android:textSize="17sp"
-        android:text="" />
+        android:text=""
+        android:textColor="?attr/TextColourPrimary" />
 
 </ScrollView>

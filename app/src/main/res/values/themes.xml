@@ -12,8 +12,10 @@
         <item name="StickyThreadBackground">#4d3A437B</item>
 
         <item name="NavigationDrawerBackground">@color/DarkNavigationDrawerBackground</item>
-        <item name="NavigationDrawerTextColour">@color/DarkNavigationDrawerTextColour</item>
         <item name="NavigationDrawerIconTint">@color/DarkNavigationDrawerIconTint</item>
+
+        <item name="TextColourPrimary">@color/TextColourPrimaryDark</item>
+        <item name="TextColourSecondary">@color/TextColourSecondaryDark</item>
     </style>
 
     <style name="WhirldroidLightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -32,8 +34,10 @@
         <item name="StickyThreadBackground">#263A437B</item>
 
         <item name="NavigationDrawerBackground">@color/LightNavigationDrawerBackground</item>
-        <item name="NavigationDrawerTextColour">@color/LightNavigationDrawerTextColour</item>
         <item name="NavigationDrawerIconTint">@color/LightNavigationDrawerIconTint</item>
+
+        <item name="TextColourPrimary">@color/TextColourPrimaryLight</item>
+        <item name="TextColourSecondary">@color/TextColourSecondaryLight</item>
     </style>
 
     <style name="WhirldroidBottomMenu" parent="Theme.AppCompat">

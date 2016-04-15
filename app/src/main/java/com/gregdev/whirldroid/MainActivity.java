@@ -236,10 +236,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
             if (themeResId == R.style.WhirldroidDarkTheme) {
                 int[] textColor = new int[] {
-                        getResources().getColor(R.color.DarkNavigationDrawerTextColour),
-                        getResources().getColor(R.color.DarkNavigationDrawerTextColour),
-                        getResources().getColor(R.color.DarkNavigationDrawerTextColour),
-                        getResources().getColor(R.color.DarkNavigationDrawerTextColour)
+                        getResources().getColor(R.color.TextColourSecondaryDark),
+                        getResources().getColor(R.color.TextColourSecondaryDark),
+                        getResources().getColor(R.color.TextColourSecondaryDark),
+                        getResources().getColor(R.color.TextColourSecondaryDark)
                 };
 
                 mNavigationView.setBackgroundResource(R.color.DarkNavigationDrawerBackground);
@@ -247,10 +247,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
             } else {
                 int[] textColor = new int[] {
-                        getResources().getColor(R.color.LightNavigationDrawerTextColour),
-                        getResources().getColor(R.color.LightNavigationDrawerTextColour),
-                        getResources().getColor(R.color.LightNavigationDrawerTextColour),
-                        getResources().getColor(R.color.LightNavigationDrawerTextColour)
+                        getResources().getColor(R.color.TextColourSecondaryLight),
+                        getResources().getColor(R.color.TextColourSecondaryLight),
+                        getResources().getColor(R.color.TextColourSecondaryLight),
+                        getResources().getColor(R.color.TextColourSecondaryLight)
                 };
 
                 mNavigationView.setBackgroundResource(R.color.LightNavigationDrawerBackground);

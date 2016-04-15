@@ -17,7 +17,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_margin="10dp"
-            android:text="@string/version_info" />
+            android:text="@string/version_info"
+            android:textColor="?attr/TextColourSecondary" />
 
         <TextView
             android:id="@+id/gregdev_web"
@@ -33,7 +34,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="@string/about_content"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="?attr/TextColourPrimary"/>
 
     </LinearLayout>
 </ScrollView>

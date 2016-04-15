@@ -15,7 +15,8 @@ android:descendantFocusability="blocksDescendants">
     android:layout_alignParentLeft="true"
     android:layout_toLeftOf="@+id/menu_button"
     android:layout_centerVertical="true"
-    android:textSize="18sp" />
+    android:textSize="18sp"
+    android:textColor="?attr/TextColourPrimary" />
 
 <ImageButton
     android:id="@+id/menu_button"

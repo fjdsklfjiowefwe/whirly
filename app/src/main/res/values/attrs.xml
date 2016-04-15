@@ -8,5 +8,7 @@
         <attr name="NavigationDrawerTextColour" format="color" />
         <attr name="NavigationDrawerIconTint" format="color" />
         <attr name="ForegroundColour" format="color" />
+        <attr name="TextColourPrimary" format="color" />
+        <attr name="TextColourSecondary" format="color" />
     </declare-styleable>
 </resources>

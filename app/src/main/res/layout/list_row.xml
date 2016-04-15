@@ -15,12 +15,13 @@
 	    android:layout_height="wrap_content"
 	    android:gravity="center_vertical"
 	    android:textSize="18sp"
-		android:paddingBottom="10dip" />
+		android:paddingBottom="10dip"
+        android:textColor="?attr/TextColourPrimary" />
 	
 	<TextView
 	    android:id="@+id/bottom_text"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-	    android:textColor="@color/list_subtext_colour" />
+	    android:textColor="?attr/TextColourSecondary" />
 	
 </LinearLayout>

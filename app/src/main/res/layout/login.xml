@@ -13,7 +13,8 @@
         android:layout_gravity="center_horizontal"
         android:layout_margin="10dp"
         android:textSize="18sp"
-        android:text="@string/welcome_login" />
+        android:text="@string/welcome_login"
+        android:textColor="?attr/TextColourPrimary" />
 
     <EditText
         android:id="@+id/api_key_field"
@@ -47,6 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:text="@string/api_key_where"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?attr/TextColourSecondary" />
 
 </LinearLayout>
