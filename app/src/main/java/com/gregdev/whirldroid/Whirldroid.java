@@ -120,12 +120,10 @@ public class Whirldroid extends Application {
 
         switch (currentThemeId) {
             case DARK_THEME:
-                Whirldroid.log("Dark theme");
                 current_theme = R.style.WhirldroidDarkTheme;
                 break;
             case LIGHT_THEME:
             default:
-                Whirldroid.log("Light theme");
                 current_theme = R.style.WhirldroidLightTheme;
                 break;
         }

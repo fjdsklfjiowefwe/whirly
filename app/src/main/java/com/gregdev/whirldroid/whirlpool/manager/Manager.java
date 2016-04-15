@@ -1,7 +1,8 @@
 package com.gregdev.whirldroid.whirlpool.manager;
 
+import android.content.Context;
+
 import com.gregdev.whirldroid.Whirldroid;
-import com.gregdev.whirldroid.model.NewsArticle;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 
 import java.io.File;
@@ -21,7 +22,7 @@ public abstract class Manager<T> {
 
     public ArrayList<T> getItems() {
         if (items == null || items.isEmpty()) { // no data in memory, get from cache file
-            items = readFromCacheFile(cacheFileName);
+            items = readFromCacheFile();
         }
 
         return items;
@@ -29,7 +30,7 @@ public abstract class Manager<T> {
 
     public void setItems(ArrayList<T> items) {
         lastUpdated = System.currentTimeMillis() / 1000;
-        writeToCacheFile(cacheFileName, items);
+        writeToCacheFile(items);
         this.items = items;
     }
 
@@ -40,15 +41,15 @@ public abstract class Manager<T> {
     public abstract void download() throws WhirlpoolApiException;
 
     public boolean needToDownload() {
-        long cache_file_age = getCacheFileAge(cacheFileName);
-        if (cache_file_age != -1) { // cache file exists
-            if (cache_file_age < 60 * maxAge) { // file not too old
+        if (items != null && items.size() > 0) { // data in memory
+            if ((System.currentTimeMillis() / 1000) - lastUpdated < 60 * maxAge) { // memory data not too old
                 return false;
             }
         }
 
-        if (items != null && items.size() > 0) { // data in memory
-            if ((System.currentTimeMillis() / 1000) - lastUpdated < 60 * maxAge) { // memory data not too old
+        long cache_file_age = getCacheFileAge();
+        if (cache_file_age != -1) { // cache file exists
+            if (cache_file_age < 60 * maxAge) { // file not too old
                 return false;
             }
         }
@@ -61,10 +62,11 @@ public abstract class Manager<T> {
      * Returns the age of the cache file in milliseconds
      * @return file age in seconds
      */
-    protected long getCacheFileAge(String cacheFileName) {
+    protected long getCacheFileAge() {
         File cacheFile = Whirldroid.getContext().getFileStreamPath(cacheFileName);
         long now = System.currentTimeMillis();
         long fileLastModified = cacheFile.lastModified();
+        lastUpdated = fileLastModified / 1000;
 
         if (fileLastModified == 0) return -1; // cache file doesn't exist
 
@@ -73,23 +75,24 @@ public abstract class Manager<T> {
         return diff / 1000;
     }
 
-    protected void writeToCacheFile(String cache_file, ArrayList<T> data) {
+    protected void writeToCacheFile(ArrayList<T> data) {
         try {
-            FileOutputStream fos = Whirldroid.getContext().openFileOutput(cache_file, 0x0000);
+            FileOutputStream fos = Whirldroid.getContext().openFileOutput(cacheFileName, Context.MODE_PRIVATE);
             ObjectOutputStream out = new ObjectOutputStream(fos);
             out.writeObject(data);
             out.close();
 
         } catch (IOException e) {
             // error writing cache, meh
+            Whirldroid.log("IOException: " + e.getMessage());
         }
     }
 
-    protected ArrayList<T> readFromCacheFile(String cache_file) {
+    protected ArrayList<T> readFromCacheFile() {
         ArrayList<T> data = null;
 
         try {
-            FileInputStream fis = Whirldroid.getContext().openFileInput(cache_file);
+            FileInputStream fis = Whirldroid.getContext().openFileInput(cacheFileName);
             ObjectInputStream in = new ObjectInputStream(fis);
             data = (ArrayList<T>) in.readObject();
             in.close();
