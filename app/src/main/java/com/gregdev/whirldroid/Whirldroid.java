@@ -106,9 +106,18 @@ public class Whirldroid extends Application {
         currentThemeId = Integer.parseInt(settings.getString("pref_theme", "0"));
 
         if (currentThemeId == 2) {
+            int currentHour     = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+            int currentMinute   = Calendar.getInstance().get(Calendar.MINUTE);
+            String current      = currentHour + "";
+
+            if (currentMinute < 10) {
+                current += "0";
+            }
+            current += currentMinute;
+
+            int currentTime  = Integer.parseInt(current);
             int startTime    = Integer.parseInt(settings.getString("pref_nightmodestart", "00:00").replace(":", ""));
             int endTime      = Integer.parseInt(settings.getString("pref_nightmodeend"  , "00:00").replace(":", ""));
-            int currentTime  = Integer.parseInt(Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "" + Calendar.getInstance().get(Calendar.MINUTE));
 
             if ((endTime < startTime && (currentTime >= startTime || currentTime < endTime)) ||
                     (currentTime >= startTime && currentTime < endTime)) {
