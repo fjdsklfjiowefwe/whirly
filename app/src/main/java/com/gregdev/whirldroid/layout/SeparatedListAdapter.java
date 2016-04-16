@@ -24,9 +24,15 @@ public class SeparatedListAdapter extends BaseAdapter {
     public final Map<String, Adapter> sections = new LinkedHashMap<String, Adapter>();
     public final ArrayAdapter<String> headers;
     public final static int TYPE_SECTION_HEADER = 0;
+    private boolean clickableHeaders;
 
     public SeparatedListAdapter(Context context) {
-        headers = new ArrayAdapter<String>(context, R.layout.list_header);
+        this(context, false);
+    }
+
+    public SeparatedListAdapter(Context context, boolean clickableHeaders) {
+        headers = new ArrayAdapter<>(context, R.layout.list_header);
+        this.clickableHeaders = clickableHeaders;
     }
 
     public void addSection(String section, Adapter adapter) {
@@ -92,7 +98,7 @@ public class SeparatedListAdapter extends BaseAdapter {
 
     @Override
     public boolean isEnabled(int position) {
-        return (getItemViewType(position) != TYPE_SECTION_HEADER);
+        return clickableHeaders || (getItemViewType(position) != TYPE_SECTION_HEADER);
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
