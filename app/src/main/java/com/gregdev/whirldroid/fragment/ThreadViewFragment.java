@@ -386,50 +386,51 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
             progressDialog = null;
         }
 
-        getActivity().runOnUiThread(new Runnable() {
-            public void run() {
-                switch (task.getTag()) {
-                    case WhirldroidTask.TAG_THREAD_READ:
-                        Toast.makeText(getActivity(), "Thread marked as read", Toast.LENGTH_SHORT).show();
-                        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        try {
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    switch (task.getTag()) {
+                        case WhirldroidTask.TAG_THREAD_READ:
+                            Toast.makeText(getActivity(), "Thread marked as read", Toast.LENGTH_SHORT).show();
+                            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-                        if (settings.getBoolean("pref_watchedbacktolist", false)) {
-                            getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
-                            getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
-                        }
-                        break;
-
-                    case WhirldroidTask.TAG_THREAD_WATCH:
-                        final Snackbar watchedSnackbar = Snackbar.make(viewPager, "Added thread to watch list", Snackbar.LENGTH_LONG);
-
-                        watchedSnackbar.setAction("UNDO", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                watchedSnackbar.dismiss();
-                                unwatchThread(Integer.parseInt(task.getSubject() + ""));
+                            if (settings.getBoolean("pref_watchedbacktolist", false)) {
+                                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+                                getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
                             }
-                        });
+                            break;
 
-                        watchedSnackbar.show();
-                        break;
+                        case WhirldroidTask.TAG_THREAD_WATCH:
+                            final Snackbar watchedSnackbar = Snackbar.make(viewPager, "Added thread to watch list", Snackbar.LENGTH_LONG);
 
-                    case WhirldroidTask.TAG_THREAD_UNWATCH:
-                        final Snackbar unwatchedSnackbar = Snackbar.make(viewPager, "Removed thread from watch list", Snackbar.LENGTH_LONG);
+                            watchedSnackbar.setAction("UNDO", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    watchedSnackbar.dismiss();
+                                    unwatchThread(Integer.parseInt(task.getSubject() + ""));
+                                }
+                            });
 
-                        unwatchedSnackbar.setAction("UNDO", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                unwatchedSnackbar.dismiss();
-                                watchThread(Integer.parseInt(task.getSubject() + ""));
-                            }
-                        });
+                            watchedSnackbar.show();
+                            break;
 
-                        unwatchedSnackbar.show();
-                        break;
+                        case WhirldroidTask.TAG_THREAD_UNWATCH:
+                            final Snackbar unwatchedSnackbar = Snackbar.make(viewPager, "Removed thread from watch list", Snackbar.LENGTH_LONG);
+
+                            unwatchedSnackbar.setAction("UNDO", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    unwatchedSnackbar.dismiss();
+                                    watchThread(Integer.parseInt(task.getSubject() + ""));
+                                }
+                            });
+
+                            unwatchedSnackbar.show();
+                            break;
+                    }
                 }
-            }
-        });
-
+            });
+        } catch (NullPointerException e) { }
 
     }
 
