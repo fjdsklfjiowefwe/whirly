@@ -406,8 +406,12 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
         thread_listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                view.findViewById(R.id.menu_button).callOnClick();
-                return true;
+                try {
+                    view.findViewById(R.id.menu_button).callOnClick();
+                    return true;
+                } catch (NullPointerException e) {
+                    return false;
+                }
             }
         });
 
@@ -444,9 +448,18 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        Thread thread = (Thread) l.getAdapter().getItem(position);
 
-        openThread(thread, 1, false);
+        if (l.getAdapter().getItemViewType(position) == SeparatedListAdapter.TYPE_SECTION_HEADER) {
+            // get the thread following the clicked title
+            try {
+                Thread thread = (Thread) l.getAdapter().getItem(position + 1);
+                openForum(thread.getForumId(), thread.getForum());
+            } catch (NullPointerException e) { }
+
+        } else {
+            Thread thread = (Thread) l.getAdapter().getItem(position);
+            openThread(thread, 1, false);
+        }
     }
 
     public void getThreads(boolean clear_cache) {
@@ -520,7 +533,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
             }
         }
 
-        threads_adapter = new SeparatedListAdapter(getActivity());
+        threads_adapter = new SeparatedListAdapter(getActivity(), true);
 
         sorted_threads = Whirldroid.groupThreadsByForum(thread_list);
 
