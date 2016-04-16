@@ -11,5 +11,6 @@
         <attr name="TextColourPrimary" format="color" />
         <attr name="TextColourSecondary" format="color" />
         <attr name="DividerColour" format="color" />
+        <attr name="SeparatorBottom" format="reference" />
     </declare-styleable>
 </resources>

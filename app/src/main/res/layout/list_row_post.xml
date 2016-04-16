@@ -3,7 +3,7 @@
     android:layout_height="fill_parent"
     android:padding="18dp"
     android:paddingBottom="0dp"
-    android:background="@drawable/separator_bottom">
+    android:background="@drawable/separator_bottom_dark">
 
     <View android:id="@+id/strut"
         android:layout_width="0dp"
