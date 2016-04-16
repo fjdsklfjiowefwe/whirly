@@ -449,7 +449,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
 
-        if (l.getAdapter().getItemViewType(position) == SeparatedListAdapter.TYPE_SECTION_HEADER) {
+        if (l.getAdapter() instanceof SeparatedListAdapter && l.getAdapter().getItemViewType(position) == SeparatedListAdapter.TYPE_SECTION_HEADER) {
             // get the thread following the clicked title
             try {
                 Thread thread = (Thread) l.getAdapter().getItem(position + 1);

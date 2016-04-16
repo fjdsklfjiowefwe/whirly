@@ -7,9 +7,11 @@
 
     <color name="TextColourPrimaryDark">#FFFFFFFF</color>
     <color name="TextColourSecondaryDark">#B3FFFFFF</color>
+    <color name="DividerColourDark">#1FFFFFFF</color>
 
     <color name="TextColourPrimaryLight">#DE000000</color>
     <color name="TextColourSecondaryLight">#8A000000</color>
+    <color name="DividerColourLight">#1F000000</color>
 
     <color name="AppBackgroundLight">#eeeeee</color>
     <color name="AppBackgroundDark">#222222</color>

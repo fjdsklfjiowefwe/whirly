@@ -10,5 +10,6 @@
         <attr name="ForegroundColour" format="color" />
         <attr name="TextColourPrimary" format="color" />
         <attr name="TextColourSecondary" format="color" />
+        <attr name="DividerColour" format="color" />
     </declare-styleable>
 </resources>

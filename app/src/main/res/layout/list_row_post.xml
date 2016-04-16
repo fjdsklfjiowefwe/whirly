@@ -2,7 +2,8 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:padding="18dp"
-    android:paddingBottom="0dp" >
+    android:paddingBottom="0dp"
+    android:background="@drawable/separator_bottom">
 
     <View android:id="@+id/strut"
         android:layout_width="0dp"

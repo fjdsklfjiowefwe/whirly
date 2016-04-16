@@ -4,10 +4,10 @@
     android:layout_height="fill_parent"
     android:paddingTop="8dp"
     android:paddingRight="0dp"
-    android:paddingBottom="8dp"
+    android:paddingBottom="9dp"
     android:paddingLeft="18dp"
     android:descendantFocusability="blocksDescendants"
-    >
+    android:background="@drawable/separator_bottom">
 
     <TextView
         android:id="@+id/top_text"

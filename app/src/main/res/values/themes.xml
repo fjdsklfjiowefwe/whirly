@@ -16,6 +16,7 @@
 
         <item name="TextColourPrimary">@color/TextColourPrimaryDark</item>
         <item name="TextColourSecondary">@color/TextColourSecondaryDark</item>
+        <item name="DividerColour">@color/DividerColourDark</item>
     </style>
 
     <style name="WhirldroidLightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -38,6 +39,7 @@
 
         <item name="TextColourPrimary">@color/TextColourPrimaryLight</item>
         <item name="TextColourSecondary">@color/TextColourSecondaryLight</item>
+        <item name="DividerColour">@color/DividerColourLight</item>
     </style>
 
     <style name="WhirldroidBottomMenu" parent="Theme.AppCompat">
