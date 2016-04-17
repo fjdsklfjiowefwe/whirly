@@ -18,14 +18,20 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
+import com.gregdev.whirldroid.model.Forum;
+import com.gregdev.whirldroid.service.DatabaseHandler;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 
+import org.apache.commons.codec.binary.Hex;
+
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -85,10 +91,29 @@ public class LoginFragment extends Fragment {
 
                     // got data, API key must be valid
                     if (result) {
-                        // go to main dashboard
-                        //Intent intent = new Intent(Login.this, Dashboard.class);
-                        //finish();
-                        //startActivity(intent);
+                        if (Whirldroid.isGreg()) { // restore Greg's settings, because he's sick of doing it over and over and over again
+                            Toast.makeText(getActivity(), "Hi, Greg!", Toast.LENGTH_SHORT).show();
+
+                            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+                            SharedPreferences.Editor settingsEditor = settings.edit();
+                            settingsEditor.putBoolean("pref_watchedbacktolist"      , true      );
+                            settingsEditor.putBoolean("pref_watchedautomarkasread"  , true      );
+                            settingsEditor.putBoolean("pref_ignoreownreplies"       , true      );
+                            settingsEditor.putBoolean("pref_whimnotify"             , true      );
+                            settingsEditor.putBoolean("pref_watchednotify"          , true      );
+                            settingsEditor.putString("pref_notifyfreq", "15");
+                            settingsEditor.putString("pref_theme", "2");
+                            settingsEditor.putString ("pref_nightmodestart"         , "21:30"   );
+                            settingsEditor.putString ("pref_nightmodeend"           , "07:30"   );
+                            settingsEditor.commit();
+
+                            DatabaseHandler db = new DatabaseHandler(getActivity());
+                            db.addFavouriteForum(new Forum(138  , "Home"            , 59, "Lounges"         ));
+                            db.addFavouriteForum(new Forum(126  , "Home theatre"    , 50, "Entertainment"   ));
+                            db.addFavouriteForum(new Forum(71   , "Lifestyle"       , 48, "Life"            ));
+                            db.addFavouriteForum(new Forum(63   , "Web development" , 12, "IT Industry"     ));
+                        }
+
                         ((MainActivity) getActivity()).switchFragment("ForumList", false);
                     }
 
