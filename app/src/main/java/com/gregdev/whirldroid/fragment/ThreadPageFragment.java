@@ -2,6 +2,7 @@ package com.gregdev.whirldroid.fragment;
 
 import java.util.ArrayList;
 
+import android.app.ProgressDialog;
 import android.support.v4.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +16,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
+import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -66,6 +70,7 @@ public class ThreadPageFragment extends ListFragment {
     private ProgressBar loading;
     ViewPager parent;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    boolean hasNotebar = false;
 
     /**
      * Private class to retrieve threads in the background
@@ -172,11 +177,11 @@ public class ThreadPageFragment extends ListFragment {
                 convert_view = vi.inflate(R.layout.list_row_post, null);
             }
             if (post != null) {
-                TextView top_left_text = (TextView) convert_view.findViewById(R.id.top_left_text);
-                TextView top_right_text = (TextView) convert_view.findViewById(R.id.top_right_text);
-                TextView middle_left_text = (TextView) convert_view.findViewById(R.id.middle_left_text);
-                TextView middle_right_text = (TextView) convert_view.findViewById(R.id.middle_right_text);
-                TextView bottom_text = (TextView) convert_view.findViewById(R.id.bottom_text);
+                TextView top_left_text      = (TextView) convert_view.findViewById(R.id.top_left_text       );
+                TextView top_right_text     = (TextView) convert_view.findViewById(R.id.top_right_text      );
+                TextView middle_left_text   = (TextView) convert_view.findViewById(R.id.middle_left_text    );
+                TextView middle_right_text  = (TextView) convert_view.findViewById(R.id.middle_right_text   );
+                TextView bottom_text        = (TextView) convert_view.findViewById(R.id.bottom_text         );
 
                 top_left_text.setText(post.getUser().getName());
                 top_right_text.setText(post.getPostedTime());
@@ -225,7 +230,8 @@ public class ThreadPageFragment extends ListFragment {
                 }
 
                 // user quote name
-                content = content.replaceAll("<p class=\"reference\">(.*?)</p>", "<p><font color='" + user_quote_colour + "'><b>$1</b></font></p>");
+                content = content.replaceAll("<p class=\"reference\"><a (.*?) title=\"(.*?)\">(.*?)</a></p>",
+                        "<p><font color='" + user_quote_colour + "'><b><a href=\"whirldroid-reply://$2\">$3</a></b></font></p>");
 
                 // user quote text
                 content = content.replaceAll("<span class=\"wcrep1\">(.*?)</span>", "<font color='" + user_quote_colour + "'>$1</font>");
@@ -253,11 +259,17 @@ public class ThreadPageFragment extends ListFragment {
                 content = content.replace("â€¢", "");
                 content = content.replace("</li>", "");
 
-                try {
-                    bottom_text.setText(Html.fromHtml(content));
+                CharSequence sequence = Html.fromHtml(content);
+                SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
+                URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
+                for (URLSpan span : urls) {
+                    makeLinkClickable(strBuilder, span);
                 }
-                // weird Jelly Bean bug
-                catch (ArrayIndexOutOfBoundsException e) {
+
+                try {
+                    bottom_text.setText(strBuilder);
+
+                } catch (ArrayIndexOutOfBoundsException e) { // weird Jelly Bean bug
                     // just pull out a bunch of style tags and hope the problem goes away
                     content = content.replace("<b>", "");
                     content = content.replace("</b>", "");
@@ -268,13 +280,59 @@ public class ThreadPageFragment extends ListFragment {
                     content = content.replace("<em>", "");
                     content = content.replace("</em>", "");
 
-                    bottom_text.setText(Html.fromHtml(content));
+                    bottom_text.setText(strBuilder);
                 }
 
                 bottom_text.setMovementMethod(LinkMovementMethod.getInstance());
                 bottom_text.setLinksClickable(true);
             }
             return convert_view;
+        }
+    }
+
+    // http://stackoverflow.com/a/19989677/602734
+    protected void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span) {
+        int start = strBuilder.getSpanStart(span);
+        int end = strBuilder.getSpanEnd(span);
+        int flags = strBuilder.getSpanFlags(span);
+
+        ClickableSpan clickable = new ClickableSpan() {
+            public void onClick(View view) {
+                final String replyId = span.getURL().replace("whirldroid-reply://", "");
+
+                // either scroll to the reply on this page, or find which page the reply is on
+                if (!scrollToReply(replyId)) {
+
+                    // if we get here, then the reply is on a different page - BUT WHICH ONE?!
+
+                    final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+                    progressDialog.setMessage("Finding reply...");
+                    progressDialog.show();
+
+                    java.lang.Thread thread = new java.lang.Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final int pageNumber = Whirldroid.getApi().getPostPageNumber(replyId);
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                public void run() {
+                                    progressDialog.hide();
+                                    ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setScrollToReply(replyId);
+                                    parent.setCurrentItem(pageNumber - 1);
+                                }
+                            });
+                        }
+                    });
+
+                    thread.start();
+                }
+            }
+        };
+
+        // check if we need to handle this click
+        if (span.getURL().contains("whirldroid-reply://")) {
+            strBuilder.removeSpan(span);
+            strBuilder.setSpan(clickable, start, end, flags);
         }
     }
 
@@ -434,6 +492,7 @@ public class ThreadPageFragment extends ListFragment {
      * @param posts Posts
      */
     private void setPosts(ArrayList<Post> posts) {
+
         if (posts == null || posts.size() == 0) { // no posts found
             return;
         }
@@ -464,6 +523,7 @@ public class ThreadPageFragment extends ListFragment {
                 notebar.setMovementMethod(LinkMovementMethod.getInstance());
                 notebar.setLinksClickable(true);
                 lv.addHeaderView(header, null, false);
+                hasNotebar = true;
             }
         } catch (Exception e) { }
 
@@ -474,11 +534,12 @@ public class ThreadPageFragment extends ListFragment {
         if (bottom) {
             getListView().setSelection(getListView().getCount() - 1);
             bottom = false; // we don't want new page loads to go to the bottom, so unset this
-        }
-        else if (goto_num != 0) {
+        } else if (goto_num != 0) {
             getListView().setSelection(goto_num + getListView().getHeaderViewsCount());
             goto_num = 0; // we don't want new page loads to go to this number, so unset this
         }
+
+        doScrollToReply();
     }
 
     public boolean onNavigationItemSelected(int item_position, long item_id) {
@@ -505,5 +566,47 @@ public class ThreadPageFragment extends ListFragment {
         getThread();
 
         return true;
+    }
+
+    public boolean scrollToReply(String replyId) {
+        return scrollToReply(replyId, false);
+    }
+
+    public boolean scrollToReply(String replyId, final boolean jump) {
+        for (int i = 0; i < posts_adapter.getCount(); i++) {
+            Post post = posts_adapter.getItem(i);
+            if (post.getId().equals(replyId)) {
+                if (hasNotebar) {
+                    i++; // take notebar into account when scrolling to position
+                }
+
+                final int scrollTo = i;
+
+                getListView().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (jump) {
+                            getListView().setSelection(scrollTo);
+                        } else {
+                            getListView().smoothScrollToPosition(scrollTo);
+                        }
+                    }
+                });
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void doScrollToReply() {
+        try {
+            ThreadViewFragment.ThreadPageFragmentPagerAdapter parentAdapter = ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter());
+            if (parentAdapter.getScrollToReply() != null && posts_adapter != null && posts_adapter.getCount() > 0) {
+                scrollToReply(parentAdapter.getScrollToReply(), true);
+                parentAdapter.setScrollToReply(null);
+            }
+        } catch (NullPointerException e) { }
     }
 }

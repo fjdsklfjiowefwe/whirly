@@ -85,11 +85,12 @@ public class WhirlpoolApi extends Activity {
 
     // some URLs - most of these shouldn't be hardcoded, but meh, half the app
     // will break if anything is changed on the Whirlpool side anyway
-    public static final String POPULAR_URL   = "http://forums.whirlpool.net.au/forum/?action=popular_views";
-    public static final String FORUM_URL     = "http://forums.whirlpool.net.au/forum/";
-    public static final String THREAD_URL    = "http://forums.whirlpool.net.au/forum-replies.cfm?t=";
-    public static final String REPLY_URL     = "http://forums.whirlpool.net.au/forum/index.cfm?action=reply&t=";
-    public static final String NEWTHREAD_URL = "http://forums.whirlpool.net.au/forum/index.cfm?action=newthread&f=";
+    public static final String POPULAR_URL      = "http://forums.whirlpool.net.au/forum/?action=popular_views";
+    public static final String FORUM_URL        = "http://forums.whirlpool.net.au/forum/";
+    public static final String THREAD_URL       = "http://forums.whirlpool.net.au/forum-replies.cfm?t=";
+    public static final String REPLY_URL        = "http://forums.whirlpool.net.au/forum/index.cfm?action=reply&t=";
+    public static final String NEWTHREAD_URL    = "http://forums.whirlpool.net.au/forum/index.cfm?action=newthread&f=";
+    public static final String POST_URL         = "https://forums.whirlpool.net.au/forum-replies.cfm?r=";
 
     // number of posts Whirlpool displays on each page
     public static final int POSTS_PER_PAGE = 20;
@@ -690,6 +691,21 @@ public class WhirlpoolApi extends Activity {
         thread.setPosts(posts);
 
         return thread;
+    }
+
+    public int getPostPageNumber(String postId) {
+        String postUrl = POST_URL + postId;
+
+        Document doc = downloadPage(postUrl);
+        Elements currentPageElement = doc.select("#top_pagination li.current");
+
+        int pageNumber = 1;
+
+        try {
+            pageNumber = Integer.parseInt(currentPageElement.text().replace("\u00a0", ""));
+        } catch (NumberFormatException e) { }
+
+        return pageNumber;
     }
 
     /**

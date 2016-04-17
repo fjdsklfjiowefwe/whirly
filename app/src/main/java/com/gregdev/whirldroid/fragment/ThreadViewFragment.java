@@ -82,7 +82,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         initialPage = getArguments().getInt("page_number");
         pageCount   = getArguments().getInt("page_count");
         gotoNum     = getArguments().getInt("goto_num");
-        gotoBottom = getArguments().getBoolean("bottom");
+        gotoBottom  = getArguments().getBoolean("bottom");
         threadTitle = getArguments().getString("thread_title");
 
         viewPager = (ViewPager) rootView.findViewById(R.id.pager);
@@ -118,6 +118,9 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
                 }
 
                 ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
+
+                ThreadPageFragmentPagerAdapter adapter = (ThreadPageFragmentPagerAdapter) viewPager.getAdapter();
+                ((ThreadPageFragment) adapter.getItem(position)).doScrollToReply();
             }
 
             @Override
@@ -181,10 +184,19 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     public class ThreadPageFragmentPagerAdapter extends FragmentStatePagerAdapter {
         private Map<Integer, Fragment> pages;
         private boolean doneInitialPage = false;
+        private String scrollToReply;
 
         public ThreadPageFragmentPagerAdapter() {
             super(getChildFragmentManager());
             pages = new HashMap<>();
+        }
+
+        public void setScrollToReply(String replyId) {
+            this.scrollToReply = replyId;
+        }
+
+        public String getScrollToReply() {
+            return scrollToReply;
         }
 
         public void setCount(int count) {
