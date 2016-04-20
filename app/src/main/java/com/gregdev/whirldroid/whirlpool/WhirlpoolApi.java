@@ -3,6 +3,7 @@ package com.gregdev.whirldroid.whirlpool;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import java.util.regex.Pattern;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -24,6 +26,7 @@ import org.jsoup.select.Elements;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Pair;
 
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.model.Forum;
@@ -693,19 +696,25 @@ public class WhirlpoolApi extends Activity {
         return thread;
     }
 
-    public int getPostPageNumber(String postId) {
+    public Pair<Integer, Integer> getPostLocation(String postId) throws WhirlpoolApiException {
         String postUrl = POST_URL + postId;
+        int pageNumber  = 1;
+        int threadId    = 0;
+        Document doc    = downloadPage(postUrl);
 
-        Document doc = downloadPage(postUrl);
         Elements currentPageElement = doc.select("#top_pagination li.current");
-
-        int pageNumber = 1;
 
         try {
             pageNumber = Integer.parseInt(currentPageElement.text().replace("\u00a0", ""));
         } catch (NumberFormatException e) { }
 
-        return pageNumber;
+        String archiveUrl = doc.select(".buttons.bfoot a").first().attr("href");
+
+        try {
+            threadId = Integer.parseInt(archiveUrl.replace("/archive/", ""));
+        } catch (NumberFormatException e) { }
+
+        return new Pair<>(threadId, pageNumber);
     }
 
     /**

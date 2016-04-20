@@ -20,6 +20,7 @@ import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
+import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -312,15 +313,37 @@ public class ThreadPageFragment extends ListFragment {
                     java.lang.Thread thread = new java.lang.Thread(new Runnable() {
                         @Override
                         public void run() {
-                            final int pageNumber = Whirldroid.getApi().getPostPageNumber(replyId);
+                            try {
+                                final Pair<Integer, Integer> postLocation = Whirldroid.getApi().getPostLocation(replyId);
 
-                            getActivity().runOnUiThread(new Runnable() {
-                                public void run() {
-                                    progressDialog.hide();
-                                    ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setScrollToReply(replyId);
-                                    parent.setCurrentItem(pageNumber - 1);
-                                }
-                            });
+                                getActivity().runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        progressDialog.hide();
+
+                                        if (postLocation.first == thread_id || thread_id == 0) { // same thread
+                                            ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setScrollToReply(replyId);
+                                            parent.setCurrentItem(postLocation.second - 1);
+
+                                        } else { // post is in a different thread
+                                            Bundle bundle = new Bundle();
+
+                                            bundle.putInt("thread_id"           , postLocation.first    );
+                                            bundle.putInt("page_number"         , postLocation.second   );
+                                            bundle.putString("scroll_to_post"   , replyId               );
+
+                                            ((MainActivity) getActivity()).switchFragment("ThreadView", true, bundle);
+                                        }
+                                    }
+                                });
+
+                            } catch (final WhirlpoolApiException e) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        progressDialog.hide();
+                                        Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
                         }
                     });
 

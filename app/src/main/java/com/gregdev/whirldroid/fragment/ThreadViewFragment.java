@@ -86,8 +86,11 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         threadTitle = getArguments().getString("thread_title");
 
         viewPager = (ViewPager) rootView.findViewById(R.id.pager);
-        viewPager.setAdapter(new ThreadPageFragmentPagerAdapter());
+        ThreadPageFragmentPagerAdapter adapter = new ThreadPageFragmentPagerAdapter();
+        adapter.setScrollToReply(getArguments().getString("scroll_to_post"));
+        viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(3);
+
 
         filterList.clear();
 
