@@ -131,21 +131,21 @@ public class ThreadPageFragment extends ListFragment {
                         }
 
                         if (result != null) {
-                            last_updated = System.currentTimeMillis() / 1000;
-
-                            page_count = result.getPageCount();
-                            if (parent != null) {
-                                ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setCount(page_count);
-                            }
+                            last_updated    = System.currentTimeMillis() / 1000;
+                            page_count      = result.getPageCount();
+                            thread_title    = result.getTitle();
+                            thread          = result;
 
                             if (current_page == -1) { // -1 indicates we're on the last page
                                 current_page = page_count;
                             }
 
-                            thread_title = result.getTitle();
+                            if (parent != null) {
+                                ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setCount(page_count, thread_title);
+                            }
 
-                            thread = result;
                             setPosts(result.getPosts()); // display the posts in the list
+
                         } else {
                             Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
                         }

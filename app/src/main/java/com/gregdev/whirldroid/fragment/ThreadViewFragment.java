@@ -202,11 +202,13 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
             return scrollToReply;
         }
 
-        public void setCount(int count) {
+        public void setCount(int count, String threadTitle) {
             if (count != pageCount) { // count has changed, let's do some things
                 pageCount = count;
                 notifyDataSetChanged();
                 ((MainActivity) getActivity()).setTwoLineSubtitle("Page " + (viewPager.getCurrentItem() + 1) + " of " + pageCount);
+                filterList.set(0, threadTitle);
+                filterAdapter.notifyDataSetChanged();
             }
         }
 
