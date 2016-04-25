@@ -307,7 +307,7 @@ public class ThreadPageFragment extends ListFragment {
                     // if we get here, then the reply is on a different page - BUT WHICH ONE?!
 
                     final ProgressDialog progressDialog = new ProgressDialog(getActivity());
-                    progressDialog.setMessage("Finding reply...");
+                    progressDialog.setMessage("Locating reply...");
                     progressDialog.show();
 
                     java.lang.Thread thread = new java.lang.Thread(new Runnable() {
@@ -319,9 +319,10 @@ public class ThreadPageFragment extends ListFragment {
                                 getActivity().runOnUiThread(new Runnable() {
                                     public void run() {
                                         progressDialog.hide();
+                                        ThreadViewFragment.ThreadPageFragmentPagerAdapter adapter = (ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter();
 
-                                        if (postLocation.first == thread_id || thread_id == 0) { // same thread
-                                            ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setScrollToReply(replyId);
+                                        if ((postLocation.first == thread_id || thread_id == 0) && adapter.getFilter() == 0) { // same thread
+                                            adapter.setScrollToReply(replyId);
                                             parent.setCurrentItem(postLocation.second - 1);
 
                                         } else { // post is in a different thread
