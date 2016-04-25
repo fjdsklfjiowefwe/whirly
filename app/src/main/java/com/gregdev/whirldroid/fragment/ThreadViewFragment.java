@@ -91,7 +91,6 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(3);
 
-
         filterList.clear();
 
         if (threadTitle != null){
@@ -212,6 +211,15 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
             }
         }
 
+        public int getFilter() {
+            return filterSpinner.getSelectedItemPosition();
+        }
+
+        public void setFilterAndPage(int filter, int page) {
+            filterSpinner.setSelection(filter);
+            viewPager.setCurrentItem(page);
+        }
+
         @Override
         public int getCount() {
             if (pageCount == 0) {
@@ -228,11 +236,11 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
             if (pages.get(position + 1) == null) {
                 Bundle bundle = new Bundle();
 
-                bundle.putString("thread_title", threadTitle);
+                bundle.putString("thread_title" , threadTitle);
                 bundle.putInt("thread_id"       , threadId);
                 bundle.putInt("page_number"     , position + 1);
                 bundle.putInt("page_count"      , pageCount);
-                bundle.putInt("filter", currentFilter);
+                bundle.putInt("filter"          , currentFilter);
 
                 if (!doneInitialPage && (position + 1) == initialPage) {
                     bundle.putInt("goto_num", gotoNum);
