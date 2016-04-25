@@ -142,13 +142,15 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
 
                         if (result != null) {
                             if (parent != null) {
-                                ThreadListFragment.ForumPageFragmentPagerAdapter pagerAdapter = (ThreadListFragment.ForumPageFragmentPagerAdapter) parent.getAdapter();
+                                try {
+                                    ThreadListFragment.ForumPageFragmentPagerAdapter pagerAdapter = (ThreadListFragment.ForumPageFragmentPagerAdapter) parent.getAdapter();
 
-                                if (pagerAdapter.getHeaderForum() == null) {
-                                    pagerAdapter.setHeader(forum);
-                                }
+                                    if (pagerAdapter.getHeaderForum() == null) {
+                                        pagerAdapter.setHeader(forum);
+                                    }
 
-                                pagerAdapter.setCount(forum.getPageCount());
+                                    pagerAdapter.setCount(forum.getPageCount());
+                                } catch (ClassCastException e) { } // must be viewing watched threads, which means we don't care about page counts
                             }
 
                             getActivity().invalidateOptionsMenu();

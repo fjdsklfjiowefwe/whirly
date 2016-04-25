@@ -159,8 +159,6 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
             mTracker.send(new HitBuilders.ScreenViewBuilder().build());
         }
 
-        mainActivity.resetActionBar();
-
         Bundle bundle = getArguments();
 
         switch(forumId) {

@@ -113,7 +113,7 @@ public class WatchedThreadsFragment extends Fragment {
                 bundle.putInt("forum_id", WhirlpoolApi.ALL_WATCHED_THREADS);
             }
 
-            Fragment fragment = new ThreadListFragment();
+            Fragment fragment = new ForumPageFragment();
             fragment.setArguments(bundle);
             return fragment;
         }
