@@ -15,13 +15,19 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
+import com.gregdev.whirldroid.Refresher;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WatchedThreadsFragment extends Fragment {
 
     private Tracker mTracker;
     ViewPager viewPager;
+    private Map<Integer, Fragment> pages = new HashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,7 +92,7 @@ public class WatchedThreadsFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
                 WatchedFragmentPagerAdapter adapter = (WatchedFragmentPagerAdapter) viewPager.getAdapter();
-                ((ThreadListFragment) adapter.getItem(viewPager.getCurrentItem())).initiateRefresh();
+                ((Refresher) adapter.getItem(viewPager.getCurrentItem())).initiateRefresh();
         }
         return false;
     }
@@ -105,17 +111,21 @@ public class WatchedThreadsFragment extends Fragment {
 
         @Override
         public Fragment getItem(int position) {
-            Bundle bundle = new Bundle();
+            if (pages.get(position) == null) {
+                Bundle bundle = new Bundle();
 
-            if (position == 0) {
-                bundle.putInt("forum_id", WhirlpoolApi.UNREAD_WATCHED_THREADS);
-            } else {
-                bundle.putInt("forum_id", WhirlpoolApi.ALL_WATCHED_THREADS);
+                if (position == 0) {
+                    bundle.putInt("forum_id", WhirlpoolApi.UNREAD_WATCHED_THREADS);
+                } else {
+                    bundle.putInt("forum_id", WhirlpoolApi.ALL_WATCHED_THREADS);
+                }
+
+                Fragment fragment = new ForumPageFragment();
+                fragment.setArguments(bundle);
+                pages.put(position, fragment);
             }
 
-            Fragment fragment = new ForumPageFragment();
-            fragment.setArguments(bundle);
-            return fragment;
+            return pages.get(position);
         }
 
         @Override

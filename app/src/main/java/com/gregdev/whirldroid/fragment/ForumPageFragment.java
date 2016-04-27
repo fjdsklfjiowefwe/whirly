@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
+import com.gregdev.whirldroid.Refresher;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
@@ -50,7 +51,7 @@ import java.util.Map;
 /**
  * Created by Greg on 10/03/2016.
  */
-public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnCompletedListener {
+public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnCompletedListener, Refresher {
 
     private SeparatedListAdapter threads_adapter;
     private ThreadAdapter threads_adapter_no_headings;
@@ -376,6 +377,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.thread_list, container, false);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         setHasOptionsMenu(true);
         no_threads = (TextView) rootView.findViewById(R.id.no_threads);
 
@@ -395,8 +397,6 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
             search_group    = bundle.getInt   ("search_group"   , -1    );
             search_query    = bundle.getString("search_query"   , null  );
         }
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
 
         return rootView;
     }

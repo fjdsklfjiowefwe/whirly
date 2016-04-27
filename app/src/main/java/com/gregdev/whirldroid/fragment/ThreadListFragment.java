@@ -29,6 +29,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
+import com.gregdev.whirldroid.Refresher;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.layout.TwoLineSpinnerAdapter;
@@ -38,7 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ThreadListFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+public class ThreadListFragment extends Fragment implements AdapterView.OnItemSelectedListener, Refresher {
 
     private ViewPager viewPager;
     private Tracker mTracker;
@@ -47,6 +48,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
     private int pageCount = 0;
     private MenuBuilder menuBuilder;
     private TwoLineSpinnerAdapter groupAdapter;
+    private Map<Integer, Fragment> pages = new HashMap<>();
     Spinner spinner;
     View rootView;
     private Boolean doneInitialSelect = false;
@@ -259,11 +261,8 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
     }
 
     public class ForumPageFragmentPagerAdapter extends FragmentStatePagerAdapter {
-        private Map<Integer, Fragment> pages;
-
         public ForumPageFragmentPagerAdapter() {
             super(getChildFragmentManager());
-            pages = new HashMap<>();
 
             if (forum != null) {
                 setHeader(forum);
@@ -453,11 +452,15 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
 
     public void onNothingSelected (AdapterView<?> parent) { }
 
-    public void initiateRefresh() {
+    public boolean initiateRefresh() {
         try {
             ForumPageFragmentPagerAdapter adapter = (ForumPageFragmentPagerAdapter) viewPager.getAdapter();
             ((ForumPageFragment) adapter.getItem(viewPager.getCurrentItem())).initiateRefresh();
-        } catch (NullPointerException e) { }
+            return true;
+
+        } catch (NullPointerException e) {
+            return false;
+        }
     }
 
 }

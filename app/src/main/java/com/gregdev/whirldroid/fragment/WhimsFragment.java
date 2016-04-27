@@ -15,7 +15,11 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
+import com.gregdev.whirldroid.Refresher;
 import com.gregdev.whirldroid.Whirldroid;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class WhimsFragment extends Fragment {
 
@@ -85,13 +89,14 @@ public class WhimsFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
                 WatchedFragmentPagerAdapter adapter = (WatchedFragmentPagerAdapter) viewPager.getAdapter();
-                ((WhimListFragment) adapter.getItem(viewPager.getCurrentItem())).initiateRefresh();
+                ((Refresher) adapter.getItem(viewPager.getCurrentItem())).initiateRefresh();
         }
         return false;
     }
 
     public class WatchedFragmentPagerAdapter extends FragmentPagerAdapter {
         final int PAGE_COUNT = 2;
+        Map<Integer, Fragment> pages = new HashMap<>();
 
         public WatchedFragmentPagerAdapter() {
             super(getChildFragmentManager());
@@ -104,15 +109,19 @@ public class WhimsFragment extends Fragment {
 
         @Override
         public Fragment getItem(int position) {
-            Bundle bundle = new Bundle();
+            if (pages.get(position) == null) {
+                Bundle bundle = new Bundle();
 
-            if (position == 0) {
-                bundle.putBoolean("unread", true);
+                if (position == 0) {
+                    bundle.putBoolean("unread", true);
+                }
+
+                Fragment fragment = new WhimListFragment();
+                fragment.setArguments(bundle);
+                return fragment;
             }
 
-            Fragment fragment = new WhimListFragment();
-            fragment.setArguments(bundle);
-            return fragment;
+            return pages.get(position);
         }
 
         @Override

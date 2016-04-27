@@ -31,6 +31,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
+import com.gregdev.whirldroid.Refresher;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
@@ -42,7 +43,7 @@ import com.gregdev.whirldroid.whirlpool.manager.WhimManager;
  * @author Greg
  *
  */
-public class WhimListFragment extends ListFragment {
+public class WhimListFragment extends ListFragment implements Refresher {
 
     private ArrayAdapter<Whim> whim_adapter;
     private ArrayList<Whim> whim_list;

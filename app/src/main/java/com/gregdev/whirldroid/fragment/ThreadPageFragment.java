@@ -38,6 +38,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
+import com.gregdev.whirldroid.Refresher;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.model.Post;
@@ -48,7 +49,7 @@ import com.gregdev.whirldroid.model.Thread;
  * @author Greg
  *
  */
-public class ThreadPageFragment extends ListFragment {
+public class ThreadPageFragment extends ListFragment implements Refresher {
 
     private ArrayAdapter<Post> posts_adapter;
     private RetrieveThreadTask task;
@@ -440,7 +441,7 @@ public class ThreadPageFragment extends ListFragment {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menu_info) {
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         menu.setHeaderTitle(R.string.ctxmenu_post);
 
         menu.add(Menu.NONE, 1, 1, getResources().getText(R.string.ctxmenu_reply_in_browser));

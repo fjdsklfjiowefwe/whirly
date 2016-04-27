@@ -33,6 +33,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
+import com.gregdev.whirldroid.Refresher;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.layout.NewsAdapter;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
@@ -45,7 +46,7 @@ import com.gregdev.whirldroid.whirlpool.manager.NewsManager;
  * @author Greg
  *
  */
-public class NewsListFragment extends ListFragment {
+public class NewsListFragment extends ListFragment implements Refresher {
 
     private SeparatedListAdapter sla;
     private ArrayList<NewsArticle> newsList;
