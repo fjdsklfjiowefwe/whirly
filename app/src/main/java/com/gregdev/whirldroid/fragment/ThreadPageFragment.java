@@ -442,11 +442,18 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+        Post post = posts_adapter.getItem(info.position);
+
         menu.setHeaderTitle(R.string.ctxmenu_post);
 
         menu.add(Menu.NONE, 1, 1, getResources().getText(R.string.ctxmenu_reply_in_browser));
         menu.add(Menu.NONE, 2, 2, getResources().getText(R.string.ctxmenu_user_info));
         menu.add(Menu.NONE, 3, 3, getResources().getText(R.string.ctxmenu_user_posts));
+
+        if (post.getUser().getId().equals(Whirldroid.getOwnWhirlpoolId())) {
+            menu.add(Menu.NONE, 4, 4, getResources().getText(R.string.ctxmenu_edit_post));
+        }
     }
 
     @Override
@@ -455,7 +462,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
             AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
             int pos = info.position - getListView().getHeaderViewsCount();
 
-            Post post = (Post) posts_adapter.getItem(pos);
+            Post post = posts_adapter.getItem(pos);
 
             switch (item.getItemId()) {
                 case 0: // open in browser
@@ -476,7 +483,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                     return true;
 
                 case 1: // reply in browser
-                    String reply_url = "http://forums.whirlpool.net.au/forum/index.cfm?action=reply&r=" + post.getId();
+                    String reply_url = "https://forums.whirlpool.net.au/forum/index.cfm?action=reply&r=" + post.getId();
                     Intent reply_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(reply_url));
 
                     if (Build.VERSION.SDK_INT >= 18) {
@@ -500,6 +507,23 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
                 case 3: // view user's posts
                     ((ThreadViewFragment) getParentFragment()).setFilterUser(post.getUser().getName(), post.getUser().getId());
+                    return true;
+
+                case 4: // edit reply
+                    String edit_url = "http://forums.whirlpool.net.au/forum/index.cfm?action=edit&e=" + post.getId();
+                    Intent edit_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(edit_url));
+
+                    if (Build.VERSION.SDK_INT >= 18) {
+                        final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+                        final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+
+                        Bundle extras = new Bundle();
+                        extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+                        edit_intent.putExtras(extras);
+                        edit_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+                    }
+
+                    startActivity(edit_intent);
                     return true;
             }
         }
