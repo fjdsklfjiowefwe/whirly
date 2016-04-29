@@ -442,14 +442,20 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        Post post = posts_adapter.getItem(info.position);
-
         menu.setHeaderTitle(R.string.ctxmenu_post);
 
         menu.add(Menu.NONE, 1, 1, getResources().getText(R.string.ctxmenu_reply_in_browser));
         menu.add(Menu.NONE, 2, 2, getResources().getText(R.string.ctxmenu_user_info));
         menu.add(Menu.NONE, 3, 3, getResources().getText(R.string.ctxmenu_user_posts));
+
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+        int postPosition = info.position;
+
+        if (hasNotebar) {
+            postPosition--;
+        }
+
+        Post post = posts_adapter.getItem(postPosition);
 
         if (post.getUser().getId().equals(Whirldroid.getOwnWhirlpoolId())) {
             menu.add(Menu.NONE, 4, 4, getResources().getText(R.string.ctxmenu_edit_post));
