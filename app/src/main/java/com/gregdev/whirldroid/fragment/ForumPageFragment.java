@@ -319,7 +319,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()) {
                                 case R.id.open_browser:
-                                    openThreadInBrowser(thread, 1, false, 0);
+                                    openThread(thread, 1, false, true);
                                     return true;
 
                                 case R.id.unwatch:
@@ -549,61 +549,65 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
         setListAdapter(threads_adapter);
     }
 
-    private void openThread(Thread thread, int page_number, boolean bottom) {
+    private void openThread(Thread thread, int pageNumber, boolean bottom) {
+        openThread(thread, pageNumber, bottom, false);
+    }
+
+    private void openThread(Thread thread, int pageNumber, boolean bottom, boolean forceBrowser) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
 
-        boolean load_in_browser        = settings.getBoolean("pref_openthreadsinbrowser", false);
-        boolean load_recent_at_top     = settings.getBoolean("pref_loadattop", false);
-        boolean load_watched_at_top    = settings.getBoolean("pref_loadwatchedattop", false);
-        boolean load_public_at_bottom  = settings.getBoolean("pref_loadpublicatbottom", false);
-        boolean load_private_at_bottom = settings.getBoolean("pref_loadprivateatbottom", false);
-        boolean auto_mark_read         = settings.getBoolean("pref_watchedautomarkasread", false);
+        boolean loadInBrowser       = settings.getBoolean("pref_openthreadsinbrowser"   , false);
+        boolean loadRecentAtTop     = settings.getBoolean("pref_loadattop"              , false);
+        boolean loadWatchedAtTop    = settings.getBoolean("pref_loadwatchedattop"       , false);
+        boolean loadPublicAtBottom  = settings.getBoolean("pref_loadpublicatbottom"     , false);
+        boolean loadPrivateAtBottom = settings.getBoolean("pref_loadprivateatbottom"    , false);
+        boolean autoMarkRead        = settings.getBoolean("pref_watchedautomarkasread"  , false);
 
-        int goto_post = 0;
+        if (forceBrowser) {
+            loadInBrowser = true;
+        }
+
+        int gotoPost = 0;
 
         // this is a list of watched threads, and the preference is to open the thread at the last read post
-        if (!bottom && !load_watched_at_top && (forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS || forum_id == WhirlpoolApi.ALL_WATCHED_THREADS)) {
-            page_number = thread.getLastPage();
-            goto_post = thread.getLastPost();
-            bottom = false;
+        if (!bottom && !loadWatchedAtTop && (forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS || forum_id == WhirlpoolApi.ALL_WATCHED_THREADS)) {
+            pageNumber  = thread.getLastPage();
+            gotoPost    = thread.getLastPost();
+            bottom      = false;
         }
 
         // this is a list of recent threads, and the preference is to open the thread at the bottom
-        if (!bottom && !load_recent_at_top && forum_id == WhirlpoolApi.RECENT_THREADS) {
-            page_number = -1;
-            bottom = true;
+        if (!bottom && !loadRecentAtTop && forum_id == WhirlpoolApi.RECENT_THREADS) {
+            pageNumber  = -1;
+            bottom      = true;
         }
 
         // this is a public thread, and the preference is to open the thread at the bottom
-        if (load_public_at_bottom && WhirlpoolApi.isActualForum(forum_id) && WhirlpoolApi.isPublicForum(forum_id)) {
-            page_number = -1;
-            bottom = true;
+        if (loadPublicAtBottom && WhirlpoolApi.isActualForum(forum_id) && WhirlpoolApi.isPublicForum(forum_id)) {
+            pageNumber  = -1;
+            bottom      = true;
         }
 
         // this is a private thread, and the preference is to open the thread at the bottom
-        if (load_private_at_bottom && WhirlpoolApi.isActualForum(forum_id) && !WhirlpoolApi.isPublicForum(forum_id)) {
-            page_number = -1;
-            bottom = true;
+        if (loadPrivateAtBottom && WhirlpoolApi.isActualForum(forum_id) && !WhirlpoolApi.isPublicForum(forum_id)) {
+            pageNumber  = -1;
+            bottom      = true;
         }
 
-        if (auto_mark_read && thread.hasUnreadPosts()) {
+        if (autoMarkRead && thread.hasUnreadPosts()) {
             MarkThreadReadTask markRead = new MarkThreadReadTask(thread.getId() + "");
             markRead.execute();
         }
 
         // set to open threads in browser
-        if (load_in_browser) {
-            openThreadInBrowser(thread, page_number, bottom, goto_post);
-        }
+        if (loadInBrowser) {
+            openThreadInBrowser(thread, pageNumber, bottom, gotoPost);
 
-        // forum is private and cannot be scraped
-        else if (!WhirlpoolApi.isPublicForum(thread.getForumId())) {
-            openThreadInBrowser(thread, page_number, bottom, goto_post);
-        }
+        } else if (!WhirlpoolApi.isPublicForum(thread.getForumId())) { // forum is private and cannot be scraped
+            openThreadInBrowser(thread, pageNumber, bottom, gotoPost);
 
-        // open the thread within Whirldroid
-        else {
-            openThreadInApp(thread, page_number, bottom, goto_post);
+        } else { // open the thread within Whirldroid
+            openThreadInApp(thread, pageNumber, bottom, gotoPost);
         }
     }
 
