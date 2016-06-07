@@ -264,6 +264,8 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
         public ForumPageFragmentPagerAdapter() {
             super(getChildFragmentManager());
 
+            pages.clear();
+
             if (forum != null) {
                 setHeader(forum);
             }
@@ -295,8 +297,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
                         if (currentGroup != 0) {
                             try {
                                 spinner.setSelection(currentGroupIndex);
-                            } catch (Exception e) {
-                            }
+                            } catch (Exception e) { }
                         }
                     }
                 }
@@ -416,15 +417,17 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int itemPosition, long itemId) {
+        // this method is triggered when the fragment first loads, so ignore the first instance of a selection
         if (!doneInitialSelect) {
             doneInitialSelect = true;
             return;
         }
+
         try {
-            if (itemPosition == 0 && currentGroup == 0) {
+            if (itemPosition == 0 && currentGroup == 0) { // no selection changed and we're not filtering
                 return;
 
-            } else if (itemPosition == 0) {
+            } else if (itemPosition == 0) { // remove filtering
                 currentGroup = 0;
                 viewPager.setAdapter(null);
                 viewPager.setAdapter(new ForumPageFragmentPagerAdapter());
@@ -434,6 +437,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
             int counter = 1;
             for (Map.Entry<String, Integer> group : forum.getGroups().entrySet()) {
                 if (counter == itemPosition) {
+                    // selection hasn't changed; do nothing
                     if (currentGroup == group.getValue()) {
                         return;
                     }
@@ -444,6 +448,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
 
                     return;
                 }
+
                 counter++;
             }
 
