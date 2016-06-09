@@ -43,6 +43,12 @@
 
         </activity>
 
+        <activity
+            android:name=".login.SteppedLogin"
+            android:label="Login"
+            android:windowSoftInputMode="stateHidden"
+            />
+
         <!-- Startup Intent Receiver - starts notification AlarmManager at boot -->
         <receiver android:name=".service.StartupIntentReceiver" >
             <intent-filter>

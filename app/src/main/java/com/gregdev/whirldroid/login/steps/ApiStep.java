@@ -1,0 +1,203 @@
+package com.gregdev.whirldroid.login.steps;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteConstraintException;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.github.fcannizzaro.materialstepper.style.DotStepper;
+import com.google.android.gms.analytics.Tracker;
+import com.gregdev.whirldroid.R;
+import com.gregdev.whirldroid.Whirldroid;
+import com.gregdev.whirldroid.login.SteppedLogin;
+import com.gregdev.whirldroid.model.Forum;
+import com.gregdev.whirldroid.service.DatabaseHandler;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ApiStep extends LoginStep {
+
+    private Boolean haveValidApiKey = false;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setLayoutResource(R.layout.login_step_api);
+        setTitle("Log in");
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        ((TextView) view.findViewById(R.id.api_key_field)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent event) {
+                Whirldroid.log("onEditorAction");
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    Whirldroid.log("true");
+                    onNext();
+                    return true;
+                }
+
+                Whirldroid.log("false");
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public void onNext() {
+        EditText apiKeyEdit = (EditText) view.findViewById(R.id.api_key_field);
+        String apiKey = apiKeyEdit.getText().toString();
+
+        if (!haveValidApiKey && apiKey.length() > 0) {
+            ((SteppedLogin) getActivity()).setDisplayErrors(false);
+
+            // hide the keyboard
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.findViewById(R.id.scroller).getWindowToken(), 0);
+
+            // store the API key
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+            SharedPreferences.Editor settingsEditor = settings.edit();
+            settingsEditor.putString("pref_apikey", apiKey);
+            settingsEditor.commit();
+
+            RetrieveDataTask task = new RetrieveDataTask(); // start new thread to retrieve data
+            task.execute();
+        }
+    }
+
+    @Override
+    public boolean nextIf() {
+        EditText apiKeyField = (EditText) view.findViewById(R.id.api_key_field);
+
+        return haveValidApiKey && apiKeyField.getText().length() > 0;
+    }
+
+    public String error() {
+        return "Please enter your API key";
+    }
+
+    private ProgressDialog progress_dialog;
+    private Tracker mTracker;
+
+    private class RetrieveDataTask extends AsyncTask<String, Void, Boolean> {
+
+        private String error_message = "";
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    try {
+                        progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Verifying your API key...", true, true);
+                    } catch (WindowManager.BadTokenException e) {
+                    }
+                }
+            });
+            try {
+                List<String> get = new ArrayList<String>();
+                get.add("forum");
+                get.add("whims");
+                get.add("news");
+                get.add("recent");
+                get.add("watched");
+
+                Whirldroid.getApi().downloadData(get, null);
+
+            } catch (final WhirlpoolApiException e) {
+                error_message = e.getMessage();
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean result) {
+            ((SteppedLogin) getActivity()).setDisplayErrors(false);
+
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    if (progress_dialog != null) {
+                        try {
+                            progress_dialog.dismiss(); // hide the progress dialog
+                            progress_dialog = null;
+                        } catch (Exception e) {
+                        }
+                    }
+
+                    // got data, API key must be valid
+                    if (result) {
+                        if (Whirldroid.isGreg()) { // restore Greg's settings, because he's sick of doing it over and over and over again
+                            Toast.makeText(getActivity(), "Hi, Greg!", Toast.LENGTH_SHORT).show();
+
+                            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+                            SharedPreferences.Editor settingsEditor = settings.edit();
+                            settingsEditor.putBoolean("pref_watchedbacktolist"      , true      );
+                            settingsEditor.putBoolean("pref_watchedautomarkasread"  , true      );
+                            settingsEditor.putBoolean("pref_ignoreownreplies"       , true      );
+                            settingsEditor.putBoolean("pref_whimnotify"             , true      );
+                            settingsEditor.putBoolean("pref_watchednotify", true);
+                            settingsEditor.putString("pref_notifyfreq", "15");
+                            settingsEditor.putString("pref_theme", "2");
+                            settingsEditor.putString ("pref_nightmodestart"         , "21:30"   );
+                            settingsEditor.putString("pref_nightmodeend", "07:30");
+                            settingsEditor.commit();
+
+                            try {
+                                DatabaseHandler db = new DatabaseHandler(getActivity());
+                                db.addFavouriteForum(new Forum(138, "Home", 59, "Lounges"));
+                                db.addFavouriteForum(new Forum(126, "Home theatre", 50, "Entertainment"));
+                                db.addFavouriteForum(new Forum(71, "Lifestyle", 48, "Life"));
+                                db.addFavouriteForum(new Forum(63, "Web development", 12, "IT Industry"));
+
+                            } catch (SQLiteConstraintException e) { }
+                        }
+
+                        haveValidApiKey = true;
+
+                        TextView nextButton = (TextView) view.getRootView().findViewById(R.id.stepNext);
+                        nextButton.performClick();
+                    }
+
+                    // no data, API key is probably invalid (or error on Whirlpool side)
+                    else {
+                        // unset the API key setting
+                        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+                        SharedPreferences.Editor settingsEditor = settings.edit();
+                        settingsEditor.putString("pref_apikey", null);
+                        settingsEditor.commit();
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setMessage("It looks like there might be a problem with your API key. Please check your key and remember to include dashes.")
+                                .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                    }
+                }
+            });
+        }
+    }
+
+}

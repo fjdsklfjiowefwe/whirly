@@ -1,9 +1,6 @@
 package com.gregdev.whirldroid;
 
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,8 +18,13 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -44,6 +46,8 @@ public class Whirldroid extends Application {
     private static int current_theme;
     private static int currentThemeId;
     private static boolean theme_changed = false;
+
+    public static final String WHIRLDROID_THREAD_ID = "1906307";
 
     private Tracker mTracker;
 
@@ -359,5 +363,21 @@ public class Whirldroid extends Application {
         String result = formatter.toString();
         formatter.close();
         return result;
+    }
+
+    public static void openInBrowser(Fragment fragment, String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+
+        if (Build.VERSION.SDK_INT >= 18) {
+            final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+            final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+
+            Bundle extras = new Bundle();
+            extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+            intent.putExtras(extras);
+            intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+        }
+
+        fragment.startActivity(intent);
     }
 }

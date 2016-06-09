@@ -17,20 +17,16 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.widget.TextView;
 
+import com.gregdev.whirldroid.login.SteppedLogin;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -196,6 +192,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         }
 
         Whirldroid.updateAlarm();
+
+        Intent myIntent = new Intent(this, SteppedLogin.class);
+        startActivity(myIntent);
     }
 
     @Override

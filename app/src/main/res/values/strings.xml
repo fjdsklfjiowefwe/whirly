@@ -11,6 +11,7 @@
     <string name="menu_settings">Settings</string>
     <string name="menu_about">About</string>
     <string name="menu_refresh">Refresh</string>
+    <string name="menu_help">Help</string>
     <string name="menu_watch">Watch</string>
     <string name="menu_markread">Mark as read</string>
     <string name="menu_goto_forum">Go to forum</string>
@@ -88,4 +89,19 @@
     <string name="pref_recentthreadoptions_title">Recent Thread Settings</string>
     <string name="pref_watchedthreadoptions_title">Watched Thread Settings</string>
     <string name="pref_whimoptions_title">Whim Settings</string>
+
+    <!-- Log in steps -->
+    <string name="login_help">Get Help</string>
+
+    <string name="login_welcome">Welcome to Whirldroid!</string>
+    <string name="login_description">Whirldroid is an easy to use, native Android interface for the Whirlpool forums.</string>
+    <string name="login_next">Let\'s take a few moments to set things up. Tap NEXT to get started.</string>
+
+    <string name="login_api_desc">
+        Rather than your username and password, Whirldroid uses your Whirlpool API key to download your threads and whims.
+
+        \n\nYou\'ll just need to copy your API key from your Whirlpool Account page (https://whirlpool.net.au/profile/), and paste it into the box below.
+    </string>
+
+    <string name="ms_end">FINISH</string>
 </resources>
