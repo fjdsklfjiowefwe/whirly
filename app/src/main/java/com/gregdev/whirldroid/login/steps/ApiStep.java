@@ -40,21 +40,18 @@ public class ApiStep extends LoginStep {
         super.onCreate(savedInstanceState);
 
         setLayoutResource(R.layout.login_step_api);
-        setTitle("Log in");
+        setStepTitle("Log in");
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         ((TextView) view.findViewById(R.id.api_key_field)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent event) {
-                Whirldroid.log("onEditorAction");
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    Whirldroid.log("true");
                     onNext();
                     return true;
                 }
 
-                Whirldroid.log("false");
                 return false;
             }
         });
@@ -186,7 +183,7 @@ public class ApiStep extends LoginStep {
                         settingsEditor.commit();
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setMessage("It looks like there might be a problem with your API key. Please check your key and remember to include dashes.")
+                        builder.setMessage("It looks like there's a problem with your API key. Double-check your key and remember to include dashes.")
                                 .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         dialog.cancel();

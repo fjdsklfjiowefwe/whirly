@@ -365,7 +365,7 @@ public class Whirldroid extends Application {
         return result;
     }
 
-    public static void openInBrowser(Fragment fragment, String url) {
+    public static void openInBrowser(String url) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 
         if (Build.VERSION.SDK_INT >= 18) {
@@ -378,6 +378,6 @@ public class Whirldroid extends Application {
             intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
         }
 
-        fragment.startActivity(intent);
+        getContext().startActivity(intent);
     }
 }

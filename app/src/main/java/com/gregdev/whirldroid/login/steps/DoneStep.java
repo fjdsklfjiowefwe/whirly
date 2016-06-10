@@ -13,7 +13,7 @@ public class DoneStep extends LoginStep {
         super.onCreate(savedInstanceState);
 
         setLayoutResource(R.layout.login_step_intro);
-        setTitle("Setup complete");
+        setStepTitle("Setup complete");
     }
 
     @Override
