@@ -105,13 +105,22 @@ public class Whirldroid extends Application {
         }
     }
 
+    public static int getCurrentTheme() {
+        return getCurrentTheme(-1);
+    }
+
     /**
      * Gets the current theme
      * @return Current theme
      */
-    public static int getCurrentTheme() {
+    public static int getCurrentTheme(int forceThemeId) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
-        currentThemeId = Integer.parseInt(settings.getString("pref_theme", "0"));
+
+        if (forceThemeId == -1) {
+            currentThemeId = Integer.parseInt(settings.getString("pref_theme", LIGHT_THEME + ""));
+        } else {
+            currentThemeId = forceThemeId;
+        }
 
         if (currentThemeId == 2) {
             int currentHour     = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -365,7 +374,7 @@ public class Whirldroid extends Application {
         return result;
     }
 
-    public static void openInBrowser(String url) {
+    public static void openInBrowser(String url, Context context) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 
         if (Build.VERSION.SDK_INT >= 18) {
@@ -378,6 +387,6 @@ public class Whirldroid extends Application {
             intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
         }
 
-        getContext().startActivity(intent);
+        context.startActivity(intent);
     }
 }

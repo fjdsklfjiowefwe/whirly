@@ -9,6 +9,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
+import android.text.Html;
+import android.text.SpannableStringBuilder;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
+import android.text.util.Linkify;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -30,10 +36,11 @@ import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class ApiStep extends LoginStep {
 
-    private Boolean haveValidApiKey = false;
+    private boolean haveValidApiKey = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +62,38 @@ public class ApiStep extends LoginStep {
                 return false;
             }
         });
+
+        /*TextView apiKeyWhere = (TextView) view.findViewById(R.id.textView3);
+        Pattern p_url = Pattern.compile("https://whirlpool.net.au/profile/");
+        Linkify.addLinks(apiKeyWhere, p_url, "https://");*/
+
+        TextView apiKeyWhere = (TextView) view.findViewById(R.id.textView3);
+        CharSequence sequence = Html.fromHtml(getText(R.string.login_api_desc) + "");
+        SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
+        URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
+        for (URLSpan span : urls) {
+            makeLinkClickable(strBuilder, span);
+        }
+
+        apiKeyWhere.setText(strBuilder);
+        apiKeyWhere.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    protected void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span) {
+        Whirldroid.log("makeLinkClickable");
+        int start = strBuilder.getSpanStart(span);
+        int end = strBuilder.getSpanEnd(span);
+        int flags = strBuilder.getSpanFlags(span);
+
+        ClickableSpan clickable = new ClickableSpan() {
+            public void onClick(View view) {
+                Whirldroid.log("onClick");
+                Whirldroid.openInBrowser(span.getURL(), getContext());
+            }
+        };
+
+        strBuilder.setSpan(clickable, start, end, flags);
+        strBuilder.removeSpan(span);
     }
 
     @Override

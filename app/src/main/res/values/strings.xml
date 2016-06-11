@@ -97,11 +97,15 @@
     <string name="login_description">Whirldroid is an easy to use, native Android interface for the Whirlpool forums.</string>
     <string name="login_next">Let\'s take a few moments to set things up. Tap NEXT to get started.</string>
 
-    <string name="login_api_desc">
+    <string name="login_api_desc"><![CDATA[
         Rather than your username and password, Whirldroid uses your Whirlpool API key to download your threads and whims.
 
-        \n\nYou\'ll just need to copy your API key from your Whirlpool Account page (https://whirlpool.net.au/profile/), and paste it into the box below.
-    </string>
+        <br /><br />You\'ll just need to copy your API key from your <a href="https://whirlpool.net.au/profile/">Whirlpool Account page</a>, and paste it into the box below.
+    ]]></string>
+
+    <string name="login_notifications">Whirldroid can notify you when you receive a new whim or when somebody replies to your watched threads.</string>
+    <string name="login_checkbox_whims">Notify me when I receive a new whim</string>
+    <string name="login_checkbox_threads">Notify me when somebody replies to one of my watched threads</string>
 
     <string name="ms_end">FINISH</string>
 </resources>

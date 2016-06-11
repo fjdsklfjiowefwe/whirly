@@ -19,7 +19,7 @@
             android:text="@string/login_api_desc"
             android:id="@+id/textView3"
             android:paddingBottom="32dp"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/TextColourPrimaryLight"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
 
