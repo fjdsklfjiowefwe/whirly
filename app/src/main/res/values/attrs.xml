@@ -12,5 +12,9 @@
         <attr name="TextColourSecondary" format="color" />
         <attr name="DividerColour" format="color" />
         <attr name="SeparatorBottom" format="reference" />
+
+        <attr name="ThreadIcon" format="reference" />
+        <attr name="EmailIcon" format="reference" />
+        <attr name="StarIcon" format="reference" />
     </declare-styleable>
 </resources>

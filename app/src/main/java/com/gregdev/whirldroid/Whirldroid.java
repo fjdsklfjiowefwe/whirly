@@ -45,6 +45,8 @@ public class Whirldroid extends Application {
     private static int currentThemeId;
     private static boolean theme_changed = false;
 
+    public static final String WHIRLDROID_THREAD_ID = "1906307";
+
     private Tracker mTracker;
 
     @Override

@@ -123,15 +123,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         break;
 
                     case R.id.drawer_item_feedback:
-                        final Intent email_intent = new Intent(android.content.Intent.ACTION_SEND);
-
-                        // add email data to the intent
-                        email_intent.setType("plain/text");
-                        email_intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"greg@gregdev.com.au"});
-                        email_intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Whirldroid 2 feedback");
-                        email_intent.putExtra(android.content.Intent.EXTRA_TEXT, "");
-
-                        startActivity(Intent.createChooser(email_intent, "Send mail..."));
+                        switchFragment("Feedback", true);
                         break;
 
                 }

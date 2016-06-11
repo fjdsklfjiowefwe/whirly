@@ -18,6 +18,10 @@
         <item name="TextColourSecondary">@color/TextColourSecondaryDark</item>
         <item name="DividerColour">@color/DividerColourDark</item>
         <item name="SeparatorBottom">@drawable/separator_bottom_dark</item>
+
+        <item name="ThreadIcon">@drawable/ic_chat_white_24dp</item>
+        <item name="EmailIcon">@drawable/ic_email_white_24dp</item>
+        <item name="StarIcon">@drawable/ic_star_white_24dp</item>
     </style>
 
     <style name="WhirldroidLightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -42,6 +46,10 @@
         <item name="TextColourSecondary">@color/TextColourSecondaryLight</item>
         <item name="DividerColour">@color/DividerColourLight</item>
         <item name="SeparatorBottom">@drawable/separator_bottom_light</item>
+
+        <item name="ThreadIcon">@drawable/ic_chat_black_24dp</item>
+        <item name="EmailIcon">@drawable/ic_email_black_24dp</item>
+        <item name="StarIcon">@drawable/ic_star_black_24dp</item>
     </style>
 
     <style name="WhirldroidBottomMenu" parent="Theme.AppCompat">
