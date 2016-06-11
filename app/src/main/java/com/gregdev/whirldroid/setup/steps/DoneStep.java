@@ -1,4 +1,4 @@
-package com.gregdev.whirldroid.login.steps;
+package com.gregdev.whirldroid.setup.steps;
 
 import android.os.Bundle;
 import android.view.View;
@@ -6,13 +6,13 @@ import android.widget.TextView;
 
 import com.gregdev.whirldroid.R;
 
-public class DoneStep extends LoginStep {
+public class DoneStep extends SetupStep {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setLayoutResource(R.layout.login_step_intro);
+        setLayoutResource(R.layout.setup_step_intro);
         setStepTitle("Setup complete");
     }
 

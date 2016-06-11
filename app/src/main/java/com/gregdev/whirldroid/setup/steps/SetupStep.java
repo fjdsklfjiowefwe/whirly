@@ -1,14 +1,13 @@
-package com.gregdev.whirldroid.login.steps;
+package com.gregdev.whirldroid.setup.steps;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.fcannizzaro.materialstepper.AbstractStep;
 
-public abstract class LoginStep extends AbstractStep {
+public abstract class SetupStep extends AbstractStep {
 
     private int layout;
     private String title;

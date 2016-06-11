@@ -1,4 +1,4 @@
-package com.gregdev.whirldroid.login.steps;
+package com.gregdev.whirldroid.setup.steps;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,31 +14,27 @@ import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
-import android.text.util.Linkify;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.fcannizzaro.materialstepper.style.DotStepper;
 import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
-import com.gregdev.whirldroid.login.SteppedLogin;
+import com.gregdev.whirldroid.setup.SteppedSetup;
 import com.gregdev.whirldroid.model.Forum;
 import com.gregdev.whirldroid.service.DatabaseHandler;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
-public class ApiStep extends LoginStep {
+public class ApiStep extends SetupStep {
 
     private boolean haveValidApiKey = false;
 
@@ -46,7 +42,7 @@ public class ApiStep extends LoginStep {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setLayoutResource(R.layout.login_step_api);
+        setLayoutResource(R.layout.setup_step_api);
         setStepTitle("Log in");
     }
 
@@ -100,7 +96,7 @@ public class ApiStep extends LoginStep {
         String apiKey = apiKeyEdit.getText().toString();
 
         if (!haveValidApiKey && apiKey.length() > 0) {
-            ((SteppedLogin) getActivity()).setDisplayErrors(false);
+            ((SteppedSetup) getActivity()).setDisplayErrors(false);
 
             // hide the keyboard
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -166,7 +162,7 @@ public class ApiStep extends LoginStep {
 
         @Override
         protected void onPostExecute(final Boolean result) {
-            ((SteppedLogin) getActivity()).setDisplayErrors(false);
+            ((SteppedSetup) getActivity()).setDisplayErrors(false);
 
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {

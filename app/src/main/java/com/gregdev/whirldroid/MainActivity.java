@@ -25,7 +25,7 @@ import android.view.View;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.widget.TextView;
 
-import com.gregdev.whirldroid.login.SteppedLogin;
+import com.gregdev.whirldroid.setup.SteppedSetup;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         Whirldroid.updateAlarm();
 
-        Intent myIntent = new Intent(this, SteppedLogin.class);
+        Intent myIntent = new Intent(this, SteppedSetup.class);
         startActivity(myIntent);
     }
 

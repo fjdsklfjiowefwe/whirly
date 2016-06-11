@@ -1,4 +1,4 @@
-package com.gregdev.whirldroid.login;
+package com.gregdev.whirldroid.setup;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,14 +13,14 @@ import com.github.fcannizzaro.materialstepper.style.DotStepper;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
-import com.gregdev.whirldroid.login.steps.ApiStep;
-import com.gregdev.whirldroid.login.steps.DoneStep;
-import com.gregdev.whirldroid.login.steps.IntroStep;
-import com.gregdev.whirldroid.login.steps.LoginStep;
-import com.gregdev.whirldroid.login.steps.NotificationsStep;
+import com.gregdev.whirldroid.setup.steps.ApiStep;
+import com.gregdev.whirldroid.setup.steps.DoneStep;
+import com.gregdev.whirldroid.setup.steps.IntroStep;
+import com.gregdev.whirldroid.setup.steps.SetupStep;
+import com.gregdev.whirldroid.setup.steps.NotificationsStep;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 
-public class SteppedLogin extends DotStepper {
+public class SteppedSetup extends DotStepper {
 
     private int i = 1;
     private boolean displayErrors = true;
@@ -45,7 +45,7 @@ public class SteppedLogin extends DotStepper {
 
             @Override
             public void onPageSelected(int position) {
-                LoginStep currentStep = (LoginStep) mSteps.getCurrent();
+                SetupStep currentStep = (SetupStep) mSteps.getCurrent();
                 toolbar.setTitle(currentStep.getStepTitle());
             }
 
@@ -71,7 +71,7 @@ public class SteppedLogin extends DotStepper {
 
     @Override
     public void onComplete() {
-        Intent intent = new Intent(SteppedLogin.this, MainActivity.class);
+        Intent intent = new Intent(SteppedSetup.this, MainActivity.class);
         finish();
         startActivity(intent);
     }
