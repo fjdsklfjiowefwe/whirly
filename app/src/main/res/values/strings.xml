@@ -104,8 +104,8 @@
     ]]></string>
 
     <string name="login_notifications">Whirldroid can notify you when you receive a new whim or when somebody replies to your watched threads.</string>
-    <string name="login_checkbox_whims">Notify me when I receive a new whim</string>
-    <string name="login_checkbox_threads">Notify me when somebody replies to one of my watched threads</string>
+    <string name="login_checkbox_whims">Turn on new whim notifications</string>
+    <string name="login_checkbox_threads">Turn on watched thread notifications</string>
 
     <string name="ms_end">FINISH</string>
 </resources>

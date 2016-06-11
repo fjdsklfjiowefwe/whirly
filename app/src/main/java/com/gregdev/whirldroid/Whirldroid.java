@@ -163,9 +163,15 @@ public class Whirldroid extends Application {
 
     /**
      * Get app user's Whirlpool ID from their API key
-     * @todo Change this to download user data on login and store ID in database
      */
     public static String getOwnWhirlpoolId() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        String userId = settings.getString("user_id", null);
+
+        if (userId != null) {
+            return userId;
+        }
+
         String key_pieces[] = getApi().getApiKey().split("-");
         return key_pieces[0];
     }

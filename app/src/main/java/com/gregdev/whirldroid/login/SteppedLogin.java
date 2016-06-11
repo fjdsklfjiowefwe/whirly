@@ -97,7 +97,7 @@ public class SteppedLogin extends DotStepper {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_help:
-                Toast.makeText(this, "Post your problem in the Whirldroid thread to get help", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "To get help, post your problem in the Whirldroid thread", Toast.LENGTH_LONG).show();
                 Whirldroid.openInBrowser(WhirlpoolApi.THREAD_URL + Whirldroid.WHIRLDROID_THREAD_ID, getBaseContext());
 
                 return true;

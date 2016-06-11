@@ -80,14 +80,12 @@ public class ApiStep extends LoginStep {
     }
 
     protected void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span) {
-        Whirldroid.log("makeLinkClickable");
         int start = strBuilder.getSpanStart(span);
         int end = strBuilder.getSpanEnd(span);
         int flags = strBuilder.getSpanFlags(span);
 
         ClickableSpan clickable = new ClickableSpan() {
             public void onClick(View view) {
-                Whirldroid.log("onClick");
                 Whirldroid.openInBrowser(span.getURL(), getContext());
             }
         };
@@ -112,7 +110,7 @@ public class ApiStep extends LoginStep {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
             SharedPreferences.Editor settingsEditor = settings.edit();
             settingsEditor.putString("pref_apikey", apiKey);
-            settingsEditor.commit();
+            settingsEditor.apply();
 
             RetrieveDataTask task = new RetrieveDataTask(); // start new thread to retrieve data
             task.execute();
@@ -149,11 +147,12 @@ public class ApiStep extends LoginStep {
             });
             try {
                 List<String> get = new ArrayList<String>();
-                get.add("forum");
-                get.add("whims");
-                get.add("news");
-                get.add("recent");
-                get.add("watched");
+                get.add("user"      );
+                get.add("forum"     );
+                get.add("whims"     );
+                get.add("news"      );
+                get.add("recent"    );
+                get.add("watched"   );
 
                 Whirldroid.getApi().downloadData(get, null);
 
@@ -195,7 +194,7 @@ public class ApiStep extends LoginStep {
                             settingsEditor.putString("pref_theme", "2");
                             settingsEditor.putString ("pref_nightmodestart"         , "21:30"   );
                             settingsEditor.putString("pref_nightmodeend", "07:30");
-                            settingsEditor.commit();
+                            settingsEditor.apply();
 
                             try {
                                 DatabaseHandler db = new DatabaseHandler(getActivity());
@@ -219,7 +218,7 @@ public class ApiStep extends LoginStep {
                         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
                         SharedPreferences.Editor settingsEditor = settings.edit();
                         settingsEditor.putString("pref_apikey", null);
-                        settingsEditor.commit();
+                        settingsEditor.apply();
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         builder.setMessage("It looks like there's a problem with your API key. Double-check your key and remember to include dashes.")

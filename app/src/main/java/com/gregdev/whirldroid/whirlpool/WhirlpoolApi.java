@@ -764,6 +764,19 @@ public class WhirlpoolApi extends Activity {
             return false;
         }
 
+        /** Extract User Info **/
+        try {
+            JSONObject json_user = json.getJSONObject("USER");
+
+            SharedPreferences.Editor settingsEditor = settings.edit();
+            settingsEditor.putString("user_id"  , json_user.getString("ID"  ));
+            settingsEditor.putString("user_name", json_user.getString("NAME"));
+            settingsEditor.apply();
+
+        } catch (JSONException e) {
+            // no user info in fetched data
+        }
+
         /** Extract Forums **/
         try {
             JSONArray json_forums = json.getJSONArray("FORUM");
