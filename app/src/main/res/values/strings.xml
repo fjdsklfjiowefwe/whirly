@@ -83,6 +83,11 @@
 		\n\nPlease note that, due to limitations in how posts are downloaded, threads in private forums (In the News, The Pool Room, Feedback, etc.) will open in a browser window rather than within Whirldroid. Private forums will open within Whirldroid, but only \"recent\" threads will be displayed. An Open In Browser menu item is provided so you can easily open the forum in a Web browser to view the remaining threads.
 	</string>
 
+    <!-- Feedback -->
+	<string name="feedback_content">
+		Thanks for your interest in Whirldroid! If you have any comments or suggestions, or run into any problems, please post a message in the Whirldroid thread on Whirlpool or send me an email.
+	</string>
+
     <!-- Preferences -->
     <string name="pref_notifications_title">Notifications</string>
     <string name="pref_threadoptions_title">Thread Settings</string>
