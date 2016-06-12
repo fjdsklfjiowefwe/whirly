@@ -18,6 +18,7 @@ import com.gregdev.whirldroid.setup.steps.DoneStep;
 import com.gregdev.whirldroid.setup.steps.IntroStep;
 import com.gregdev.whirldroid.setup.steps.SetupStep;
 import com.gregdev.whirldroid.setup.steps.NotificationsStep;
+import com.gregdev.whirldroid.setup.steps.ThemeStep;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 
 public class SteppedSetup extends DotStepper {
@@ -30,6 +31,7 @@ public class SteppedSetup extends DotStepper {
         addStep(createFragment(new IntroStep        ()));
         addStep(createFragment(new ApiStep          ()));
         addStep(createFragment(new NotificationsStep()));
+        addStep(createFragment(new ThemeStep        ()));
         addStep(createFragment(new DoneStep         ()));
 
         super.onCreate(savedInstanceState);
@@ -102,7 +104,7 @@ public class SteppedSetup extends DotStepper {
         switch (item.getItemId()) {
             case R.id.menu_help:
                 Toast.makeText(this, "To get help, post your problem in the Whirldroid thread", Toast.LENGTH_LONG).show();
-                Whirldroid.openInBrowser(WhirlpoolApi.THREAD_URL + Whirldroid.WHIRLDROID_THREAD_ID, getBaseContext());
+                Whirldroid.openInBrowser(WhirlpoolApi.THREAD_URL + Whirldroid.WHIRLDROID_THREAD_ID, getApplicationContext());
 
                 return true;
         }
