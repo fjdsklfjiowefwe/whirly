@@ -355,7 +355,7 @@ public class Whirldroid extends Application {
     }
 
     public static boolean isGreg() {
-        return encryptPassword(getApi().getApiKey()).equals("1f9a89f6510215167a89dfc406924cc53cd7d120");
+        return encryptPassword(getApi().getApiKey() + "whirldroid").equals("a4572bd46cd80bbc30bb29796244b04595673693");
     }
 
     private static String encryptPassword(String password) {
