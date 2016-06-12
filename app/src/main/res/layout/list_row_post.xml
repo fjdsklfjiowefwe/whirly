@@ -5,71 +5,76 @@
     android:paddingBottom="0dp"
     android:background="@drawable/separator_bottom_dark">
 
-    <View android:id="@+id/strut"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_centerHorizontal="true"/>
-
-    <TextView
-        android:id="@+id/top_left_text"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/top_text"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@id/strut"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:textColor="?attr/TextColourPrimary" />
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/top_right_text"
-        android:layout_width="0dp"
+        <TextView
+            android:text="top_left_text"
+            android:id="@+id/top_left_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="?attr/TextColourPrimary"
+            android:layout_weight="0"
+            android:paddingRight="5dp"
+            android:paddingEnd="5dp" />
+
+        <TextView
+            android:text="top_right_text"
+            android:id="@+id/top_right_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/TextColourSecondary"
+            android:textSize="15sp"
+            android:gravity="end"
+            android:layout_weight="1"
+            android:paddingLeft="5dp"
+            android:paddingStart="5dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/middle_text"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/bottom_text"
-        android:gravity="right"
-        android:textColor="?attr/TextColourSecondary"
-        android:textSize="15sp" />
+        android:layout_below="@id/top_text"
+        android:orientation="horizontal">
+
+        <TextView
+            android:text="middle_left_text"
+            android:id="@+id/middle_left_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/TextColourSecondary"
+            android:layout_weight="0"
+            android:paddingRight="5dp"
+            android:paddingEnd="5dp" />
+
+        <TextView
+            android:text="middle_right_text"
+            android:id="@+id/middle_right_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/TextColourSecondary"
+            android:gravity="end"
+            android:layout_weight="1"
+            android:paddingLeft="5dp"
+            android:paddingStart="5dp" />
+
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/middle_left_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@id/strut"
-        android:layout_below="@id/top_left_text"
-        android:textColor="?attr/TextColourSecondary" />
-
-    <TextView
-        android:id="@+id/middle_right_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/bottom_text"
-        android:layout_below="@id/top_right_text"
-        android:gravity="right"
-        android:textColor="?attr/TextColourSecondary" />
-
-    <TextView
+        android:text="bottom_text"
         android:id="@+id/bottom_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/middle_left_text"
+        android:layout_below="@id/middle_text"
         android:layout_marginTop="10dp"
         android:textSize="@dimen/post_font_size_normal"
         android:textColor="?attr/TextColourPrimary" />
-
-    <!--<ImageButton
-        android:id="@+id/menu_button"
-        android:background="?android:selectableItemBackgroundBorderless"
-        android:layout_width="40dp"
-        android:layout_height="wrap_content"
-        android:padding="10dip"
-        android:layout_marginRight="-17dp"
-        android:layout_gravity="right"
-        style="?attr/MenuButton"
-        android:alpha="0.5"
-        android:layout_alignBottom="@+id/bottom_text"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />-->
 
 </RelativeLayout>

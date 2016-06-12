@@ -67,8 +67,8 @@ public class ForumListFragment extends ListFragment {
             if (clear_cache || forumManager.needToDownload()) {
                 try {
                     forumManager.download();
-                }
-                catch (final WhirlpoolApiException e) {
+
+                } catch (final WhirlpoolApiException e) {
                     error_message = e.getMessage();
                     return null;
                 }
