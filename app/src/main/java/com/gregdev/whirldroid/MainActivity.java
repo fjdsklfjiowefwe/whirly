@@ -33,6 +33,8 @@ import com.gregdev.whirldroid.setup.SteppedSetup;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         twoLineSpinner = findViewById(R.id.two_line_spinner);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -194,13 +196,28 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         Whirldroid.updateAlarm();
 
+        /**
+         * After finishing the initial setup, display a showcase to highlight the menu button.
+         * Delay the appearance by a second, so the user has a chance to see the app before the
+         * showcase obscures the view.
+         */
         if (getIntent().getBooleanExtra("showMenuShowcase", false)) {
-            new ShowcaseView.Builder(this)
-                    .setTarget(new ViewTarget(getToolbarNavigationIcon(myToolbar)))
-                    .setContentTitle("Open the menu to switch between sections of the app")
-                    .withMaterialShowcase()
-                    .setStyle(R.style.WhirldroidShowcaseTheme)
-                    .build();
+            Timer myTimer = new Timer();
+            myTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        public void run() {
+                            new ShowcaseView.Builder(MainActivity.this)
+                                    .setTarget(new ViewTarget(getToolbarNavigationIcon(myToolbar)))
+                                    .setContentTitle("Open the menu to switch between sections of the app")
+                                    .withMaterialShowcase()
+                                    .setStyle(R.style.WhirldroidShowcaseTheme)
+                                    .build();
+                        }
+                    });
+                }
+            }, 1000);
         }
     }
 

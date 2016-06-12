@@ -112,5 +112,7 @@
     <string name="login_checkbox_whims">Turn on new whim notifications</string>
     <string name="login_checkbox_threads">Turn on watched thread notifications</string>
 
+    <string name="login_theme">Whirldroid includes both a light and a dark theme; choose your preferred theme here. You can always change your mind later.</string>
+
     <string name="ms_end">FINISH</string>
 </resources>
