@@ -72,8 +72,12 @@ public class SteppedSetup extends DotStepper {
     @Override
     public void onComplete() {
         Intent intent = new Intent(SteppedSetup.this, MainActivity.class);
-        finish();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("showMenuShowcase", true);
+        intent.putExtras(bundle);
+
         startActivity(intent);
+        finish();
     }
 
     public void setDisplayErrors(boolean displayErrors) {

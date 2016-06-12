@@ -42,9 +42,7 @@
             android:text="@string/login_next"
             android:id="@+id/textView3"
             android:textColor="@color/colorPrimary"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentBottom="true" />
 
     </RelativeLayout>
 

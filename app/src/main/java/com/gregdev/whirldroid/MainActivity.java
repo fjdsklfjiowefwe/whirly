@@ -19,14 +19,20 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.widget.TextView;
 
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.gregdev.whirldroid.setup.SteppedSetup;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -53,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         twoLineSpinner = findViewById(R.id.two_line_spinner);
         setSupportActionBar(myToolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             TypedValue typedValue = new TypedValue();
@@ -150,8 +157,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         // choose which fragment to display initially
-        if (Whirldroid.getApi().getApiKey() == null) {
-            switchFragment("Login", false);
+        if (Whirldroid.getApi().getApiKey() == null || Whirldroid.getApi().getApiKey().equals("")) {
+            Intent setupIntent = new Intent(this, SteppedSetup.class);
+            startActivity(setupIntent);
+            finish();
 
         } else {
             Bundle bundle;
@@ -185,8 +194,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         Whirldroid.updateAlarm();
 
-        Intent myIntent = new Intent(this, SteppedSetup.class);
-        startActivity(myIntent);
+        if (getIntent().getBooleanExtra("showMenuShowcase", false)) {
+            new ShowcaseView.Builder(this)
+                    .setTarget(new ViewTarget(getToolbarNavigationIcon(myToolbar)))
+                    .setContentTitle("Open the menu to switch between sections of the app")
+                    .withMaterialShowcase()
+                    .setStyle(R.style.WhirldroidShowcaseTheme)
+                    .build();
+        }
     }
 
     @Override
@@ -472,5 +487,25 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         getSupportActionBar().setSubtitle("");
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         twoLineSpinner.setVisibility(View.GONE);
+    }
+
+    // http://stackoverflow.com/a/33234593/602734
+    public static View getToolbarNavigationIcon ( Toolbar toolbar ){
+        //check if contentDescription previously was set
+        boolean hadContentDescription = TextUtils. isEmpty(toolbar.getNavigationContentDescription());
+        String contentDescription = !hadContentDescription ? toolbar.getNavigationContentDescription().toString() : "navigationIcon" ;
+        toolbar . setNavigationContentDescription(contentDescription);
+        ArrayList< View > potentialViews = new ArrayList< View >();
+        //find the view based on it's content description, set programatically or with android:contentDescription
+        toolbar . findViewsWithText(potentialViews,contentDescription, View . FIND_VIEWS_WITH_CONTENT_DESCRIPTION );
+        //Nav icon is always instantiated at this point because calling setNavigationContentDescription ensures its existence
+        View navIcon = null ;
+        if (potentialViews . size() > 0 ){
+            navIcon = potentialViews . get( 0 ); //navigation icon is ImageButton
+        }
+        //Clear content description if not previously present
+        if (hadContentDescription)
+            toolbar . setNavigationContentDescription( null );
+        return navIcon;
     }
 }
