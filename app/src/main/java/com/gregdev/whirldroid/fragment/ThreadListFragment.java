@@ -41,6 +41,7 @@ import java.util.Map;
 
 public class ThreadListFragment extends Fragment implements AdapterView.OnItemSelectedListener, Refresher {
 
+    private ForumPageFragmentPagerAdapter adapter;
     private ViewPager viewPager;
     private Tracker mTracker;
     private int currentGroup = 0;
@@ -79,8 +80,12 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
         hideRead    = getArguments().getBoolean("hide_read");
         forumTitle  = getArguments().getString("forum_name");
 
+        if (adapter == null) {
+            adapter = new ForumPageFragmentPagerAdapter();
+        }
+
         viewPager = (ViewPager) rootView.findViewById(R.id.pager);
-        viewPager.setAdapter(new ForumPageFragmentPagerAdapter());
+        viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(1);
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -458,14 +463,11 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
     public void onNothingSelected (AdapterView<?> parent) { }
 
     public boolean initiateRefresh() {
-        try {
-            ForumPageFragmentPagerAdapter adapter = (ForumPageFragmentPagerAdapter) viewPager.getAdapter();
-            ((ForumPageFragment) adapter.getItem(viewPager.getCurrentItem())).initiateRefresh();
-            return true;
+        ForumPageFragmentPagerAdapter adapter = (ForumPageFragmentPagerAdapter) viewPager.getAdapter();
+        ForumPageFragment fragment = (ForumPageFragment) adapter.getItem(viewPager.getCurrentItem());
+        fragment.initiateRefresh();
 
-        } catch (NullPointerException e) {
-            return false;
-        }
+        return true;
     }
 
 }
