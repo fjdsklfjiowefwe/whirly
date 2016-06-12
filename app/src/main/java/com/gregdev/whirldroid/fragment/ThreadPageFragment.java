@@ -171,50 +171,51 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
         }
 
         @Override
-        public View getView(int position, View convert_view, ViewGroup parent) {
+        public View getView(int position, View view, ViewGroup parent) {
             Post post = post_items.get(position);
 
-            if (convert_view == null) {
+            if (view == null) {
                 LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convert_view = vi.inflate(R.layout.list_row_post, null);
+                view = vi.inflate(R.layout.list_row_post, null);
             }
-            if (post != null) {
-                TextView top_left_text      = (TextView) convert_view.findViewById(R.id.top_left_text       );
-                TextView top_right_text     = (TextView) convert_view.findViewById(R.id.top_right_text      );
-                TextView middle_left_text   = (TextView) convert_view.findViewById(R.id.middle_left_text    );
-                TextView middle_right_text  = (TextView) convert_view.findViewById(R.id.middle_right_text   );
-                TextView bottom_text        = (TextView) convert_view.findViewById(R.id.bottom_text         );
 
-                top_left_text.setText(post.getUser().getName());
-                top_right_text.setText(post.getPostedTime());
+            if (post != null) {
+                TextView topLeftText      = (TextView) view.findViewById(R.id.top_left_text     );
+                TextView topRIghtText     = (TextView) view.findViewById(R.id.top_right_text    );
+                TextView middleLeftText   = (TextView) view.findViewById(R.id.middle_left_text  );
+                TextView middleRightText  = (TextView) view.findViewById(R.id.middle_right_text );
+                TextView bottomText       = (TextView) view.findViewById(R.id.bottom_text       );
+
+                topLeftText.setText(post.getUser().getName());
+                topRIghtText.setText(post.getPostedTime());
 
                 if (font_size_option.equals("0.5")) {
-                    bottom_text.setTextSize(19);
+                    bottomText.setTextSize(19);
                 } else if (font_size_option.equals("1")) {
-                    bottom_text.setTextSize(20);
+                    bottomText.setTextSize(20);
                 } else if (font_size_option.equals("2")) {
-                    bottom_text.setTextSize(22);
+                    bottomText.setTextSize(22);
                 } else if (font_size_option.equals("-1")) {
-                    bottom_text.setTextSize(16);
+                    bottomText.setTextSize(16);
                 } else if (font_size_option.equals("-2")) {
-                    bottom_text.setTextSize(14);
+                    bottomText.setTextSize(14);
                 }
 
                 if (post.isOp()) {
-                    middle_left_text.setText("OP / " + post.getUser().getGroup());
+                    middleLeftText.setText("OP / " + post.getUser().getGroup());
                 } else {
-                    middle_left_text.setText(post.getUser().getGroup());
+                    middleLeftText.setText(post.getUser().getGroup());
                 }
 
                 if (post.isEdited()) {
-                    middle_right_text.setText(R.string.edited_text);
+                    middleRightText.setText(R.string.edited_text);
                 } else {
-                    middle_right_text.setText("");
+                    middleRightText.setText("");
                 }
 
-                if (!post.isEdited() && post.getUser().getGroup() == "") {
-                    middle_left_text.setVisibility(View.GONE);
-                    middle_right_text.setVisibility(View.GONE);
+                if (!post.isEdited() && post.getUser().getGroup().equals("")) {
+                    middleLeftText.setVisibility(View.GONE);
+                    middleRightText.setVisibility(View.GONE);
                 }
 
                 String content = post.getContent();
@@ -269,7 +270,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                 }
 
                 try {
-                    bottom_text.setText(strBuilder);
+                    bottomText.setText(strBuilder);
 
                 } catch (ArrayIndexOutOfBoundsException e) { // weird Jelly Bean bug
                     // just pull out a bunch of style tags and hope the problem goes away
@@ -282,13 +283,13 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                     content = content.replace("<em>", "");
                     content = content.replace("</em>", "");
 
-                    bottom_text.setText(strBuilder);
+                    bottomText.setText(strBuilder);
                 }
 
-                bottom_text.setMovementMethod(LinkMovementMethod.getInstance());
-                bottom_text.setLinksClickable(true);
+                bottomText.setMovementMethod(LinkMovementMethod.getInstance());
+                bottomText.setLinksClickable(true);
             }
-            return convert_view;
+            return view;
         }
     }
 

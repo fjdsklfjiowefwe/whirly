@@ -28,17 +28,22 @@ public class NewsAdapter extends ArrayAdapter<NewsArticle> {
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.list_row, null);
+            convertView = inflater.inflate(R.layout.news_list_item, null);
         }
 
         final NewsArticle article = newsArticles.get(position);
 
         if (article != null) {
-            TextView title      = (TextView) convertView.findViewById(R.id.top_text);
-            TextView content    = (TextView) convertView.findViewById(R.id.bottom_text);
+            TextView title      = (TextView) convertView.findViewById(R.id.top_text     );
+            TextView subtitle   = (TextView) convertView.findViewById(R.id.subtitle_text);
+            TextView content    = (TextView) convertView.findViewById(R.id.bottom_text  );
 
             if (title != null) {
                 title.setText(article.getTitle());
+            }
+
+            if (subtitle != null) {
+                subtitle.setText(article.getSource());
             }
 
             if (content != null){
