@@ -382,6 +382,8 @@ public class Whirldroid extends Application {
 
     public static void openInBrowser(String url, Context context) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
 
         if (Build.VERSION.SDK_INT >= 18) {
             final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
