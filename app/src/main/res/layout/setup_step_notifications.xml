@@ -51,14 +51,31 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
 
-        <Spinner
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/middle_text"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/spinner2"
             android:layout_below="@+id/notify_threads"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:entries="@array/array_pref_notifyfreq" />
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Check every"
+                android:id="@+id/textView3"
+                android:layout_gravity="center_vertical" />
+
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:id="@+id/spinner2"
+                android:entries="@array/array_pref_notifyfreq" />
+
+        </LinearLayout>
 
     </RelativeLayout>
 

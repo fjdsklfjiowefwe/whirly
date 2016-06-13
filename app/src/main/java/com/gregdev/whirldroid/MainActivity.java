@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         // choose which fragment to display initially
-        if (true || Whirldroid.getApi().getApiKey() == null || Whirldroid.getApi().getApiKey().equals("")) {
+        if (Whirldroid.getApi().getApiKey() == null || Whirldroid.getApi().getApiKey().equals("")) {
             Intent setupIntent = new Intent(this, SteppedSetup.class);
             startActivity(setupIntent);
             finish();
