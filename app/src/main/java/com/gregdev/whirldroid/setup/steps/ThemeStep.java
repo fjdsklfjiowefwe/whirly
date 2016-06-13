@@ -31,6 +31,18 @@ public class ThemeStep extends SetupStep {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        RadioButton toCheck;
+
+        if (Integer.parseInt(settings.getString("pref_theme", "0")) == Whirldroid.LIGHT_THEME) {
+            toCheck = (RadioButton) view.findViewById(R.id.theme_light);
+        } else {
+            toCheck = (RadioButton) view.findViewById(R.id.theme_dark);
+        }
+
+        toCheck.setChecked(true);
+
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -53,7 +65,6 @@ public class ThemeStep extends SetupStep {
 
                 setThemeColours(selectedTheme);
 
-                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
                 SharedPreferences.Editor settingsEditor = settings.edit();
                 settingsEditor.putString("pref_theme", selectedTheme + "");
                 settingsEditor.apply();

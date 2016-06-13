@@ -70,7 +70,7 @@ public class SteppedSetup extends DotStepper {
     @Override
     public void onResume() {
         super.onResume();
-        setTheme(Whirldroid.getCurrentTheme(Whirldroid.LIGHT_THEME));
+        setTheme(Whirldroid.getCurrentTheme());
     }
 
     private AbstractStep createFragment(AbstractStep fragment) {

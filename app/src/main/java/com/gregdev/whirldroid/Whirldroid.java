@@ -105,22 +105,14 @@ public class Whirldroid extends Application {
         }
     }
 
-    public static int getCurrentTheme() {
-        return getCurrentTheme(-1);
-    }
-
     /**
      * Gets the current theme
      * @return Current theme
      */
-    public static int getCurrentTheme(int forceThemeId) {
+    public static int getCurrentTheme() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
 
-        if (forceThemeId == -1) {
-            currentThemeId = Integer.parseInt(settings.getString("pref_theme", LIGHT_THEME + ""));
-        } else {
-            currentThemeId = forceThemeId;
-        }
+        currentThemeId = Integer.parseInt(settings.getString("pref_theme", LIGHT_THEME + ""));
 
         if (currentThemeId == 2) {
             int currentHour     = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
