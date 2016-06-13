@@ -1,6 +1,7 @@
 package com.gregdev.whirldroid;
 
 import android.app.ActivityManager;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -159,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         // choose which fragment to display initially
-        if (Whirldroid.getApi().getApiKey() == null || Whirldroid.getApi().getApiKey().equals("")) {
+        if (true || Whirldroid.getApi().getApiKey() == null || Whirldroid.getApi().getApiKey().equals("")) {
             Intent setupIntent = new Intent(this, SteppedSetup.class);
             startActivity(setupIntent);
             finish();

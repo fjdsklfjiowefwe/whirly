@@ -21,18 +21,27 @@ import com.gregdev.whirldroid.setup.steps.NotificationsStep;
 import com.gregdev.whirldroid.setup.steps.ThemeStep;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 
+import java.util.ArrayList;
+
 public class SteppedSetup extends DotStepper {
 
     private int i = 1;
     private boolean displayErrors = true;
+    public ArrayList<AbstractStep> steps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        addStep(createFragment(new IntroStep        ()));
-        addStep(createFragment(new ApiStep          ()));
-        addStep(createFragment(new NotificationsStep()));
-        addStep(createFragment(new ThemeStep        ()));
-        addStep(createFragment(new DoneStep         ()));
+        steps = new ArrayList<>();
+
+        steps.add(createFragment(new IntroStep()));
+        steps.add(createFragment(new ApiStep()));
+        steps.add(createFragment(new NotificationsStep()));
+        steps.add(createFragment(new ThemeStep()));
+        steps.add(createFragment(new DoneStep()));
+
+        for (AbstractStep step : steps) {
+            addStep(step);
+        }
 
         super.onCreate(savedInstanceState);
 

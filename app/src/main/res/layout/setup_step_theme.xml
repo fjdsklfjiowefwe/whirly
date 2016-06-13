@@ -28,14 +28,14 @@
             android:orientation="vertical"
             android:layout_below="@id/textView">
 
-            <RadioButton
+            <android.support.v7.widget.AppCompatRadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Light theme"
                 android:id="@+id/theme_light"
                 android:checked="true" />
 
-            <RadioButton
+            <android.support.v7.widget.AppCompatRadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Dark theme"

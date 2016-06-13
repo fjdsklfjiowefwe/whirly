@@ -187,7 +187,7 @@ public class ApiStep extends SetupStep {
                             settingsEditor.putBoolean("pref_whimnotify"             , true      );
                             settingsEditor.putBoolean("pref_watchednotify", true);
                             settingsEditor.putString("pref_notifyfreq", "15");
-                            settingsEditor.putString("pref_theme", "2");
+                            //settingsEditor.putString("pref_theme", "2");
                             settingsEditor.putString ("pref_nightmodestart"         , "21:30"   );
                             settingsEditor.putString("pref_nightmodeend", "07:30");
                             settingsEditor.apply();

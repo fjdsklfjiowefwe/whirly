@@ -33,7 +33,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
 
-        <CheckBox
+        <android.support.v7.widget.AppCompatCheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/login_checkbox_whims"
@@ -42,7 +42,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
 
-        <CheckBox
+        <android.support.v7.widget.AppCompatCheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/login_checkbox_threads"
