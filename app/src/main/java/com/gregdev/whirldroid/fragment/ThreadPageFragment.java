@@ -216,6 +216,9 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                 if (!post.isEdited() && post.getUser().getGroup().equals("")) {
                     middleLeftText.setVisibility(View.GONE);
                     middleRightText.setVisibility(View.GONE);
+                } else {
+                    middleLeftText.setVisibility(View.VISIBLE);
+                    middleRightText.setVisibility(View.VISIBLE);
                 }
 
                 String content = post.getContent();
