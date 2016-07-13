@@ -58,19 +58,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         twoLineSpinner = findViewById(R.id.two_line_spinner);
         setSupportActionBar(myToolbar);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            TypedValue typedValue = new TypedValue();
-            Resources.Theme theme = getTheme();
-            theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
-            int color = typedValue.data;
-
-            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.wd_launcher_white);
-            ActivityManager.TaskDescription td = new ActivityManager.TaskDescription(null, bm, color);
-
-            setTaskDescription(td);
-            bm.recycle();
-        }
-
         mTitle          = getTitle();
         mDrawerLayout   = (DrawerLayout  ) findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView) findViewById(R.id.vNavigation);
