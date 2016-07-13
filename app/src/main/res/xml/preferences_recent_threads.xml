@@ -1,0 +1,25 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ListPreference
+        android:title="Recent thread history"
+        android:summary="Age range of your recent thread history"
+        android:key="pref_recenthistory"
+        android:entries="@array/array_pref_recenthistory"
+        android:entryValues="@array/values_pref_recenthistory"
+        android:defaultValue="7" />
+
+    <CheckBoxPreference
+        android:title="Load recent threads at top"
+        android:defaultValue="false"
+        android:summary="Load recent threads at the first post rather than at the last post"
+        android:key="pref_loadattop" />
+
+    <CheckBoxPreference
+        android:title="Ignore own replies"
+        android:defaultValue="false"
+        android:summary="Hide recent threads where I was the last poster"
+        android:key="pref_ignoreownrepliesrecent" />
+
+</PreferenceScreen>

@@ -1,28 +1,27 @@
 package com.gregdev.whirldroid.fragment;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceManager;
-import android.view.MenuItem;
+import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
-import com.gregdev.whirldroid.TimePreference;
-import com.gregdev.whirldroid.TimePreferenceDialogFragmentCompat;
 import com.gregdev.whirldroid.Whirldroid;
 
-public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+import java.util.HashMap;
+import java.util.Map;
 
-    private SharedPreferences preferences;
+public class SettingsFragment extends Fragment {
+
     private Tracker mTracker;
+    ViewPager viewPager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,25 +33,17 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     }
 
     @Override
-    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.preferences, rootKey);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.tab_view_pager, container, false);
+        viewPager = (ViewPager) rootView.findViewById(R.id.pager);
+        viewPager.setAdapter(new SettingsPagerAdapter());
 
-        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        preferences.registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        // Set the default white background in the view so as to avoid transparency
-        view.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.material_grey_50));
+        return rootView;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        preferences.registerOnSharedPreferenceChangeListener(this);
 
         MainActivity mainActivity = ((MainActivity) getActivity());
 
@@ -63,68 +54,68 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         mTracker.setScreenName("Settings");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+    }
 
-        if (preferences.getString("pref_theme", "0").equals("2")) {
-            getPreferenceScreen().findPreference("pref_nightmodestart").setEnabled(true);
-            getPreferenceScreen().findPreference("pref_nightmodeend").setEnabled(true);
+    public class SettingsPagerAdapter extends FragmentPagerAdapter {
+
+        // preference file name, tab title
+        Map<Integer, SettingsPage> pages;
+
+        public SettingsPagerAdapter() {
+            super(getChildFragmentManager());
+
+            pages = new HashMap<>();
+
+            pages.put(0, new SettingsPage(R.xml.preferences_general         , "General"          ));
+            pages.put(1, new SettingsPage(R.xml.preferences_notifications   , "Notifications"    ));
+            pages.put(2, new SettingsPage(R.xml.preferences_threads         , "Threads"          ));
+            pages.put(3, new SettingsPage(R.xml.preferences_recent_threads  , "Recent Threads"   ));
+            pages.put(4, new SettingsPage(R.xml.preferences_watched_threads , "Watched Threads"  ));
+            pages.put(5, new SettingsPage(R.xml.preferences_whims           , "Whims"            ));
+        }
+
+        @Override
+        public int getCount() {
+            return pages.size();
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return pages.get(position).getFragment();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return pages.get(position).getTitle();
         }
     }
 
-    @Override
-    public void onPause() {
-        preferences.unregisterOnSharedPreferenceChangeListener(this);
-        super.onPause();
-    }
+    private class SettingsPage {
 
-    public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
-        if (key.equals("pref_theme")) {
-            if (!preferences.getString("pref_theme", "0").equals("2")) {
-                getActivity().finish();
-                getActivity().startActivity(new Intent(getActivity(), getActivity().getClass()));
+        int preferenceResource;
+        String title;
+        Fragment fragment = null;
 
-            } else {
-                getPreferenceScreen().findPreference("pref_nightmodestart").setEnabled(true);
-                getPreferenceScreen().findPreference("pref_nightmodeend").setEnabled(true);
+        public SettingsPage(int preferenceResource, String title) {
+            this.preferenceResource = preferenceResource;
+            this.title = title;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public Fragment getFragment() {
+            if (fragment == null) {
+                Bundle bundle = new Bundle();
+                bundle.putInt("preference_resource", preferenceResource);
+
+                fragment = new SettingsPageFragment();
+                fragment.setArguments(bundle);
             }
+
+            return fragment;
         }
 
-        if (key.equals("pref_whimnotify") || key.equals("pref_watchednotify") || key.equals("pref_notifyfreq")) {
-            Whirldroid.updateAlarm();
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                //finish();
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    // http://stackoverflow.com/a/34398747/602734
-    @Override
-    public void onDisplayPreferenceDialog(Preference preference)
-    {
-        DialogFragment dialogFragment = null;
-        if (preference instanceof TimePreference)
-        {
-            dialogFragment = new TimePreferenceDialogFragmentCompat();
-            Bundle bundle = new Bundle(1);
-            bundle.putString("key", preference.getKey());
-            dialogFragment.setArguments(bundle);
-        }
-
-        if (dialogFragment != null)
-        {
-            dialogFragment.setTargetFragment(this, 0);
-            dialogFragment.show(this.getFragmentManager(), "android.support.v7.preference.PreferenceFragment.DIALOG");
-        }
-        else
-        {
-            super.onDisplayPreferenceDialog(preference);
-        }
     }
 }
