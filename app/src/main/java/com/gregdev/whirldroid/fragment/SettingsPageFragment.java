@@ -4,17 +4,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
-import android.view.MenuItem;
-import android.view.View;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-import com.gregdev.whirldroid.MainActivity;
-import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.TimePreference;
 import com.gregdev.whirldroid.TimePreferenceDialogFragmentCompat;
 import com.gregdev.whirldroid.Whirldroid;
@@ -22,6 +15,7 @@ import com.gregdev.whirldroid.Whirldroid;
 public class SettingsPageFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private SharedPreferences preferences;
+    private int preferenceResource;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -30,7 +24,8 @@ public class SettingsPageFragment extends PreferenceFragmentCompat implements Sh
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.preferences, rootKey);
+        preferenceResource = getArguments().getInt("preference_resource");
+        setPreferencesFromResource(preferenceResource, rootKey);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         preferences.registerOnSharedPreferenceChangeListener(this);
