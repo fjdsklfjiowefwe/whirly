@@ -1,0 +1,50 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <EditTextPreference
+        android:name="Whirlpool API Key"
+        android:summary="Your Whirlpool API key"
+        android:title="API Key"
+        android:maxLength="18"
+        android:key="pref_apikey" />
+
+    <ListPreference
+        android:title="Home Page"
+        android:summary="Default to your favourite section"
+        android:key="pref_homepage"
+        android:entries="@array/array_pref_homepage"
+        android:entryValues="@array/values_pref_homepage"
+        android:defaultValue="ForumList" />
+
+    <ListPreference
+        android:title="Whirldroid Theme"
+        android:summary="Select a colour theme"
+        android:key="pref_theme"
+        android:entries="@array/array_pref_theme"
+        android:entryValues="@array/values_pref_theme"
+        android:defaultValue="0" />
+
+    <com.gregdev.whirldroid.TimePreference
+        android:key="pref_nightmodestart"
+        android:enabled="false"
+        android:title="Night mode start time"
+        android:defaultValue="00:00"
+        android:summary="Set when the dark theme should start being used" />
+
+    <com.gregdev.whirldroid.TimePreference
+        android:key="pref_nightmodeend"
+        android:enabled="false"
+        android:title="Night mode end time"
+        android:defaultValue="00:00"
+        android:summary="Set when the dark theme should stop being used" />
+
+    <ListPreference
+        android:title="Post Font Size"
+        android:summary="Adjust the font size of posts"
+        android:key="pref_postfontsize"
+        android:entries="@array/array_pref_postfontsize"
+        android:entryValues="@array/values_pref_postfontsize"
+        android:defaultValue="0" />
+
+</PreferenceScreen>

@@ -1,0 +1,29 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <CheckBoxPreference
+        android:title="Load watched threads at top"
+        android:defaultValue="false"
+        android:summary="Load watched threads at the first post rather than at the last read post"
+        android:key="pref_loadwatchedattop" />
+
+    <CheckBoxPreference
+        android:title="Ignore own replies"
+        android:defaultValue="false"
+        android:summary="Don't highlight or notify for watched threads where I was the last poster"
+        android:key="pref_ignoreownreplies" />
+
+    <CheckBoxPreference
+        android:title="Auto mark as read"
+        android:defaultValue="false"
+        android:summary="Automatically mark watched threads as read when viewed"
+        android:key="pref_watchedautomarkasread" />
+
+    <CheckBoxPreference
+        android:title="Return to list on mark as read"
+        android:defaultValue="false"
+        android:summary="Go back to the list of watched threads when the 'mark as read' button is pressed"
+        android:key="pref_watchedbacktolist" />
+
+</PreferenceScreen>

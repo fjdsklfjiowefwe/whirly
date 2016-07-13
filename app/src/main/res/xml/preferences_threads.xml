@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <CheckBoxPreference
+        android:title="Open threads in browser"
+        android:defaultValue="false"
+        android:summary="Open threads in a browser window rather than within Whirldroid"
+        android:key="pref_openthreadsinbrowser" />
+
+    <CheckBoxPreference
+        android:title="Load public threads at bottom"
+        android:defaultValue="false"
+        android:summary="Load threads in public forums at the last post"
+        android:key="pref_loadpublicatbottom" />
+
+    <CheckBoxPreference
+        android:title="Load private threads at bottom"
+        android:defaultValue="false"
+        android:summary="Load threads in private forums (In the News, TPR, etc) at the last post"
+        android:key="pref_loadprivateatbottom" />
+
+</PreferenceScreen>
