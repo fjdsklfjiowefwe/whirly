@@ -90,15 +90,15 @@ public abstract class SetupStep extends AbstractStep {
         int highlightColourDark     = getResources().getColor(R.color.colorAccentDark);
 
 
-        if (selectedTheme == Whirldroid.LIGHT_THEME) {
-            backgroundColourResource    = R.color.background_colour_light;
-            primaryTextColourResource   = R.color.TextColourPrimaryLight;
-            highlightColourResource     = R.color.colorPrimary;
-
-        } else if (selectedTheme == Whirldroid.DARK_THEME) {
+        if (selectedTheme == Whirldroid.DARK_THEME) {
             backgroundColourResource    = R.color.background_colour_dark;
             primaryTextColourResource   = R.color.TextColourPrimaryDark;
             highlightColourResource     = R.color.colorAccentDark;
+
+        } else {
+            backgroundColourResource    = R.color.background_colour_light;
+            primaryTextColourResource   = R.color.TextColourPrimaryLight;
+            highlightColourResource     = R.color.colorPrimary;
         }
 
         int primaryTextColour   = getResources().getColor(primaryTextColourResource );
