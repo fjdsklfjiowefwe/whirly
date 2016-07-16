@@ -1,19 +1,13 @@
 package com.gregdev.whirldroid.fragment;
 
-import java.util.regex.Pattern;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.text.util.Linkify;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
