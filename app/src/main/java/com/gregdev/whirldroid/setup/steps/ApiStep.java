@@ -101,7 +101,7 @@ public class ApiStep extends SetupStep {
             imm.hideSoftInputFromWindow(view.findViewById(R.id.scroller).getWindowToken(), 0);
 
             // store the API key
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
             SharedPreferences.Editor settingsEditor = settings.edit();
             settingsEditor.putString("pref_apikey", apiKey);
             settingsEditor.apply();
