@@ -72,7 +72,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:id="@+id/spinner2"
+                android:id="@+id/notify_freq"
                 android:entries="@array/array_pref_notifyfreq" />
 
         </LinearLayout>
