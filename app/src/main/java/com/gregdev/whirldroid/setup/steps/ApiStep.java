@@ -37,6 +37,7 @@ import java.util.List;
 public class ApiStep extends SetupStep {
 
     private boolean haveValidApiKey = false;
+    private EditText apiKeyEdit;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,9 @@ public class ApiStep extends SetupStep {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        ((TextView) view.findViewById(R.id.api_key_field)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        apiKeyEdit = (EditText) view.findViewById(R.id.api_key_field);
+
+        apiKeyEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     onNext();
@@ -59,14 +62,11 @@ public class ApiStep extends SetupStep {
             }
         });
 
-        /*TextView apiKeyWhere = (TextView) view.findViewById(R.id.textView3);
-        Pattern p_url = Pattern.compile("https://whirlpool.net.au/profile/");
-        Linkify.addLinks(apiKeyWhere, p_url, "https://");*/
-
         TextView apiKeyWhere = (TextView) view.findViewById(R.id.textView3);
         CharSequence sequence = Html.fromHtml(getText(R.string.login_api_desc) + "");
         SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
         URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
+
         for (URLSpan span : urls) {
             makeLinkClickable(strBuilder, span);
         }
@@ -92,7 +92,6 @@ public class ApiStep extends SetupStep {
 
     @Override
     public void onNext() {
-        EditText apiKeyEdit = (EditText) view.findViewById(R.id.api_key_field);
         String apiKey = apiKeyEdit.getText().toString();
 
         if (!haveValidApiKey && apiKey.length() > 0) {
