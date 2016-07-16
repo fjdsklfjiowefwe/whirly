@@ -60,8 +60,8 @@ public class NotificationsStep extends SetupStep {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStepVisible() {
+        super.onStepVisible();
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
 
