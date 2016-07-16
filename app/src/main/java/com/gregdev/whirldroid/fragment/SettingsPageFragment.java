@@ -37,8 +37,11 @@ public class SettingsPageFragment extends PreferenceFragmentCompat implements Sh
         preferences.registerOnSharedPreferenceChangeListener(this);
 
         if (preferences.getString("pref_theme", "0").equals("2")) {
-            getPreferenceScreen().findPreference("pref_nightmodestart").setEnabled(true);
-            getPreferenceScreen().findPreference("pref_nightmodeend").setEnabled(true);
+            try {
+                getPreferenceScreen().findPreference("pref_nightmodestart").setEnabled(true);
+                getPreferenceScreen().findPreference("pref_nightmodeend").setEnabled(true);
+
+            } catch (NullPointerException e) { } // not on the notifications preference screen; ignore
         }
     }
 
