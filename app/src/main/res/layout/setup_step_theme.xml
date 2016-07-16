@@ -32,7 +32,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Light theme"
-                android:id="@+id/theme_light" />
+                android:id="@+id/theme_light"
+                android:checked="true" />
 
             <android.support.v7.widget.AppCompatRadioButton
                 android:layout_width="wrap_content"
