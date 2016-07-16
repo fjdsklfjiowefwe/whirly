@@ -23,7 +23,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.setup.SteppedSetup;
@@ -124,7 +123,6 @@ public class ApiStep extends SetupStep {
     }
 
     private ProgressDialog progress_dialog;
-    private Tracker mTracker;
 
     private class RetrieveDataTask extends AsyncTask<String, Void, Boolean> {
 
