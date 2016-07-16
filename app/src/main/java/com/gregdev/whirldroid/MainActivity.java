@@ -190,22 +190,30 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
          * showcase obscures the view.
          */
         if (getIntent().getBooleanExtra("showMenuShowcase", false)) {
-            Timer myTimer = new Timer();
-            myTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        public void run() {
-                            new ShowcaseView.Builder(MainActivity.this)
-                                    .setTarget(new ViewTarget(getToolbarNavigationIcon(myToolbar)))
-                                    .setContentTitle("Open the menu to switch between sections of the app")
-                                    .withMaterialShowcase()
-                                    .setStyle(R.style.WhirldroidShowcaseTheme)
-                                    .build();
-                        }
-                    });
-                }
-            }, 1000);
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
+
+            if (settings.getBoolean("pref_menushowcasedisplayed", false)) {
+                SharedPreferences.Editor settingsEditor = settings.edit();
+                settingsEditor.putBoolean("pref_menushowcasedisplayed", true);
+                settingsEditor.apply();
+
+                Timer myTimer = new Timer();
+                myTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            public void run() {
+                                new ShowcaseView.Builder(MainActivity.this)
+                                        .setTarget(new ViewTarget(getToolbarNavigationIcon(myToolbar)))
+                                        .setContentTitle("Open the menu to switch between sections of the app")
+                                        .withMaterialShowcase()
+                                        .setStyle(R.style.WhirldroidShowcaseTheme)
+                                        .build();
+                            }
+                        });
+                    }
+                }, 1000);
+            }
         }
     }
 
