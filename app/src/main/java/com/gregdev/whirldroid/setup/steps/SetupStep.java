@@ -13,6 +13,8 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.github.fcannizzaro.materialstepper.AbstractStep;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.setup.SteppedSetup;
@@ -23,7 +25,7 @@ public abstract class SetupStep extends AbstractStep {
 
     private int layout;
     private String title;
-
+    private Tracker mTracker;
     public View view;
 
     protected void setLayoutResource(int resource) {
@@ -39,6 +41,15 @@ public abstract class SetupStep extends AbstractStep {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Obtain the shared Tracker instance.
+        Whirldroid application = (Whirldroid) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(layout, container, false);
         return view;
@@ -50,6 +61,16 @@ public abstract class SetupStep extends AbstractStep {
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
         setThemeColours(Integer.parseInt(settings.getString("pref_theme", "0")));
+    }
+
+    @Override
+    public void onStepVisible() {
+        super.onStepVisible();
+
+        if (mTracker != null) {
+            mTracker.setScreenName("Setup: " + getStepTitle());
+            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        }
     }
 
     @Override
