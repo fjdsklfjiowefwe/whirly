@@ -1,5 +1,7 @@
 package com.gregdev.whirldroid.fragment;
 
+import android.graphics.Color;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -50,6 +52,8 @@ public class WhimViewFragment extends Fragment {
         // Obtain the shared Tracker instance.
         Whirldroid application = (Whirldroid) getActivity().getApplication();
         mTracker = application.getDefaultTracker();
+
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -120,6 +124,17 @@ public class WhimViewFragment extends Fragment {
             case R.id.menu_whimreply:
                 String reply_url = "http://whirlpool.net.au/whim/?action=write&rt=" + whim.getId();
                 Intent reply_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(reply_url));
+
+                if (Build.VERSION.SDK_INT >= 18) {
+                    final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+                    final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
+
+                    Bundle extras = new Bundle();
+                    extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+                    reply_intent.putExtras(extras);
+                    reply_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+                }
+
                 startActivity(reply_intent);
                 return true;
         }
