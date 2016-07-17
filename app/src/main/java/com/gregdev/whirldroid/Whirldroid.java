@@ -47,6 +47,10 @@ public class Whirldroid extends Application {
     private static int currentThemeId;
     private static boolean theme_changed = false;
 
+    private static final int TRACKER_DIMENSION_THEME = 1;
+    private static final int TRACKER_DIMENSION_WHIM_NOTIFICATIONS = 2;
+    private static final int TRACKER_DIMENSION_WATCHED_THREAD_NOTIFICATIONS = 3;
+
     public static final String WHIRLDROID_THREAD_ID = "1906307";
 
     private Tracker mTracker;
@@ -326,10 +330,32 @@ public class Whirldroid extends Application {
     /** Google Analytics **/
     synchronized public Tracker getDefaultTracker() {
         if (mTracker == null) {
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
+            String themeName = "";
+
+            switch(Integer.parseInt(settings.getString("pref_theme", LIGHT_THEME + ""))) {
+                case 0:
+                    themeName = "Light";
+                    break;
+                case 1:
+                    themeName = "Dark";
+                    break;
+                case 2:
+                    themeName = "Night";
+                    break;
+            }
+
+            String whimNotifications            = settings.getBoolean("pref_whimnotify"     , false) ? "Enabled" : "Disabled";
+            String watchedThreadNotifcations    = settings.getBoolean("pref_watchednotify"  , false) ? "Enabled" : "Disabled";
+
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
             // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
             mTracker = analytics.newTracker(R.xml.global_tracker);
+            mTracker.set("&cd" + TRACKER_DIMENSION_THEME                        , themeName                 );
+            mTracker.set("&cd" + TRACKER_DIMENSION_WHIM_NOTIFICATIONS           , whimNotifications         );
+            mTracker.set("&cd" + TRACKER_DIMENSION_WATCHED_THREAD_NOTIFICATIONS , watchedThreadNotifcations );
         }
+
         return mTracker;
     }
 
