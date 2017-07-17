@@ -167,6 +167,22 @@ public class WhirlpoolApi extends Activity {
         return unreadWatchedThreadsManager;
     }
 
+    /**
+     * Whirlpool gives us post times in the following formats:
+     *  - Yesterday at 3:43 pm
+     *  - Today at 2:38 am
+     *  - 2017-Apr-21, 4:30 pm
+     *  - 2 minutes ago
+     *
+     *  Since the Whirlroid scraper isn't logged in, these times are relative to AEST.
+     *
+     * @param whirlpoolTime
+     * @return
+     */
+    public static String getShortTimeFromWhirlpoolTimeString(String whirlpoolTime) {
+        return "";
+    }
+
     public String getApiKey() {
         String api_key = settings.getString("pref_apikey", null);
 
@@ -488,10 +504,11 @@ public class WhirlpoolApi extends Activity {
     public static String buildSearchUrl(int forum_id, int group_id, String query) {
         URI uri;
         try {
-            uri = new URI("http", "forums.whirlpool.net.au", "/forum/", "action=threads_search&f=" + forum_id + "&fg=" + group_id + "&q=" + query, null);
+            uri = new URI("https", "forums.whirlpool.net.au", "/forum/", "action=search&f=" + forum_id + "&fg=" + group_id + "&q=" + query + "&o=list", null);
         } catch (URISyntaxException e) {
             return null;
         }
+        Whirldroid.log(uri.toASCIIString());
 
         return uri.toASCIIString();
     }
