@@ -502,7 +502,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
         if (!WhirlpoolApi.isActualForum(forum_id)) {
             if (last_updated < 10) { // updated less than 10 seconds ago
                 ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Updated just a moment ago");
-            } else {
+            } else if (forum_id != WhirlpoolApi.SEARCH_RESULTS) {
                 String ago = Whirldroid.getTimeSince(last_updated);
                 ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Updated " + ago + " ago");
             }
