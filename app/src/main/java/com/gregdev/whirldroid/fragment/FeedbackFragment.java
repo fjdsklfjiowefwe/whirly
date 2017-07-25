@@ -9,22 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 
 public class FeedbackFragment extends Fragment {
 
-    private Tracker mTracker;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Obtain the shared Tracker instance.
-        Whirldroid application = (Whirldroid) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -42,8 +35,6 @@ public class FeedbackFragment extends Fragment {
         openThread.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onFeedbackButtonClick("Whirldroid Thread");
-
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse("whirldroid-thread://com.gregdev.whirldroid?threadid=" + Whirldroid.WHIRLDROID_THREAD_ID));
                 startActivity(intent);
@@ -53,8 +44,6 @@ public class FeedbackFragment extends Fragment {
         sendEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onFeedbackButtonClick("Email Greg");
-
                 final Intent email_intent = new Intent(android.content.Intent.ACTION_SEND);
 
                 // add email data to the intent
@@ -70,8 +59,6 @@ public class FeedbackFragment extends Fragment {
         reviewInStore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onFeedbackButtonClick("Review in Play Store");
-
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse("market://details?id=" + getActivity().getPackageName()));
                 startActivity(intent);
@@ -84,21 +71,13 @@ public class FeedbackFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        mTracker.setScreenName("Feedback");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        Whirldroid.getTracker().setCurrentScreen(getActivity(), "Feedback", null);
+        Whirldroid.logScreenView("Feedback");
 
         MainActivity mainActivity = ((MainActivity) getActivity());
         mainActivity.resetActionBar();
         mainActivity.setTitle("Feedback");
         mainActivity.selectMenuItem("Feedback");
-    }
-
-    private void onFeedbackButtonClick(String label) {
-        mTracker.send(new HitBuilders.EventBuilder()
-                .setCategory("Feedback")
-                .setAction("Click")
-                .setLabel(label)
-                .build());
     }
 
 }

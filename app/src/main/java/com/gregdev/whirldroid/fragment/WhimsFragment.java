@@ -11,8 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Refresher;
@@ -23,15 +21,11 @@ import java.util.Map;
 
 public class WhimsFragment extends Fragment {
 
-    private Tracker mTracker;
     ViewPager viewPager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Obtain the shared Tracker instance.
-        Whirldroid application = (Whirldroid) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -51,12 +45,12 @@ public class WhimsFragment extends Fragment {
             @Override
             public void onPageSelected(int position) {
                 if (position == 0) {
-                    mTracker.setScreenName("WhimsViewUnread");
+                    Whirldroid.getTracker().setCurrentScreen(getActivity(), "WhimsViewUnread", null);
+                    Whirldroid.logScreenView("WhimsViewUnread");
                 } else {
-                    mTracker.setScreenName("WhimsViewAll");
+                    Whirldroid.getTracker().setCurrentScreen(getActivity(), "WhimsViewAll", null);
+                    Whirldroid.logScreenView("WhimsViewAll");
                 }
-
-                mTracker.send(new HitBuilders.ScreenViewBuilder().build());
             }
 
             @Override

@@ -27,8 +27,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crash.FirebaseCrash;
 import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 
@@ -43,17 +43,11 @@ public class Whirldroid extends Application {
     public static final int LIGHT_THEME = 0;
     public static final int DARK_THEME = 1;
 
-    private static int current_theme;
     private static int currentThemeId;
-    private static boolean theme_changed = false;
-
-    private static final int TRACKER_DIMENSION_THEME = 1;
-    private static final int TRACKER_DIMENSION_WHIM_NOTIFICATIONS = 2;
-    private static final int TRACKER_DIMENSION_WATCHED_THREAD_NOTIFICATIONS = 3;
 
     public static final String WHIRLDROID_THREAD_ID = "1906307";
 
-    private Tracker mTracker;
+    private static FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     public void onCreate() {
@@ -64,6 +58,31 @@ public class Whirldroid extends Application {
 
         // set up Whirlpool API
         whirlpool_api = new WhirlpoolApi();
+
+        // set up analytics
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
+        String themeName = "";
+
+        switch (Integer.parseInt(settings.getString("pref_theme", LIGHT_THEME + ""))) {
+            case 0:
+                themeName = "Light";
+                break;
+            case 1:
+                themeName = "Dark";
+                break;
+            case 2:
+                themeName = "Night";
+                break;
+        }
+
+        String whimNotifications            = settings.getBoolean("pref_whimnotify"     , false) ? "Enabled" : "Disabled";
+        String watchedThreadNotifcations    = settings.getBoolean("pref_watchednotify"  , false) ? "Enabled" : "Disabled";
+
+        mFirebaseAnalytics.setUserProperty("theme"                  , themeName                 );
+        mFirebaseAnalytics.setUserProperty("whim_notifications"     , whimNotifications         );
+        mFirebaseAnalytics.setUserProperty("watched_notifications"  , watchedThreadNotifcations );
     }
 
     /**
@@ -87,6 +106,10 @@ public class Whirldroid extends Application {
      */
     public static void log(String message) {
         Log.d("Whirldroid", "Whirldroidm " + message);
+    }
+
+    public static FirebaseAnalytics getTracker() {
+        return mFirebaseAnalytics;
     }
 
     public static void updateAlarm() {
@@ -142,15 +165,11 @@ public class Whirldroid extends Application {
 
         switch (currentThemeId) {
             case DARK_THEME:
-                current_theme = R.style.WhirldroidDarkTheme;
-                break;
+                return R.style.WhirldroidDarkTheme;
             case LIGHT_THEME:
             default:
-                current_theme = R.style.WhirldroidLightTheme;
-                break;
+                return R.style.WhirldroidLightTheme;
         }
-
-        return current_theme;
     }
 
     public static int getCurrentThemeId() {
@@ -327,38 +346,6 @@ public class Whirldroid extends Application {
         return null;
     }
 
-    /** Google Analytics **/
-    synchronized public Tracker getDefaultTracker() {
-        if (mTracker == null) {
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
-            String themeName = "";
-
-            switch(Integer.parseInt(settings.getString("pref_theme", LIGHT_THEME + ""))) {
-                case 0:
-                    themeName = "Light";
-                    break;
-                case 1:
-                    themeName = "Dark";
-                    break;
-                case 2:
-                    themeName = "Night";
-                    break;
-            }
-
-            String whimNotifications            = settings.getBoolean("pref_whimnotify"     , false) ? "Enabled" : "Disabled";
-            String watchedThreadNotifcations    = settings.getBoolean("pref_watchednotify"  , false) ? "Enabled" : "Disabled";
-
-            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
-            mTracker = analytics.newTracker(R.xml.global_tracker);
-            mTracker.set("&cd" + TRACKER_DIMENSION_THEME                        , themeName                 );
-            mTracker.set("&cd" + TRACKER_DIMENSION_WHIM_NOTIFICATIONS           , whimNotifications         );
-            mTracker.set("&cd" + TRACKER_DIMENSION_WATCHED_THREAD_NOTIFICATIONS , watchedThreadNotifcations );
-        }
-
-        return mTracker;
-    }
-
     public static ArrayList<Integer> stringToInts(String str) {
         // Split on `,` and then take every alternate element.
         String[] tokens = str.split(",");
@@ -402,7 +389,6 @@ public class Whirldroid extends Application {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-
         if (Build.VERSION.SDK_INT >= 18) {
             final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
             final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
@@ -415,4 +401,12 @@ public class Whirldroid extends Application {
 
         context.startActivity(intent);
     }
+
+    public static void logScreenView(String screenName) {
+        Bundle params = new Bundle();
+        params.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "screen");
+        params.putString(FirebaseAnalytics.Param.ITEM_NAME, screenName);
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, params);
+    }
+
 }

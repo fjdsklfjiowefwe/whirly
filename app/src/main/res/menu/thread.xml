@@ -1,63 +1,46 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/menu_prev"
-        android:icon="@drawable/ic_navigate_before_white_24dp"
-        android:title="@string/menu_nav_prev"
-        app:showAsAction="always" />
 
     <item
-        android:id="@+id/menu_next"
-        android:icon="@drawable/ic_navigate_next_white_24dp"
-        android:title="@string/menu_nav_next"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/menu_refresh"
-        android:icon="@drawable/ic_refresh_white_24dp"
-        android:title="@string/menu_refresh"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/menu_goto_page"
-        android:icon="@drawable/ic_compare_arrows_white_24dp"
-        android:title="Jump to page..."
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/menu_goto_last"
-        android:title="@string/menu_goto_last"
-        app:showAsAction="never" />
+        android:id="@+id/menu_replythread"
+        android:icon="@drawable/ic_reply_white_24dp"
+        android:title="@string/menu_replythread"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_watch"
         android:icon="@drawable/ic_visibility_white_24dp"
         android:title="@string/menu_watch"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_markread"
         android:icon="@drawable/ic_done_white_24dp"
         android:title="@string/menu_markread"
         android:visible="false"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/menu_replythread"
-        android:icon="@drawable/ic_reply_white_24dp"
-        android:title="@string/menu_replythread"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_unwatch"
         android:icon="@drawable/ic_visibility_off_white_24dp"
         android:title="@string/ctxmenu_unwatch"
         android:visible="false"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_goto_last"
+        android:title="@string/menu_goto_last"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_refresh"
+        android:icon="@drawable/ic_refresh_white_24dp"
+        android:title="@string/menu_refresh"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_open_browser"
         android:icon="@drawable/ic_open_in_browser_white_24dp"
         android:title="@string/menu_browser"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
 </menu>

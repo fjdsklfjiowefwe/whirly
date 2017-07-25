@@ -34,8 +34,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Refresher;
@@ -61,14 +59,12 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
     private int page_count = 0;
     private boolean bottom = false;
     private int goto_num = 0;
-    private int from_forum;
     private int filter = 0;
     private String filter_user = null;
     private String filter_user_id = null;
     private boolean pages_loaded = false;
     private boolean no_page_select = true;
     private String font_size_option = "0";
-    private Tracker mTracker;
     private ProgressBar loading;
     ViewPager parent;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -368,9 +364,6 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Obtain the shared Tracker instance.
-        Whirldroid application = (Whirldroid) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -398,7 +391,6 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
             current_page    = bundle.getInt("page_number");
             bottom          = bundle.getBoolean("bottom");
             goto_num        = bundle.getInt("goto_num");
-            from_forum      = bundle.getInt("from_forum");
             filter          = bundle.getInt("filter");
             filter_user     = bundle.getString("filter_user", null);
             filter_user_id  = bundle.getString("filter_user_id", null);
@@ -427,8 +419,8 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
     public void onResume() {
         super.onResume();
 
-        mTracker.setScreenName("ThreadView");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        Whirldroid.getTracker().setCurrentScreen(getActivity(), "ThreadView", null);
+        Whirldroid.logScreenView("ThreadView");
 
         if (filter_user_id != null) {
             MainActivity mainActivity = (MainActivity) getActivity();
@@ -476,7 +468,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
             switch (item.getItemId()) {
                 case 0: // open in browser
-                    String post_url = "http://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread.getId() + "&p=" + current_page + "#r" + post.getId();
+                    String post_url = "https://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread.getId() + "&p=" + current_page + "#r" + post.getId();
                     Intent view_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(post_url));
 
                     if (Build.VERSION.SDK_INT >= 18) {
@@ -520,7 +512,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                     return true;
 
                 case 4: // edit reply
-                    String edit_url = "http://forums.whirlpool.net.au/forum/index.cfm?action=edit&e=" + post.getId();
+                    String edit_url = "https://forums.whirlpool.net.au/forum/index.cfm?action=edit&e=" + post.getId();
                     Intent edit_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(edit_url));
 
                     if (Build.VERSION.SDK_INT >= 18) {

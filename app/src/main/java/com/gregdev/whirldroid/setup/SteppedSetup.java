@@ -43,6 +43,7 @@ public class SteppedSetup extends DotStepper {
             addStep(step);
         }
 
+        setTitle("Whirldroid");
         super.onCreate(savedInstanceState);
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

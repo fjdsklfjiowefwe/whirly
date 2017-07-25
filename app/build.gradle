@@ -1,18 +1,17 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '25.0.0'
+    compileSdkVersion 25
+    buildToolsVersion '25.0.3'
 
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "com.gregdev.whirldroid"
         minSdkVersion 15
-        targetSdkVersion 23
-        versionCode 63
-        versionName "2.10.2"
+        targetSdkVersion 25
+        versionCode 65
+        versionName "2.11"
     }
     buildTypes {
         release {
@@ -23,15 +22,19 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.3.0'
-    compile 'org.jsoup:jsoup:1.8.3'
-    compile 'com.android.support:design:23.3.0'
-    compile 'com.google.android.gms:play-services-analytics:8.3.0'
-    compile 'com.android.support:preference-v7:23.3.0'
-    compile 'com.android.support:preference-v14:23.3.0'
-    compile 'com.github.fcannizzaro:material-stepper:1.1.8'
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'org.jsoup:jsoup:1.10.3'
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support:preference-v7:25.3.1'
+    compile 'com.android.support:preference-v14:25.3.1'
+    compile 'com.github.fcannizzaro:material-stepper:1.2.2'
     compile 'com.github.amlcurran.showcaseview:library:5.4.3'
+    compile 'com.google.firebase:firebase-core:10.0.1'
+    compile 'com.google.firebase:firebase-crash:10.0.1'
+    testCompile 'junit:junit:4.12'
 }
 
+
+
+apply plugin: 'com.google.gms.google-services'

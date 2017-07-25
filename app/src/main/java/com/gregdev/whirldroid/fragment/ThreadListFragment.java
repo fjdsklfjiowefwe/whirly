@@ -1,6 +1,5 @@
 package com.gregdev.whirldroid.fragment;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -9,12 +8,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.SearchView;
-import android.text.Editable;
-import android.text.method.DigitsKeyListener;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,34 +17,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Refresher;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
-import com.gregdev.whirldroid.layout.TwoLineSpinnerAdapter;
 import com.gregdev.whirldroid.model.Forum;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ThreadListFragment extends Fragment implements AdapterView.OnItemSelectedListener, Refresher {
 
     private ForumPageFragmentPagerAdapter adapter;
     private ViewPager viewPager;
-    private Tracker mTracker;
     private int currentGroup = 0;
-    private int currentIndex = 0;
     private int pageCount = 0;
-    private MenuBuilder menuBuilder;
-    private TwoLineSpinnerAdapter groupAdapter;
+    private Spinner pageSpinner;
+    private SpinnerAdapter groupAdapter;
     private Map<Integer, Fragment> pages = new HashMap<>();
+    ArrayList<String> groups = new ArrayList<>();
     Spinner spinner;
     View rootView;
     private Boolean doneInitialSelect = false;
@@ -66,9 +59,6 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Obtain the shared Tracker instance.
-        Whirldroid application = (Whirldroid) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
         setHasOptionsMenu(true);
     }
 
@@ -96,15 +86,9 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
 
             @Override
             public void onPageSelected(int position) {
-                currentIndex = position;
                 ((ForumPageFragmentPagerAdapter) viewPager.getAdapter()).setHeader(forum);
 
-                String subtitle = "Page " + (currentIndex + 1);
-                if (forum != null) {
-                    subtitle += " of " + pageCount;
-                }
-
-                ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
+                pageSpinner.setSelection(position);
             }
 
             @Override
@@ -119,30 +103,43 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         if (WhirlpoolApi.isActualForum(forumId)) {
-            ActionMenuView actionMenuView = (ActionMenuView) view.findViewById(R.id.menuBar);
-            menuBuilder = (MenuBuilder) actionMenuView.getMenu();
+            Toolbar bottomToolbar = (Toolbar) view.findViewById(R.id.toolbar_bottom);
 
-            menuBuilder.setCallback(new MenuBuilder.Callback() {
+            bottomToolbar.inflateMenu(R.menu.thread_list);
+
+            bottomToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
                 @Override
-                public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
-                    return onOptionsItemSelected(menuItem);
-                }
+                public boolean onMenuItemClick(MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.menu_refresh:
+                            initiateRefresh();
+                            return true;
 
-                @Override
-                public void onMenuModeChange(MenuBuilder menuBuilder) {
+                        case R.id.menu_new_thread:
+                            Intent newthread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(WhirlpoolApi.NEWTHREAD_URL + forumId));
+                            if (Build.VERSION.SDK_INT >= 18) {
+                                final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
+                                final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
 
+                                Bundle extras = new Bundle();
+                                extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
+                                newthread_intent.putExtras(extras);
+                                newthread_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
+                            }
+
+                            startActivity(newthread_intent);
+                            return true;
+
+                        case R.id.menu_open_browser:
+                            Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(WhirlpoolApi.FORUM_URL + forumId));
+                            startActivity(thread_intent);
+                            return true;
+                    }
+
+                    return false;
                 }
             });
 
-            getActivity().getMenuInflater().inflate(R.menu.thread_list, menuBuilder);
-
-            // private forums don't have pages, so hide pagination
-            if (WhirlpoolApi.isActualForum(forumId) && !WhirlpoolApi.isPublicForum(forumId)) {
-                menuBuilder.findItem(R.id.menu_prev).setVisible(false);
-                menuBuilder.findItem(R.id.menu_next).setVisible(false);
-                menuBuilder.findItem(R.id.menu_goto_page).setVisible(false);
-                menuBuilder.findItem(R.id.menu_open_browser).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-            }
         }
     }
 
@@ -156,14 +153,13 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
 
         if (forumId != WhirlpoolApi.UNREAD_WATCHED_THREADS && forumId != WhirlpoolApi.ALL_WATCHED_THREADS) {
             if (forumId == WhirlpoolApi.POPULAR_THREADS) {
-                mTracker.setScreenName("PopularThreads");
+                Whirldroid.getTracker().setCurrentScreen(getActivity(), "PopularThreads", null);
+                Whirldroid.logScreenView("About");
             } else if (forumId == WhirlpoolApi.RECENT_THREADS) {
-                mTracker.setScreenName("RecentThreads");
+                Whirldroid.getTracker().setCurrentScreen(getActivity(), "RecentThreads", null);
             } else {
-                mTracker.setScreenName("ThreadList");
+                Whirldroid.getTracker().setCurrentScreen(getActivity(), "ThreadList", null);
             }
-
-            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
         }
 
         Bundle bundle = getArguments();
@@ -195,16 +191,11 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
             default:
                 if (WhirlpoolApi.isActualForum(forumId) && WhirlpoolApi.isPublicForum(forumId)) {
 
-                    String subtitle = "Page " + (currentIndex + 1);
-                    if (pageCount != 0) {
-                        subtitle += " of " + pageCount;
-                    }
+                    groups.clear();
+                    groups.add(bundle.getString("forum_name"));
 
-                    ArrayList<String> group_list = new ArrayList<>();
-                    group_list.add(bundle.getString("forum_name"));
                     if (groupAdapter == null) {
-                        groupAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, group_list);
-                        groupAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+                        groupAdapter = new ArrayAdapter<String>(getContext(), R.layout.spinner_dropdown_item, groups);
                     }
 
                     spinner = (Spinner) getActivity().findViewById(R.id.spinner);
@@ -233,7 +224,6 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
                     spinner.setOnItemSelectedListener(this);
 
                     ((MainActivity) getActivity()).showTwoLineSpinner();
-                    ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
 
                 } else if (!WhirlpoolApi.isPublicForum(forumId)) {
                     getActivity().setTitle(forumTitle);
@@ -245,6 +235,21 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
         if (forum != null && forumId != WhirlpoolApi.SEARCH_RESULTS) {
             ((ForumPageFragmentPagerAdapter) viewPager.getAdapter()).setHeader(forum);
         }
+
+        Toolbar bottomToolbar = (Toolbar) rootView.findViewById(R.id.toolbar_bottom);
+        pageSpinner = (Spinner) bottomToolbar.findViewById(R.id.pageList);
+
+        pageSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                viewPager.setCurrentItem(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        populatePageSpinner();
     }
 
     @Override
@@ -290,7 +295,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
                         int i = 0;
 
                         for (Map.Entry<String, Integer> group : forum.getGroups().entrySet()) {
-                            groupAdapter.add(group.getKey());
+                            groups.add(group.getKey());
 
                             if (group.getValue() == currentGroup) {
                                 currentGroupIndex = i;
@@ -314,12 +319,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
                 pageCount = count;
                 notifyDataSetChanged();
 
-                String subtitle = "Page 1";
-                if (forum != null) {
-                    subtitle += " of " + pageCount;
-                }
-
-                ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
+                populatePageSpinner();
             }
         }
 
@@ -356,68 +356,6 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
 
             return pages.get(position + 1);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_refresh:
-                initiateRefresh();
-                return true;
-
-            case R.id.menu_prev:
-                viewPager.setCurrentItem(viewPager.getCurrentItem() - 1);
-                return true;
-
-            case R.id.menu_goto_page:
-                final EditText input = new EditText(getActivity());
-                input.setKeyListener(new DigitsKeyListener());
-                new AlertDialog.Builder(getActivity())
-                        .setTitle("Jump to page...")
-                        .setMessage("Enter a page number to load")
-                        .setView(input)
-                        .setPositiveButton("Go for it", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                Editable value = input.getText();
-                                int input;
-                                try {
-                                    input = Integer.parseInt(value.toString());
-                                    viewPager.setCurrentItem(input - 1);
-                                }
-                                catch (Exception e) { }
-                            }
-                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        // Do nothing.
-                    }
-                }).show();
-                return true;
-
-            case R.id.menu_next:
-                viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
-                return true;
-
-            case R.id.menu_new_thread:
-                Intent newthread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(WhirlpoolApi.NEWTHREAD_URL + forumId));
-                if (Build.VERSION.SDK_INT >= 18) {
-                    final String EXTRA_CUSTOM_TABS_SESSION = "android.support.customtabs.extra.SESSION";
-                    final String EXTRA_CUSTOM_TABS_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
-
-                    Bundle extras = new Bundle();
-                    extras.putBinder(EXTRA_CUSTOM_TABS_SESSION, null);
-                    newthread_intent.putExtras(extras);
-                    newthread_intent.putExtra(EXTRA_CUSTOM_TABS_TOOLBAR_COLOR, Color.parseColor("#3A437B"));
-                }
-
-                startActivity(newthread_intent);
-                return true;
-
-            case R.id.menu_open_browser:
-                Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(WhirlpoolApi.FORUM_URL + forumId));
-                startActivity(thread_intent);
-                return true;
-        }
-        return false;
     }
 
     @Override
@@ -468,6 +406,17 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
         fragment.initiateRefresh();
 
         return true;
+    }
+
+    protected void populatePageSpinner() {
+        List<String> pages = new ArrayList<>();
+
+        for (int i = 0; i < pageCount; i++) {
+            int page = i + 1;
+            pages.add("Page " + page + " of " + pageCount);
+        }
+
+        pageSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, pages));
     }
 
 }

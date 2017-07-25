@@ -1,39 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/menu_prev"
-        android:icon="@drawable/ic_navigate_before_white_24dp"
-        android:title="@string/menu_nav_prev"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/menu_next"
-        android:icon="@drawable/ic_navigate_next_white_24dp"
-        android:title="@string/menu_nav_next"
-        app:showAsAction="always" />
 
     <item
         android:id="@+id/menu_refresh"
         android:icon="@drawable/ic_refresh_white_24dp"
         android:title="@string/menu_refresh"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_new_thread"
         android:icon="@drawable/ic_add_box_white_24dp"
         android:title="@string/menu_newthread"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/menu_goto_page"
-        android:icon="@drawable/ic_compare_arrows_white_24dp"
-        android:title="@string/menu_page"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_open_browser"
         android:icon="@drawable/ic_open_in_browser_white_24dp"
         android:title="@string/menu_browser"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
 </menu>

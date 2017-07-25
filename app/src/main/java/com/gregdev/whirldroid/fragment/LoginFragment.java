@@ -20,8 +20,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -43,7 +41,6 @@ public class LoginFragment extends Fragment {
 
     private ProgressDialog progress_dialog;
     private RetrieveDataTask task;
-    private Tracker mTracker;
 
     private class RetrieveDataTask extends AsyncTask<String, Void, Boolean> {
 
@@ -143,9 +140,6 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Obtain the shared Tracker instance.
-        Whirldroid application = (Whirldroid) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -189,8 +183,8 @@ public class LoginFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        mTracker.setScreenName("Login");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        Whirldroid.getTracker().setCurrentScreen(getActivity(), "Login", null);
+        Whirldroid.logScreenView("Login");
     }
 
 }

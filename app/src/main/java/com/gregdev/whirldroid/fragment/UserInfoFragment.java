@@ -14,8 +14,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager.BadTokenException;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -27,7 +25,6 @@ public class UserInfoFragment extends Fragment {
     private User user;
     private ProgressDialog progress_dialog;
     private GetUserInfoTask task;
-    private Tracker mTracker;
 
     private class GetUserInfoTask extends AsyncTask<String, Void, Void> {
 
@@ -69,9 +66,6 @@ public class UserInfoFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Obtain the shared Tracker instance.
-        Whirldroid application = (Whirldroid) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -96,8 +90,8 @@ public class UserInfoFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        mTracker.setScreenName("UserInfo");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        Whirldroid.getTracker().setCurrentScreen(getActivity(), "UserInfo", null);
+        Whirldroid.logScreenView("UserInfo");
 
         ((MainActivity) getActivity()).resetActionBar();
         ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("#" + user.getId());

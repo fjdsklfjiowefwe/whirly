@@ -5,10 +5,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import android.support.v4.app.ListFragment;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -23,14 +19,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Refresher;
@@ -51,7 +43,6 @@ public class NewsListFragment extends ListFragment implements Refresher {
     private SeparatedListAdapter sla;
     private ArrayList<NewsArticle> newsList;
     private View rootView;
-    private Tracker mTracker;
     private ProgressBar loading;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -126,9 +117,6 @@ public class NewsListFragment extends ListFragment implements Refresher {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Obtain the shared Tracker instance.
-        Whirldroid application = (Whirldroid) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -181,8 +169,8 @@ public class NewsListFragment extends ListFragment implements Refresher {
     public void onResume() {
         super.onResume();
 
-        mTracker.setScreenName("NewsList");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        Whirldroid.getTracker().setCurrentScreen(getActivity(), "NewsList", null);
+        Whirldroid.logScreenView("NewsList");
 
         MainActivity mainActivity = ((MainActivity) getActivity());
         mainActivity.resetActionBar();

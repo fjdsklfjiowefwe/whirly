@@ -13,8 +13,6 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.github.fcannizzaro.materialstepper.AbstractStep;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.setup.SteppedSetup;
@@ -25,7 +23,6 @@ public abstract class SetupStep extends AbstractStep {
 
     private int layout;
     private String title;
-    private Tracker mTracker;
     public View view;
 
     protected void setLayoutResource(int resource) {
@@ -43,10 +40,6 @@ public abstract class SetupStep extends AbstractStep {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Obtain the shared Tracker instance.
-        Whirldroid application = (Whirldroid) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -67,10 +60,7 @@ public abstract class SetupStep extends AbstractStep {
     public void onStepVisible() {
         super.onStepVisible();
 
-        if (mTracker != null) {
-            mTracker.setScreenName("Setup: " + getStepTitle());
-            mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-        }
+        Whirldroid.getTracker().setCurrentScreen(getActivity(), "Setup: " + getStepTitle(), null);
     }
 
     @Override

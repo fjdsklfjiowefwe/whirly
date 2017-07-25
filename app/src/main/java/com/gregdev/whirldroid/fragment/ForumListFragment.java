@@ -24,8 +24,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -48,8 +46,6 @@ public class ForumListFragment extends ListFragment {
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private int listIndex = -1;
-
-    private Tracker mTracker;
 
     private class RetrieveForumsTask extends AsyncTask<String, Void, ArrayList<Forum>> {
 
@@ -232,9 +228,6 @@ public class ForumListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Obtain the shared Tracker instance.
-        Whirldroid application = (Whirldroid) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -289,8 +282,8 @@ public class ForumListFragment extends ListFragment {
     public void onResume() {
         super.onResume();
 
-        mTracker.setScreenName("ForumList");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        Whirldroid.getTracker().setCurrentScreen(getActivity(), "ForumList", null);
+        Whirldroid.logScreenView("ForumList");
 
         MainActivity mainActivity = ((MainActivity) getActivity());
 

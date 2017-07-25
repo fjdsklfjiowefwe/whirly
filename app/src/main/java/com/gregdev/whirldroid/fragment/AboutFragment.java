@@ -12,22 +12,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 
 public class AboutFragment extends Fragment {
 
-    private Tracker mTracker;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Obtain the shared Tracker instance.
-        Whirldroid application = (Whirldroid) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -58,8 +52,8 @@ public class AboutFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        mTracker.setScreenName("About");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        Whirldroid.getTracker().setCurrentScreen(getActivity(), "About", null);
+        Whirldroid.logScreenView("About");
 
         MainActivity mainActivity = ((MainActivity) getActivity());
         mainActivity.resetActionBar();

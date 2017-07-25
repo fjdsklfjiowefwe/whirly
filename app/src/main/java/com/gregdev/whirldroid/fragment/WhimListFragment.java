@@ -27,8 +27,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Refresher;
@@ -50,7 +48,6 @@ public class WhimListFragment extends ListFragment implements Refresher {
     private ProgressDialog progress_dialog;
     private RetrieveWhimsTask task;
     private TextView no_whims;
-    private Tracker mTracker;
     private ProgressBar loading;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private boolean showUnreadOnly = false;
@@ -249,9 +246,6 @@ public class WhimListFragment extends ListFragment implements Refresher {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Obtain the shared Tracker instance.
-        Whirldroid application = (Whirldroid) getActivity().getApplication();
-        mTracker = application.getDefaultTracker();
     }
 
     @Override
@@ -287,8 +281,8 @@ public class WhimListFragment extends ListFragment implements Refresher {
     public void onResume() {
         super.onResume();
 
-        mTracker.setScreenName("WhimList");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        Whirldroid.getTracker().setCurrentScreen(getActivity(), "WhimList", null);
+        Whirldroid.logScreenView("WhimList");
 
         ((MainActivity) getActivity()).resetActionBar();
         getActivity().setTitle("Whims");

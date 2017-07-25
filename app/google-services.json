@@ -1,22 +1,41 @@
 {
   "project_info": {
-    "project_id": "whirldroid",
     "project_number": "53036791833",
-    "name": "whirldroid"
+    "firebase_url": "https://whirldroid.firebaseio.com",
+    "project_id": "whirldroid",
+    "storage_bucket": "whirldroid.appspot.com"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:53036791833:android:9d82530092905d44",
-        "client_id": "android:com.gregdev.whirldroid",
-        "client_type": 1,
         "android_client_info": {
-          "package_name": "com.gregdev.whirldroid",
-          "certificate_hash": []
+          "package_name": "com.gregdev.whirldroid"
         }
       },
-      "oauth_client": [],
-      "api_key": [],
+      "oauth_client": [
+        {
+          "client_id": "53036791833-eruue8i152h8k3pmo7gkjfh7b9v4jtti.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gregdev.whirldroid",
+            "certificate_hash": "d551c9579bdd849da9ddcf28c0da138cf3486577"
+          }
+        },
+        {
+          "client_id": "53036791833-hrt4a0oedvtpni6g5naun9nhfa4nc61s.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "53036791833-f1ohb97r6us4bo1hdstmg8v9os105h6r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCK1ZzdxO4tyw9TbavDR4jYbG35DMi6XfE"
+        }
+      ],
       "services": {
         "analytics_service": {
           "status": 2,
@@ -24,23 +43,15 @@
             "tracking_id": "UA-290779-8"
           }
         },
-        "cloud_messaging_service": {
-          "status": 1,
-          "apns_config": []
-        },
         "appinvite_service": {
           "status": 1,
           "other_platform_oauth_client": []
         },
-        "google_signin_service": {
-          "status": 1
-        },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }
   ],
-  "client_info": [],
-  "ARTIFACT_VERSION": "1"
+  "configuration_version": "1"
 }
