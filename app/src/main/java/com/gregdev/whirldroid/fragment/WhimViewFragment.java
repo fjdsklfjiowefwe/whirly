@@ -110,13 +110,13 @@ public class WhimViewFragment extends Fragment {
                 return true;
 
             case R.id.menu_whimopenbrowser:
-                String whim_url = "http://whirlpool.net.au/whim/?action=read&m=" + whim.getId();
+                String whim_url = "https://whirlpool.net.au/whim/?action=read&m=" + whim.getId();
                 Intent whim_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(whim_url));
                 startActivity(whim_intent);
                 return true;
 
             case R.id.menu_whimreply:
-                String reply_url = "http://whirlpool.net.au/whim/?action=write&rt=" + whim.getId();
+                String reply_url = "https://whirlpool.net.au/whim/?action=write&rt=" + whim.getId();
                 Intent reply_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(reply_url));
 
                 if (Build.VERSION.SDK_INT >= 18) {

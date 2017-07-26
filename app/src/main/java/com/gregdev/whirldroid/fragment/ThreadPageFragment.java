@@ -101,7 +101,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                     error_message = e.getMessage();
 
                     if (error_message.equals("Private forum")) {
-                        String thread_url = "http://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread_id;
+                        String thread_url = "https://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread_id;
                         Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(thread_url));
                         startActivity(thread_intent);
                         getActivity().finish();

@@ -632,7 +632,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     }
 
     private void openThreadInBrowser(Thread thread, int page_number, boolean bottom, int goto_post) {
-        String thread_url = "http://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread.getId();
+        String thread_url = "https://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread.getId();
 
         if (bottom) {
             thread_url += "&p=-1#bottom";

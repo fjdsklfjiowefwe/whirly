@@ -88,11 +88,11 @@ public class WhirlpoolApi extends Activity {
 
     // some URLs - most of these shouldn't be hardcoded, but meh, half the app
     // will break if anything is changed on the Whirlpool side anyway
-    public static final String POPULAR_URL      = "http://forums.whirlpool.net.au/forum/?action=popular_views";
-    public static final String FORUM_URL        = "http://forums.whirlpool.net.au/forum/";
-    public static final String THREAD_URL       = "http://forums.whirlpool.net.au/forum-replies.cfm?t=";
-    public static final String REPLY_URL        = "http://forums.whirlpool.net.au/forum/index.cfm?action=reply&t=";
-    public static final String NEWTHREAD_URL    = "http://forums.whirlpool.net.au/forum/index.cfm?action=newthread&f=";
+    public static final String POPULAR_URL      = "https://forums.whirlpool.net.au/forum/?action=popular_views";
+    public static final String FORUM_URL        = "https://forums.whirlpool.net.au/forum/";
+    public static final String THREAD_URL       = "https://forums.whirlpool.net.au/forum-replies.cfm?t=";
+    public static final String REPLY_URL        = "https://forums.whirlpool.net.au/forum/index.cfm?action=reply&t=";
+    public static final String NEWTHREAD_URL    = "https://forums.whirlpool.net.au/forum/index.cfm?action=newthread&f=";
     public static final String POST_URL         = "https://forums.whirlpool.net.au/forum-replies.cfm?r=";
 
     // number of posts Whirlpool displays on each page
@@ -457,7 +457,7 @@ public class WhirlpoolApi extends Activity {
     public Map<String, String> scrapeUserInfo(String user_id) {
         Map<String, String> user_info = new LinkedHashMap<>();
 
-        String url = "http://forums.whirlpool.net.au/user/" + user_id;
+        String url = "https://forums.whirlpool.net.au/user/" + user_id;
 
         Document doc = downloadPage(url);
         if (doc == null) {

@@ -340,13 +340,13 @@ public class WhimListFragment extends ListFragment implements Refresher {
                 return true;
 
             case 1: // open in browser
-                String whim_url = "http://whirlpool.net.au/whim/?action=read&m=" + w.getId();
+                String whim_url = "https://whirlpool.net.au/whim/?action=read&m=" + w.getId();
                 Intent whim_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(whim_url));
                 startActivity(whim_intent);
                 return true;
 
             case 2: // reply in browser
-                String reply_url = "http://whirlpool.net.au/whim/?action=write&rt=" + w.getId();
+                String reply_url = "https://whirlpool.net.au/whim/?action=write&rt=" + w.getId();
                 Intent reply_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(reply_url));
                 startActivity(reply_intent);
                 return true;

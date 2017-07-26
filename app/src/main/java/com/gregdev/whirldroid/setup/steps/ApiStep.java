@@ -94,7 +94,7 @@ public class ApiStep extends SetupStep {
         if (apiKeyEdit == null) {
             apiKeyEdit = (EditText) view.findViewById(R.id.api_key_field);
         }
-        
+
         String apiKey = apiKeyEdit.getText().toString();
 
         if (!haveValidApiKey && apiKey.length() > 0) {

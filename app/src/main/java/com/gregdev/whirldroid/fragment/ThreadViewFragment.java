@@ -166,7 +166,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
                         return true;
 
                     case R.id.menu_open_browser:
-                        String thread_url = "http://forums.whirlpool.net.au/forum-replies.cfm?t=" + threadId;
+                        String thread_url = "https://forums.whirlpool.net.au/forum-replies.cfm?t=" + threadId;
                         Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(thread_url));
                         startActivity(thread_intent);
                         return true;

@@ -146,7 +146,7 @@ public class NewsListFragment extends ListFragment implements Refresher {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 NewsArticle article = (NewsArticle) sla.getItem(position);
 
-                String news_url = "http://whirlpool.net.au/news/go.cfm?article=" + article.getId();
+                String news_url = "https://whirlpool.net.au/news/go.cfm?article=" + article.getId();
 
                 Intent news_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(news_url));
 

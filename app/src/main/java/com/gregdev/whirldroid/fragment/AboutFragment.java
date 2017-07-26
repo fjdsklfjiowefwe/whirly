@@ -37,8 +37,8 @@ public class AboutFragment extends Fragment {
         TextView version_info = (TextView) view.findViewById(R.id.version_info);
         TextView gregdev_url = (TextView) view.findViewById(R.id.gregdev_web);
 
-        Pattern p_url = Pattern.compile("http://gregdev.com.au");
-        Linkify.addLinks(gregdev_url, p_url, "http://");
+        Pattern p_url = Pattern.compile("https://gregdev.com.au");
+        Linkify.addLinks(gregdev_url, p_url, "https://");
 
         String version = null;
         try {
