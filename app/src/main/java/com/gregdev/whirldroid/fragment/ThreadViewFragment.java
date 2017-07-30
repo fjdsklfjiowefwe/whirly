@@ -12,7 +12,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
@@ -21,14 +20,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
+import com.gregdev.whirldroid.layout.WhirldroidSpinnerAdapter;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
-import com.gregdev.whirldroid.layout.TwoLineSpinnerAdapter;
 import com.gregdev.whirldroid.task.MarkThreadReadTask;
 import com.gregdev.whirldroid.task.UnwatchThreadTask;
 import com.gregdev.whirldroid.task.WatchThreadTask;
@@ -37,22 +38,25 @@ import com.gregdev.whirldroid.task.WhirldroidTaskOnCompletedListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSelectedListener, WhirldroidTaskOnCompletedListener {
 
+    private View rootView;
     private ViewPager viewPager;
     private int fromForum;
     private int threadId;
     private int initialPage;
-    private int currentIndex;
     private int pageCount = 0;
     private int gotoNum = 0;
     private boolean gotoBottom = false;
     private String threadTitle = null;
+    private Spinner pageSpinner;
     private Spinner filterSpinner;
-    private TwoLineSpinnerAdapter filterAdapter;
+    private SpinnerAdapter filterAdapter;
     private ProgressDialog progressDialog;
+    private boolean initialLoad = true;
 
     private int currentFilter = 0;
 
@@ -67,7 +71,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         container.removeAllViews();
-        View rootView = inflater.inflate(R.layout.view_pager, container, false);
+        rootView = inflater.inflate(R.layout.view_pager, container, false);
 
         fromForum   = getArguments().getInt("from_forum");
         threadId    = getArguments().getInt("thread_id");
@@ -103,15 +107,9 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
             @Override
             public void onPageSelected(int position) {
-                currentIndex = position;
                 setFilterAdapter();
 
-                String subtitle = "";
-                if (pageCount != 0) {
-                    subtitle = "Page " + (currentIndex + 1) + " of " + pageCount;
-                }
-
-                ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
+                pageSpinner.setSelection(position);
 
                 ThreadPageFragmentPagerAdapter adapter = (ThreadPageFragmentPagerAdapter) viewPager.getAdapter();
                 ((ThreadPageFragment) adapter.getItem(position)).doScrollToReply();
@@ -126,7 +124,6 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         if (initialPage == -1) {
             initialPage = viewPager.getAdapter().getCount();
         }
-        viewPager.setCurrentItem(initialPage - 1);
 
         return rootView;
     }
@@ -212,13 +209,28 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
         setFilterAdapter();
 
-        String subtitle = "Page " + (viewPager.getCurrentItem() + 1);
-        if (pageCount != 0) {
-            subtitle += " of " + pageCount;
-        }
+        Toolbar bottomToolbar = (Toolbar) rootView.findViewById(R.id.toolbar_bottom);
+        pageSpinner = (Spinner) bottomToolbar.findViewById(R.id.pageList);
 
-        ((MainActivity) getActivity()).showTwoLineSpinner();
-        ((MainActivity) getActivity()).setTwoLineSubtitle(subtitle);
+        bottomToolbar.setVisibility(View.VISIBLE);
+        pageSpinner.setVisibility(View.VISIBLE);
+
+        pageSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                viewPager.setCurrentItem(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        populatePageSpinner();
+
+        if (initialLoad) {
+            viewPager.setCurrentItem(initialPage - 1);
+            initialLoad = false;
+        }
 
         Whirldroid.getTracker().setCurrentScreen(getActivity(), "ThreadView", null);
         Whirldroid.logScreenView("ThreadView");
@@ -245,20 +257,14 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         public void setCount(int count, String threadTitle) {
             if (count != pageCount) { // count has changed, let's do some things
                 pageCount = count;
+                populatePageSpinner();
                 notifyDataSetChanged();
-                ((MainActivity) getActivity()).setTwoLineSubtitle("Page " + (viewPager.getCurrentItem() + 1) + " of " + pageCount);
                 filterList.set(0, threadTitle);
-                filterAdapter.notifyDataSetChanged();
             }
         }
 
         public int getFilter() {
             return filterSpinner.getSelectedItemPosition();
-        }
-
-        public void setFilterAndPage(int filter, int page) {
-            filterSpinner.setSelection(filter);
-            viewPager.setCurrentItem(page);
         }
 
         @Override
@@ -348,8 +354,9 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     private void setFilterAdapter() {
         MainActivity mainActivity = ((MainActivity) getActivity());
 
-        filterAdapter = new TwoLineSpinnerAdapter(getActivity(), R.layout.spinner_item, filterList, "All posts in thread");
-        filterAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        if (filterAdapter == null) {
+            filterAdapter = new WhirldroidSpinnerAdapter(getContext(), R.layout.spinner_dropdown_item, filterList, "All posts in thread");
+        }
 
         filterSpinner = (Spinner) getActivity().findViewById(R.id.spinner);
         filterSpinner.setAdapter(filterAdapter);
@@ -412,6 +419,22 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
             });
         } catch (NullPointerException e) { }
 
+    }
+
+    protected void populatePageSpinner() {
+        List<String> pages = new ArrayList<>();
+
+        // we don't know the page count yet, so just say we're on page one for now
+        if (pageCount == 0) {
+            pages.add("Page 1");
+        }
+
+        for (int i = 0; i < pageCount; i++) {
+            int page = i + 1;
+            pages.add("Page " + page + " of " + pageCount);
+        }
+
+        pageSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, pages));
     }
 
 }

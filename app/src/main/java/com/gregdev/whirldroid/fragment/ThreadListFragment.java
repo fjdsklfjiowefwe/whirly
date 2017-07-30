@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +26,7 @@ import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Refresher;
 import com.gregdev.whirldroid.Whirldroid;
+import com.gregdev.whirldroid.layout.WhirldroidSpinnerAdapter;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.model.Forum;
 
@@ -41,7 +43,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
     private int pageCount = 0;
     private Spinner pageSpinner;
     private SpinnerAdapter groupAdapter;
-    private Map<Integer, Fragment> pages = new HashMap<>();
+    private SparseArray<Fragment> pages = new SparseArray<>();
     ArrayList<String> groups = new ArrayList<>();
     Spinner spinner;
     View rootView;
@@ -195,7 +197,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
                     groups.add(bundle.getString("forum_name"));
 
                     if (groupAdapter == null) {
-                        groupAdapter = new ArrayAdapter<String>(getContext(), R.layout.spinner_dropdown_item, groups);
+                        groupAdapter = new WhirldroidSpinnerAdapter(getContext(), R.layout.spinner_dropdown_item, groups, "All groups");
                     }
 
                     spinner = (Spinner) getActivity().findViewById(R.id.spinner);
@@ -222,8 +224,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
                     }
 
                     spinner.setOnItemSelectedListener(this);
-
-                    ((MainActivity) getActivity()).showTwoLineSpinner();
+                    ((MainActivity) getActivity()).showToolbarSpinner();
 
                 } else if (!WhirlpoolApi.isPublicForum(forumId)) {
                     getActivity().setTitle(forumTitle);
@@ -239,6 +240,20 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
         Toolbar bottomToolbar = (Toolbar) rootView.findViewById(R.id.toolbar_bottom);
         pageSpinner = (Spinner) bottomToolbar.findViewById(R.id.pageList);
 
+        if (WhirlpoolApi.isActualForum(forumId)) {
+            bottomToolbar.setVisibility(View.VISIBLE);
+        } else {
+            bottomToolbar.setVisibility(View.INVISIBLE);
+        }
+
+        if (WhirlpoolApi.isPublicForum(forumId)) {
+            pageSpinner.setVisibility(View.VISIBLE);
+        } else {
+            pageSpinner.setVisibility(View.INVISIBLE);
+        }
+
+        populatePageSpinner();
+
         pageSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -248,8 +263,6 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
-
-        populatePageSpinner();
     }
 
     @Override
@@ -411,12 +424,18 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
     protected void populatePageSpinner() {
         List<String> pages = new ArrayList<>();
 
+        // we don't know the page count yet, so just say we're on page one for now
+        if (pageCount == 0) {
+            pages.add("Page 1");
+        }
+
         for (int i = 0; i < pageCount; i++) {
             int page = i + 1;
             pages.add("Page " + page + " of " + pageCount);
         }
 
         pageSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, pages));
+        pageSpinner.setSelection(viewPager.getCurrentItem());
     }
 
 }

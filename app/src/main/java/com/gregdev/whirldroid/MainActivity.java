@@ -1,12 +1,7 @@
 package com.gregdev.whirldroid;
 
-import android.app.ActivityManager;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -21,14 +16,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.widget.TextView;
 
 import com.github.amlcurran.showcaseview.ShowcaseView;
-import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.gregdev.whirldroid.setup.SteppedSetup;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
@@ -43,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private NavigationView mNavigationView;
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mTitle;
-    private View twoLineSpinner;
+    private View toolbarSpinner;
 
     public final int SEARCH_FORUMS = 0;
     public final int SEARCH_THREADS = 1;
@@ -60,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         setContentView(R.layout.activity_main);
 
         final Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
-        twoLineSpinner = findViewById(R.id.two_line_spinner);
+        toolbarSpinner = findViewById(R.id.toolbar_spinner);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
@@ -486,20 +478,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         return false;
     }
 
-    public void showTwoLineSpinner() {
-        twoLineSpinner.setVisibility(View.VISIBLE);
+    public void showToolbarSpinner() {
+        toolbarSpinner.setVisibility(View.VISIBLE);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-    }
-
-    public void setTwoLineSubtitle(String subtitle) {
-        TextView subtitleView = (TextView) findViewById(R.id.my_subtitle);
-        subtitleView.setText(subtitle);
     }
 
     public void resetActionBar() {
         getSupportActionBar().setSubtitle("");
         getSupportActionBar().setDisplayShowTitleEnabled(true);
-        twoLineSpinner.setVisibility(View.GONE);
+        toolbarSpinner.setVisibility(View.GONE);
     }
 
     // http://stackoverflow.com/a/33234593/602734

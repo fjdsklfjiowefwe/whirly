@@ -12,21 +12,20 @@ import com.gregdev.whirldroid.Whirldroid;
 
 import java.util.List;
 
-public class TwoLineSpinnerAdapter extends ArrayAdapter<String> {
+public class WhirldroidSpinnerAdapter extends ArrayAdapter<String> {
 
-    List<String> items;
-    Context context;
-    String firstItemDropdownValue;
-    View currentVisibleView;
+    protected List<String> items;
+    protected Context context;
+    private String firstItemDropdownValue;
 
-    public TwoLineSpinnerAdapter(Context context, int resource, List<String> items) {
+    public WhirldroidSpinnerAdapter(Context context, int resource, List<String> items) {
         super(context, resource, items);
         this.items = items;
         this.context = context;
         firstItemDropdownValue = null;
     }
 
-    public TwoLineSpinnerAdapter(Context context, int resource, List<String> items, String firstItemDropdownValue) {
+    public WhirldroidSpinnerAdapter(Context context, int resource, List<String> items, String firstItemDropdownValue) {
         super(context, resource, items);
         this.items = items;
         this.context = context;
@@ -49,7 +48,6 @@ public class TwoLineSpinnerAdapter extends ArrayAdapter<String> {
             }
         }
 
-        currentVisibleView = convertView;
         return convertView;
     }
 

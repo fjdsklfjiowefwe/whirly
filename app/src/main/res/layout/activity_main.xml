@@ -37,7 +37,7 @@
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <RelativeLayout
-            android:id="@+id/two_line_spinner"
+            android:id="@+id/toolbar_spinner"
             android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -47,15 +47,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="#ffffff"
-                android:theme="@style/WhirldroidBottomMenu"/>
-
-            <TextView
-                android:id="@+id/my_subtitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="28dp"
-                android:paddingLeft="4dp"
-                android:textColor="#aaffffff" />
+                android:theme="@style/WhirldroidBottomMenu" />
 
         </RelativeLayout>
 
