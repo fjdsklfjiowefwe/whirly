@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,7 +24,7 @@ import java.util.Map;
 public class WatchedThreadsFragment extends Fragment {
 
     ViewPager viewPager;
-    private Map<Integer, Fragment> pages = new HashMap<>();
+    private SparseArray<Fragment> pages = new SparseArray<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
