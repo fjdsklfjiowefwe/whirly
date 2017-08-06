@@ -422,6 +422,12 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     }
 
     protected void populatePageSpinner() {
+        if (pageSpinner.getAdapter() != null) {
+            if (pageSpinner.getAdapter().getCount() > 1) {
+                return;
+            }
+        }
+
         List<String> pages = new ArrayList<>();
 
         // we don't know the page count yet, so just say we're on page one for now
