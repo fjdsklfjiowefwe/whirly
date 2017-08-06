@@ -49,6 +49,7 @@ import com.gregdev.whirldroid.model.Thread;
  */
 public class ThreadPageFragment extends ListFragment implements Refresher {
 
+    private View rootView;
     private ArrayAdapter<Post> posts_adapter;
     private RetrieveThreadTask task;
     private int thread_id;
@@ -139,6 +140,15 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
                             if (parent != null) {
                                 ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setCount(page_count, thread_title);
+                            }
+
+                            TextView noPosts = (TextView) rootView.findViewById(R.id.no_threads);
+
+                            if (result.getPosts().size() > 0) {
+                                noPosts.setVisibility(View.INVISIBLE);
+                            } else {
+                                noPosts.setText("No posts found");
+                                noPosts.setVisibility(View.VISIBLE);
                             }
 
                             setPosts(result.getPosts()); // display the posts in the list
@@ -368,7 +378,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.thread_list, container, false);
+        rootView = inflater.inflate(R.layout.thread_list, container, false);
 
         try {
             parent = (ViewPager) container;
