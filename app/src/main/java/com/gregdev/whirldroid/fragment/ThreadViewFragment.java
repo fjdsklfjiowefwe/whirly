@@ -1,7 +1,6 @@
 package com.gregdev.whirldroid.fragment;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -364,6 +363,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         filterSpinner.setOnItemSelectedListener(this);
 
         mainActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+        ((MainActivity) getActivity()).showToolbarSpinner();
     }
 
     @Override
