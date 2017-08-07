@@ -211,7 +211,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         setFilterAdapter();
 
         bottomToolbar.setVisibility(View.VISIBLE);
-        pageSpinner.setVisibility(View.VISIBLE);
+        showPageSpinner();
 
         pageSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
             @Override
@@ -440,6 +440,14 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         }
 
         pageSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, pages));
+    }
+
+    public void hidePageSpinner() {
+        pageSpinner.setVisibility(View.INVISIBLE);
+    }
+
+    public void showPageSpinner() {
+        pageSpinner.setVisibility(View.VISIBLE);
     }
 
 }

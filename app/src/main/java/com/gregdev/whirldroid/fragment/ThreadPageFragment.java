@@ -38,6 +38,7 @@ import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Refresher;
 import com.gregdev.whirldroid.Whirldroid;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.model.Post;
 import com.gregdev.whirldroid.model.Thread;
@@ -140,6 +141,12 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
                             if (parent != null) {
                                 ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setCount(page_count, thread_title);
+                            }
+
+                            if (filter != WhirlpoolApi.FILTER_NONE) {
+                                ((ThreadViewFragment) getParentFragment()).hidePageSpinner();
+                            } else {
+                                ((ThreadViewFragment) getParentFragment()).showPageSpinner();
                             }
 
                             TextView noPosts = (TextView) rootView.findViewById(R.id.no_threads);

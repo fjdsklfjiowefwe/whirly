@@ -75,12 +75,13 @@ public class WhirlpoolApi extends Activity {
     // store the data
     private ArrayList<Thread> forum_threads;
 
-    private final int FILTER_NONE   = 0;
-    private final int FILTER_ME     = 1;
-    private final int FILTER_MOD    = 2;
-    private final int FILTER_REP    = 3;
+    public static final int FILTER_NONE = 0;
+    public static final int FILTER_ME   = 1;
+    public static final int FILTER_MOD  = 2;
+    public static final int FILTER_REP  = 3;
 
     // these forum IDs are public, and we can scrape the data from them
+    // @todo don't hardcode these!
     private static int[] PUBLIC_FORUMS = {92, 100, 142, 82, 9, 107, 135, 80, 136, 125, 116, 63,
             127, 139, 7, 129, 130, 131, 10, 38, 39, 91, 87, 112, 132, 8, 83, 138, 143, 133, 58, 106,
             126, 71, 118, 137, 114, 123, 128, 141, 140, 144, 18, 14, 15, 68, 72, 94, 90, 102, 105,
