@@ -52,6 +52,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     private boolean gotoBottom = false;
     private String threadTitle = null;
     private Spinner pageSpinner;
+    private Toolbar bottomToolbar;
     private Spinner filterSpinner;
     private SpinnerAdapter filterAdapter;
     private ProgressDialog progressDialog;
@@ -79,6 +80,9 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         gotoNum     = getArguments().getInt("goto_num");
         gotoBottom  = getArguments().getBoolean("bottom");
         threadTitle = getArguments().getString("thread_title");
+
+        bottomToolbar   = (Toolbar) rootView.findViewById(R.id.toolbar_bottom);
+        pageSpinner     = (Spinner) bottomToolbar.findViewById(R.id.pageList);
 
         viewPager = (ViewPager) rootView.findViewById(R.id.pager);
         ThreadPageFragmentPagerAdapter adapter = new ThreadPageFragmentPagerAdapter();
@@ -129,8 +133,6 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        Toolbar bottomToolbar = (Toolbar) view.findViewById(R.id.toolbar_bottom);
-
         bottomToolbar.inflateMenu(R.menu.thread);
 
         if (fromForum == WhirlpoolApi.ALL_WATCHED_THREADS || fromForum == WhirlpoolApi.UNREAD_WATCHED_THREADS) {
@@ -207,9 +209,6 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         super.onResume();
 
         setFilterAdapter();
-
-        Toolbar bottomToolbar = (Toolbar) rootView.findViewById(R.id.toolbar_bottom);
-        pageSpinner = (Spinner) bottomToolbar.findViewById(R.id.pageList);
 
         bottomToolbar.setVisibility(View.VISIBLE);
         pageSpinner.setVisibility(View.VISIBLE);
