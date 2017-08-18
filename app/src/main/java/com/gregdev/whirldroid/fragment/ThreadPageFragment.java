@@ -143,10 +143,12 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                                 ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setCount(page_count, thread_title);
                             }
 
-                            if (filter != WhirlpoolApi.FILTER_NONE) {
-                                ((ThreadViewFragment) getParentFragment()).hidePageSpinner();
-                            } else {
-                                ((ThreadViewFragment) getParentFragment()).showPageSpinner();
+                            if (getParentFragment() != null) {
+                                if (filter != WhirlpoolApi.FILTER_NONE) {
+                                    ((ThreadViewFragment) getParentFragment()).hidePageSpinner();
+                                } else {
+                                    ((ThreadViewFragment) getParentFragment()).showPageSpinner();
+                                }
                             }
 
                             TextView noPosts = (TextView) rootView.findViewById(R.id.no_threads);
