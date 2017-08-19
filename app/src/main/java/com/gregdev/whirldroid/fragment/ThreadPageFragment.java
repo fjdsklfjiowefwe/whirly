@@ -34,6 +34,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.crash.FirebaseCrash;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Refresher;
@@ -187,6 +188,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
         @Override
         public View getView(int position, View view, ViewGroup parent) {
+            FirebaseCrash.log("PostsAdapter.getView(" + position + ", ...) - position = " + position + ", size = " + post_items.size());
             Post post = post_items.get(position);
 
             if (view == null) {
