@@ -214,18 +214,6 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
         bottomToolbar.setVisibility(View.VISIBLE);
         showPageSpinner();
-
-        pageSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                FirebaseCrash.log("pageSpiner.onItemSelected() - position = " + position + ", pageSpinner.getCount() = " + pageSpinner.getCount());
-                viewPager.setCurrentItem(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
         populatePageSpinner();
 
         if (initialLoad) {
@@ -425,15 +413,13 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     }
 
     protected void populatePageSpinner() {
-        if (pageSpinner.getAdapter() != null) {
-            if (pageSpinner.getAdapter().getCount() > 1) {
-                return;
-            }
-        }
+        // unset the selected listener, so recreating the list of pages doesn't trigger any page changes
+        pageSpinner.setOnItemSelectedListener(null);
 
         List<String> pages = new ArrayList<>();
 
-        // we don't know the page count yet, so just say we're on page one for now
+        // we don't know the page count yet, so just say we're on page one for now.
+        // this method will be run again when the page count updates.
         if (pageCount == 0) {
             pages.add("Page 1");
         }
@@ -444,6 +430,20 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         }
 
         pageSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, pages));
+
+        if (viewPager != null && viewPager.getCurrentItem() > 0) {
+            pageSpinner.setSelection(viewPager.getCurrentItem());
+        }
+
+        pageSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                viewPager.setCurrentItem(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
     }
 
     public void hidePageSpinner() {
