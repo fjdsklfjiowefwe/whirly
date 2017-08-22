@@ -10,8 +10,8 @@ android {
         applicationId "com.gregdev.whirldroid"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 69
-        versionName "2.12.3"
+        versionCode 70
+        versionName "2.12.4"
     }
     buildTypes {
         release {
