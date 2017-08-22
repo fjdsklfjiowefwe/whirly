@@ -31,6 +31,8 @@ public class SteppedSetup extends DotStepper {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setStateAdapter();
+
         steps = new ArrayList<>();
 
         steps.add(createFragment(new IntroStep()));
