@@ -85,7 +85,7 @@ public class WhirlpoolApi extends Activity {
     private static int[] PUBLIC_FORUMS = {92, 100, 142, 82, 9, 107, 135, 80, 136, 125, 116, 63,
             127, 139, 7, 129, 130, 131, 10, 38, 39, 91, 87, 112, 132, 8, 83, 138, 143, 133, 58, 106,
             126, 71, 118, 137, 114, 123, 128, 141, 140, 144, 18, 14, 15, 68, 72, 94, 90, 102, 105,
-            109, 108, 147, 31, 67, 5, 148, 149, 150};
+            109, 108, 147, 31, 67, 5, 148, 149, 150, 151, 152};
 
     // some URLs - most of these shouldn't be hardcoded, but meh, half the app
     // will break if anything is changed on the Whirlpool side anyway
