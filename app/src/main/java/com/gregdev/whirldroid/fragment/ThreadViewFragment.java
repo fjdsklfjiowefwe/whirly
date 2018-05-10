@@ -24,7 +24,7 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -111,7 +111,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
             @Override
             public void onPageSelected(int position) {
-                FirebaseCrash.log("blah3423 - position = " + position + ", threadId = " + threadId + ", pageCount = " + pageCount + ", pageSpinner.getCount() = " + pageSpinner.getCount());
+                Crashlytics.log("blah3423 - position = " + position + ", threadId = " + threadId + ", pageCount = " + pageCount + ", pageSpinner.getCount() = " + pageSpinner.getCount());
                 setFilterAdapter();
 
                 pageSpinner.setSelection(position);
@@ -269,7 +269,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
         @Override
         public Fragment getItem(int position) {
-            FirebaseCrash.log("ThreadPageFragmentPagerAdapter.getItem(" + position + ") threadId = " + threadId + ", pageCount = " + pageCount + ", page_number = " + (position + 1));
+            Crashlytics.log("ThreadPageFragmentPagerAdapter.getItem(" + position + ") threadId = " + threadId + ", pageCount = " + pageCount + ", page_number = " + (position + 1));
             if (pages.get(position + 1) == null) {
                 Bundle bundle = new Bundle();
 

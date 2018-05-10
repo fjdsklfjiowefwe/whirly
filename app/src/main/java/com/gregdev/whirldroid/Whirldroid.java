@@ -28,7 +28,6 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
 import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 
