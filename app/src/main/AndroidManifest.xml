@@ -67,6 +67,9 @@
         <receiver android:name=".receiver.MarkWhimReadReceiver"/>
         <receiver android:name=".receiver.MarkWatchedReadReceiver"/>
         <receiver android:name=".receiver.UnwatchReceiver"/>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="3e254908a1024b2b4208fbad5df685ea3c5ffd96" />
     </application>
 
 </manifest>
