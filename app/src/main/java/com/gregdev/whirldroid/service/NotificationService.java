@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -14,6 +15,7 @@ import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -279,18 +281,34 @@ public class NotificationService extends Service {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = settings.edit();
 
+        String notificationChannelId = "";
+        String notificationChannelName = "";
+
         switch (notificationType) {
             case Whirldroid.NEW_WATCHED_NOTIFICATION_ID:
+                notificationChannelId = "whirldroid_watched_threads";
+                notificationChannelName = "Whirldroid Watched Threads";
                 editor.putLong("last_watched_notify_time", System.currentTimeMillis());
                 break;
             case Whirldroid.NEW_WHIM_NOTIFICATION_ID:
+                notificationChannelId = "whirldroid_whims";
+                notificationChannelName = "Whirldroid Whims";
                 editor.putLong("last_whim_notify_time", System.currentTimeMillis());
                 break;
         }
 
         editor.apply();
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel mChannel =
+                    new NotificationChannel(notificationChannelId, notificationChannelName, NotificationManager.IMPORTANCE_HIGH);
+            mNotificationManager.createNotificationChannel(mChannel);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, notificationChannelId);
         builder.setSmallIcon(icon)
                 .setContentTitle(title)
                 .setContentText(text)
@@ -298,7 +316,8 @@ public class NotificationService extends Service {
                 .setWhen(System.currentTimeMillis())
                 .setAutoCancel(true)
                 .setColor(getApplicationContext().getResources().getColor(R.color.colorPrimary))
-                .setStyle(inboxLayout);
+                .setStyle(inboxLayout)
+                ;
 
         for (NotificationCompat.Action action : actions) {
             builder.addAction(action);
