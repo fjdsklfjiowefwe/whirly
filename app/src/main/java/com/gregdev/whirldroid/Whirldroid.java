@@ -1,5 +1,7 @@
 package com.gregdev.whirldroid;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +53,7 @@ public class Whirldroid extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
 
         // get reference to context
         context = getApplicationContext();
