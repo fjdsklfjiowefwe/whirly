@@ -20,8 +20,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.support.v7.app.ActionBarDrawerToggle;
 
-import com.github.amlcurran.showcaseview.ShowcaseView;
-import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.gregdev.whirldroid.setup.SteppedSetup;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 
@@ -174,39 +172,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         }
 
-        Whirldroid.updateAlarm();
-
-        /**
-         * After finishing the initial setup, display a showcase to highlight the menu button.
-         * Delay the appearance by a second, so the user has a chance to see the app before the
-         * showcase obscures the view.
-         */
-        if (getIntent().getBooleanExtra("showMenuShowcase", false)) {
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
-
-            if (settings.getBoolean("pref_menushowcasedisplayed", false)) {
-                SharedPreferences.Editor settingsEditor = settings.edit();
-                settingsEditor.putBoolean("pref_menushowcasedisplayed", true);
-                settingsEditor.apply();
-
-                Timer myTimer = new Timer();
-                myTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            public void run() {
-                                new ShowcaseView.Builder(MainActivity.this)
-                                        .setTarget(new ViewTarget(getToolbarNavigationIcon(myToolbar)))
-                                        .setContentTitle("Open the menu to switch between sections of the app")
-                                        .withMaterialShowcase()
-                                        .setStyle(R.style.WhirldroidShowcaseTheme)
-                                        .build();
-                            }
-                        });
-                    }
-                }, 1000);
-            }
-        }
+        Whirldroid.startSchedule();
     }
 
     @Override

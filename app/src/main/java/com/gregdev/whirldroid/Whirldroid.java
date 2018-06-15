@@ -16,6 +16,8 @@ import java.util.TimeZone;
 
 import android.app.AlarmManager;
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +31,12 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.RetryStrategy;
+import com.firebase.jobdispatcher.Trigger;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
@@ -49,6 +57,8 @@ public class Whirldroid extends Application {
     public static final String WHIRLDROID_THREAD_ID = "1906307";
 
     private static FirebaseAnalytics mFirebaseAnalytics;
+
+    private static FirebaseJobDispatcher dispatcher;
 
     @Override
     public void onCreate() {
@@ -85,6 +95,19 @@ public class Whirldroid extends Application {
         mFirebaseAnalytics.setUserProperty("theme"                  , themeName                 );
         mFirebaseAnalytics.setUserProperty("whim_notifications"     , whimNotifications         );
         mFirebaseAnalytics.setUserProperty("watched_notifications"  , watchedThreadNotifcations );
+
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel whimChannel =
+                    new NotificationChannel("whirldroid_whims", "Whirldroid Whims", NotificationManager.IMPORTANCE_HIGH);
+            mNotificationManager.createNotificationChannel(whimChannel);
+
+            NotificationChannel watchedChannel =
+                    new NotificationChannel("whirldroid_watched_threads", "Whirldroid Watched Threads", NotificationManager.IMPORTANCE_HIGH);
+            mNotificationManager.createNotificationChannel(watchedChannel);
+        }
     }
 
     /**
@@ -112,26 +135,6 @@ public class Whirldroid extends Application {
 
     public static FirebaseAnalytics getTracker() {
         return mFirebaseAnalytics;
-    }
-
-    public static void updateAlarm() {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-
-        long interval = Long.parseLong(settings.getString("pref_notifyfreq", "0"));
-        interval = interval * 60 * 1000;
-
-        boolean notify_whim    = settings.getBoolean("pref_whimnotify", false);
-        boolean notify_watched = settings.getBoolean("pref_watchednotify", false);
-
-        AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        Intent i = new Intent(context, com.gregdev.whirldroid.service.NotificationService.class);
-        PendingIntent pi = PendingIntent.getService(context, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
-        am.cancel(pi);
-
-        if (interval > 0 && (notify_whim || notify_watched)) {
-            am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + (interval / 2), interval, pi);
-        }
     }
 
     /**
@@ -409,6 +412,37 @@ public class Whirldroid extends Application {
         params.putString(FirebaseAnalytics.Param.ITEM_CATEGORY, "screen");
         params.putString(FirebaseAnalytics.Param.ITEM_NAME, screenName);
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, params);
+    }
+
+    public static void startSchedule() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+
+        int interval = Integer.parseInt(settings.getString("pref_notifyfreq", "0"));
+        interval = interval * 60;
+
+        boolean notify_whim    = settings.getBoolean("pref_whimnotify"      , false);
+        boolean notify_watched = settings.getBoolean("pref_watchednotify"   , false);
+
+        if (interval == 0 || (!notify_whim && !notify_watched)) {
+            dispatcher.cancel("whirldroid");
+
+        } else {
+            if (dispatcher == null) {
+                dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
+            }
+
+            Job job = dispatcher.newJobBuilder()
+                    .setService(com.gregdev.whirldroid.service.NotificationJobService.class)
+                    .setTag("whirldroid")
+                    .setRecurring(true)
+                    .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
+                    .setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
+                    .setReplaceCurrent(true)
+                    .setTrigger(Trigger.executionWindow(interval - 1, interval + 1))
+                    .build();
+
+            dispatcher.schedule(job);
+        }
     }
 
 }

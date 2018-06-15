@@ -64,7 +64,7 @@ public class SettingsPageFragment extends PreferenceFragmentCompat implements Sh
         }
 
         if (key.equals("pref_whimnotify") || key.equals("pref_watchednotify") || key.equals("pref_notifyfreq")) {
-            Whirldroid.updateAlarm();
+            Whirldroid.startSchedule();
         }
     }
 

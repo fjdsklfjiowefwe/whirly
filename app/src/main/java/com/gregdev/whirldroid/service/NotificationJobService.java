@@ -1,49 +1,38 @@
 package com.gregdev.whirldroid.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.text.Html;
 
+import com.firebase.jobdispatcher.JobParameters;
+import com.firebase.jobdispatcher.JobService;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
-import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
-import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.model.Forum;
 import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.model.Whim;
 import com.gregdev.whirldroid.receiver.MarkWatchedReadReceiver;
 import com.gregdev.whirldroid.receiver.MarkWhimReadReceiver;
 import com.gregdev.whirldroid.receiver.UnwatchReceiver;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 
-/**
- * Whirldroid Notification Service
- * Uses the awesome skeleton service from
- * http://it-ride.blogspot.com.au/2010/10/android-implementing-notification.html
- */
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
-public class NotificationService extends Service {
+public class NotificationJobService extends JobService {
 
-    private WakeLock wakeLock;
     private boolean whimNotify;
     private boolean watchedNotify;
 
@@ -52,28 +41,18 @@ public class NotificationService extends Service {
     private static final int ACTION_UNWATCH = 2;
     private static final int ACTION_REPLY = 3;
 
-    /**
-     * Simply return null, since our Service will not be communicating with
-     * any other components. It just does its work silently.
-     */
+    private JobParameters job;
+
     @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+    public boolean onStartJob(JobParameters job) {
+        this.job = job;
+        new PollTask().execute();
+        return false;
     }
 
-    /**
-     * This is where we initialise. We call this when onStart/onStartCommand is
-     * called by the system. We won't do anything with the intent here, and you
-     * probably won't, either.
-     */
-    private void handleIntent(Intent intent) {
-        // obtain the wake lock
-        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WhirldroidNotificationService");
-        wakeLock.acquire();
-
-        // do the actual work, in a separate thread
-        new PollTask().execute();
+    @Override
+    public boolean onStopJob(JobParameters job) {
+        return false;
     }
 
     private class PollTask extends AsyncTask<Void, Void, Void> {
@@ -108,18 +87,6 @@ public class NotificationService extends Service {
             return null;
         }
 
-        /**
-         * In here you should interpret whatever you fetched in doInBackground
-         * and push any notifications you need to the status bar, using the
-         * NotificationManager. I will not cover this here, go check the docs on
-         * NotificationManager.
-         *
-         * What you HAVE to do is call stopSelf() after you've pushed your
-         * notification(s). This will:
-         * 1) Kill the service so it doesn't waste precious resources
-         * 2) Call onDestroy() which will release the wake lock, so the device
-         *    can go to sleep again and save precious battery.
-         */
         @Override
         protected void onPostExecute(Void result) {
             if (watchedNotify) {
@@ -257,7 +224,7 @@ public class NotificationService extends Service {
                 }
             }
 
-            stopSelf();
+            jobFinished(job, false);
         }
     }
 
@@ -282,31 +249,19 @@ public class NotificationService extends Service {
         SharedPreferences.Editor editor = settings.edit();
 
         String notificationChannelId = "";
-        String notificationChannelName = "";
 
         switch (notificationType) {
             case Whirldroid.NEW_WATCHED_NOTIFICATION_ID:
                 notificationChannelId = "whirldroid_watched_threads";
-                notificationChannelName = "Whirldroid Watched Threads";
                 editor.putLong("last_watched_notify_time", System.currentTimeMillis());
                 break;
             case Whirldroid.NEW_WHIM_NOTIFICATION_ID:
                 notificationChannelId = "whirldroid_whims";
-                notificationChannelName = "Whirldroid Whims";
                 editor.putLong("last_whim_notify_time", System.currentTimeMillis());
                 break;
         }
 
         editor.apply();
-
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel mChannel =
-                    new NotificationChannel(notificationChannelId, notificationChannelName, NotificationManager.IMPORTANCE_HIGH);
-            mNotificationManager.createNotificationChannel(mChannel);
-        }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, notificationChannelId);
         builder.setSmallIcon(icon)
@@ -317,7 +272,8 @@ public class NotificationService extends Service {
                 .setAutoCancel(true)
                 .setColor(getApplicationContext().getResources().getColor(R.color.colorPrimary))
                 .setStyle(inboxLayout)
-                ;
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+        ;
 
         for (NotificationCompat.Action action : actions) {
             builder.addAction(action);
@@ -360,27 +316,5 @@ public class NotificationService extends Service {
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(notificationType, builder.build());
-    }
-
-    /**
-     * This is called on 2.0+ (API level 5 or higher). Returning
-     * START_NOT_STICKY tells the system to not restart the service if it is
-     * killed because of poor resource (memory/cpu) conditions.
-     */
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        handleIntent(intent);
-        return START_NOT_STICKY;
-    }
-
-    /**
-     * In onDestroy() we release our wake lock. This ensures that whenever the
-     * Service stops (killed for resources, stopSelf() called, etc.), the wake
-     * lock will be released.
-     */
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        wakeLock.release();
     }
 }

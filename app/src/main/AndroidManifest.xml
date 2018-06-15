@@ -51,16 +51,17 @@
             />
 
         <!-- Startup Intent Receiver - starts notification AlarmManager at boot -->
-        <receiver android:name=".service.StartupIntentReceiver" >
+        <receiver android:name=".service.StartupIntentReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <!-- Notification Checking Service -->
-        <service android:name=".service.NotificationService" >
+        <service
+            android:name=".service.NotificationJobService"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.gregdev.whirldroid.service.NotificationService" />
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
             </intent-filter>
         </service>
 
