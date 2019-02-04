@@ -423,14 +423,14 @@ public class Whirldroid extends Application {
         boolean notify_whim    = settings.getBoolean("pref_whimnotify"      , false);
         boolean notify_watched = settings.getBoolean("pref_watchednotify"   , false);
 
+        if (dispatcher == null) {
+            dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
+        }
+
         if (interval == 0 || (!notify_whim && !notify_watched)) {
             dispatcher.cancel("whirldroid");
 
         } else {
-            if (dispatcher == null) {
-                dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
-            }
-
             Job job = dispatcher.newJobBuilder()
                     .setService(com.gregdev.whirldroid.service.NotificationJobService.class)
                     .setTag("whirldroid")
