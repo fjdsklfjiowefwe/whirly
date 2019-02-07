@@ -12,6 +12,7 @@ import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.github.fcannizzaro.materialstepper.AbstractStep;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -60,7 +61,11 @@ public abstract class SetupStep extends AbstractStep {
     public void onStepVisible() {
         super.onStepVisible();
 
-        Whirldroid.getTracker().setCurrentScreen(getActivity(), "Setup: " + getStepTitle(), null);
+        try {
+            Whirldroid.getTracker().setCurrentScreen(getActivity(), "Setup: " + getStepTitle(), null);
+        } catch (NullPointerException e) {
+            Crashlytics.logException(e);
+        }
     }
 
     @Override

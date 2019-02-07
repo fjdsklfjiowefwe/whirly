@@ -2,6 +2,7 @@ package com.gregdev.whirldroid.setup.steps;
 
 import android.os.Bundle;
 
+import com.crashlytics.android.Crashlytics;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 
@@ -15,8 +16,11 @@ public class IntroStep extends SetupStep {
         setStepTitle("Whirldroid");
 
         // Obtain the shared Tracker instance.
-        Whirldroid application = (Whirldroid) getActivity().getApplication();
-        Whirldroid.getTracker().setCurrentScreen(getActivity(), "Setup: Start", null);
+        try {
+            Whirldroid.getTracker().setCurrentScreen(getActivity(), "Setup: Start", null);
+        } catch (NullPointerException e) {
+            Crashlytics.logException(e);
+        }
     }
 
 }
