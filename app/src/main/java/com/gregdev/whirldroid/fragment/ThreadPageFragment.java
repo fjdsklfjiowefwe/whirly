@@ -104,7 +104,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                     error_message = e.getMessage();
 
                     if (error_message.equals("Private forum")) {
-                        String thread_url = "https://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread_id;
+                        String thread_url = "https://forums.whirlpool.net.au/thread/" + thread_id;
                         Intent thread_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(thread_url));
                         startActivity(thread_intent);
                         getActivity().finish();
@@ -273,9 +273,12 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                 content = content.replace("href=\"/wiki/", "href=\"https://whirlpool.net.au/wiki/");
                 content = content.replace("href=\"//", "href=\"https://");
 
+                content = content.replace("http://forums.whirlpool.net.au/thread/", url_replace);
                 content = content.replace("http://forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
                 content = content.replace("https://forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
+                content = content.replace("https://forums.whirlpool.net.au/thread/", url_replace);
                 content = content.replace("href=\"/forum-replies.cfm?t=", "href=\"" + url_replace);
+                content = content.replace("href=\"/thread/", "href=\"" + url_replace);
                 content = content.replace("href=\"forum-replies.cfm?t=", "href=\"" + url_replace);
 
                 content = content.replace("<li>", "•");
@@ -489,7 +492,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
             switch (item.getItemId()) {
                 case 0: // open in browser
-                    String post_url = "https://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread.getId() + "&p=" + current_page + "#r" + post.getId();
+                    String post_url = "https://forums.whirlpool.net.au/thread/" + thread.getId() + "&p=" + current_page + "#r" + post.getId();
                     Intent view_intent = new Intent(Intent.ACTION_VIEW, Uri.parse(post_url));
 
                     if (Build.VERSION.SDK_INT >= 18) {
@@ -585,10 +588,14 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                 content = content.replace("href=\"//whirlpool.net.au/wiki/", "href=\"https://whirlpool.net.au/wiki/");
                 content = content.replace("href=\"/wiki/", "href=\"https://whirlpool.net.au/wiki/");
 
+                content = content.replace("http://forums.whirlpool.net.au/thread/", url_replace);
                 content = content.replace("http://forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
                 content = content.replace("https://forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
+                content = content.replace("https://forums.whirlpool.net.au/thread/", url_replace);
                 content = content.replace("//forums.whirlpool.net.au/forum-replies.cfm?t=", url_replace);
+                content = content.replace("//forums.whirlpool.net.au/thread/", url_replace);
                 content = content.replace("href=\"/forum-replies.cfm?t=", "href=\"" + url_replace);
+                content = content.replace("href=\"/thread/", "href=\"" + url_replace);
 
                 notebar.setText(Html.fromHtml(content));
 

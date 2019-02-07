@@ -16,17 +16,15 @@ repositories {
 apply plugin: 'io.fabric'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
-
-    useLibrary 'org.apache.http.legacy'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "com.gregdev.whirldroid"
         minSdkVersion 15
-        targetSdkVersion 27
-        versionCode 75
-        versionName "2.13.3"
+        targetSdkVersion 28
+        versionCode 77
+        versionName "2.13.5"
     }
     buildTypes {
         release {
@@ -38,18 +36,17 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'org.jsoup:jsoup:1.10.3'
-    implementation 'com.android.support:design:27.1.1'
-    implementation 'com.android.support:preference-v7:27.1.1'
-    implementation 'com.android.support:preference-v14:27.1.1'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'org.jsoup:jsoup:1.11.3'
+    implementation 'com.android.support:design:28.0.0'
+    implementation 'com.android.support:preference-v7:28.0.0'
+    implementation 'com.android.support:preference-v14:28.0.0'
     implementation 'com.github.fcannizzaro:material-stepper:1.2.2'
-    implementation 'com.google.firebase:firebase-core:16.0.0'
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.3'
+    implementation 'com.google.firebase:firebase-core:16.0.7'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.8'
     implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
+    implementation group: 'cz.msebera.android', name: 'httpclient', version: '4.4.1.1'
     testImplementation 'junit:junit:4.12'
 }
-
-
 
 apply plugin: 'com.google.gms.google-services'

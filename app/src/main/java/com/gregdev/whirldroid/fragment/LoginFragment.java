@@ -105,10 +105,10 @@ public class LoginFragment extends Fragment {
                             settingsEditor.commit();
 
                             DatabaseHandler db = new DatabaseHandler(getActivity());
-                            db.addFavouriteForum(new Forum(138  , "Home"            , 59, "Lounges"         ));
-                            db.addFavouriteForum(new Forum(126  , "Home theatre"    , 50, "Entertainment"   ));
-                            db.addFavouriteForum(new Forum(71   , "Lifestyle"       , 48, "Life"            ));
-                            db.addFavouriteForum(new Forum(63   , "Web development" , 12, "IT Industry"     ));
+                            db.addFavouriteForum(new Forum(138  , "Home"            , "Lounges"         ));
+                            db.addFavouriteForum(new Forum(126  , "Home theatre"    , "Entertainment"   ));
+                            db.addFavouriteForum(new Forum(71   , "Lifestyle"       , "Life"            ));
+                            db.addFavouriteForum(new Forum(63   , "Web development" , "IT Industry"     ));
                         }
 
                         ((MainActivity) getActivity()).switchFragment("ForumList", false);

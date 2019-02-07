@@ -65,7 +65,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         
         if (cursor.moveToFirst()) {
             do {
-                forums.add(new Forum(cursor.getInt(0), cursor.getString(1), 0, "Favourites"));
+                forums.add(new Forum(cursor.getInt(0), cursor.getString(1), "Favourites"));
             }
             while (cursor.moveToNext());
         }
