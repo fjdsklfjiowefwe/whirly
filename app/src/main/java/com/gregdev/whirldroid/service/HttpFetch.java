@@ -3,14 +3,14 @@ package com.gregdev.whirldroid.service;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
+
+import cz.msebera.android.httpclient.HttpEntity;
+import cz.msebera.android.httpclient.HttpResponse;
+import cz.msebera.android.httpclient.client.ClientProtocolException;
+import cz.msebera.android.httpclient.client.methods.HttpGet;
+import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
+import cz.msebera.android.httpclient.util.EntityUtils;
 
 /**
  * Downloads data from a URL
@@ -68,7 +68,7 @@ public class HttpFetch {
 		catch (IOException e) {
 			throw new WhirlpoolApiException("Unable to download data. Please try later.");
 		}
-		
+
 		return null;
 	}
 }
