@@ -66,16 +66,6 @@ public class NewsListFragment extends ListFragment implements Refresher {
 
             if (clear_cache || newsManager.needToDownload()) {
                 try {
-                    getActivity().runOnUiThread(new Runnable() {
-                        public void run() {
-                            if (!mSwipeRefreshLayout.isRefreshing()) {
-                                loading.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    });
-                } catch (NullPointerException e) { }
-
-                try {
                     newsManager.download();
 
                 } catch (final WhirlpoolApiException e) {
@@ -90,27 +80,21 @@ public class NewsListFragment extends ListFragment implements Refresher {
 
         @Override
         protected void onPostExecute(final ArrayList<NewsArticle> result) {
-            try {
-                getActivity().runOnUiThread(new Runnable() {
-                    public void run() {
-                        if (mSwipeRefreshLayout.isRefreshing()) {
-                            mSwipeRefreshLayout.setRefreshing(false);
+            if (mSwipeRefreshLayout.isRefreshing()) {
+                mSwipeRefreshLayout.setRefreshing(false);
 
-                            if (result != null) {
-                                Toast.makeText(getActivity(), "News refreshed", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            loading.setVisibility(View.GONE);
-                        }
+                if (result != null) {
+                    Toast.makeText(getActivity(), "News refreshed", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                loading.setVisibility(View.GONE);
+            }
 
-                        if (result != null) {
-                            setNews(newsList); // display the news in the list
-                        } else {
-                            Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
-            } catch (NullPointerException e) { }
+            if (result != null) {
+                setNews(newsList); // display the news in the list
+            } else {
+                Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -181,6 +165,14 @@ public class NewsListFragment extends ListFragment implements Refresher {
 
 
     private void getNews(boolean clear_cache) {
+        NewsManager newsManager = Whirldroid.getApi().getNewsManager();
+
+        if (clear_cache || newsManager.needToDownload()) {
+            if (!mSwipeRefreshLayout.isRefreshing()) {
+                loading.setVisibility(View.VISIBLE);
+            }
+        }
+
         RetrieveNewsTask task = new RetrieveNewsTask(clear_cache); // start new thread to retrieve the news
         task.execute();
     }

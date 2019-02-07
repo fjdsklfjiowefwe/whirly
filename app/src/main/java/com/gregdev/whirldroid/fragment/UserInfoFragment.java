@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager.BadTokenException;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.gregdev.whirldroid.MainActivity;
 import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
@@ -30,16 +31,6 @@ public class UserInfoFragment extends Fragment {
 
         @Override
         protected Void doInBackground(String... params) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    try {
-                        progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Loading user info...", true, true);
-                        progress_dialog.setOnCancelListener(new CancelTaskOnCancelListener(task));
-                    } catch (BadTokenException e) {
-                    }
-                }
-            });
-
             user.downloadInfo();
 
             return null;
@@ -47,19 +38,15 @@ public class UserInfoFragment extends Fragment {
 
         @Override
         protected void onPostExecute(final Void result) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    if (progress_dialog != null) {
-                        try {
-                            progress_dialog.dismiss(); // hide the progress dialog
-                            progress_dialog = null;
-                        } catch (Exception e) {
-                        }
-                    }
-
-                    setUserInfo();
+            if (progress_dialog != null) {
+                try {
+                    progress_dialog.dismiss(); // hide the progress dialog
+                    progress_dialog = null;
+                } catch (Exception e) {
                 }
-            });
+            }
+
+            setUserInfo();
         }
     }
 
@@ -78,6 +65,13 @@ public class UserInfoFragment extends Fragment {
         Bundle bundle = getArguments();
         if (bundle != null) {
             user = bundle.getParcelable("user");
+        }
+
+        try {
+            progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Loading user info...", true, true);
+            progress_dialog.setOnCancelListener(new CancelTaskOnCancelListener(task));
+        } catch (BadTokenException e) {
+            Crashlytics.logException(e);
         }
 
         task = new GetUserInfoTask(); // start new thread to retrieve user info

@@ -72,20 +72,16 @@ public class WhimListFragment extends ListFragment implements Refresher {
 
         @Override
         protected void onPostExecute(final Boolean result) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    if (progress_dialog != null) {
-                        try {
-                            progress_dialog.dismiss(); // hide the progress dialog
-                            progress_dialog = null;
-                        } catch (Exception e) { }
-                    }
-                    if (result) {
-                        Toast.makeText(getActivity(), "Marked whim as read", Toast.LENGTH_SHORT).show();
-                        WhimListFragment.this.getWhims(false);
-                    }
-                }
-            });
+            if (progress_dialog != null) {
+                try {
+                    progress_dialog.dismiss(); // hide the progress dialog
+                    progress_dialog = null;
+                } catch (Exception e) { }
+            }
+            if (result) {
+                Toast.makeText(getActivity(), "Marked whim as read", Toast.LENGTH_SHORT).show();
+                WhimListFragment.this.getWhims(false);
+            }
         }
     }
 
@@ -109,16 +105,6 @@ public class WhimListFragment extends ListFragment implements Refresher {
 
             if (clear_cache || whimManager.needToDownload()) {
                 try {
-                    getActivity().runOnUiThread(new Runnable() {
-                        public void run() {
-                            if (!mSwipeRefreshLayout.isRefreshing()) {
-                                loading.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    });
-                } catch (NullPointerException e) { }
-
-                try {
                     Whirldroid.getApi().getWhimManager().download();
 
                 } catch (final WhirlpoolApiException e) {
@@ -133,26 +119,20 @@ public class WhimListFragment extends ListFragment implements Refresher {
 
         @Override
         protected void onPostExecute(final ArrayList<Whim> result) {
-            try {
-                getActivity().runOnUiThread(new Runnable() {
-                    public void run() {
-                        if (mSwipeRefreshLayout.isRefreshing()) {
-                            mSwipeRefreshLayout.setRefreshing(false);
+            if (mSwipeRefreshLayout.isRefreshing()) {
+                mSwipeRefreshLayout.setRefreshing(false);
 
-                            if (result != null) {
-                                Toast.makeText(getActivity(), "Whims refreshed", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            loading.setVisibility(View.GONE);
-                        }
-                        if (result != null) {
-                            setWhims(whim_list); // display the whims in the list
-                        } else {
-                            Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
-            } catch (NullPointerException e) { }
+                if (result != null) {
+                    Toast.makeText(getActivity(), "Whims refreshed", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                loading.setVisibility(View.GONE);
+            }
+            if (result != null) {
+                setWhims(whim_list); // display the whims in the list
+            } else {
+                Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -357,6 +337,14 @@ public class WhimListFragment extends ListFragment implements Refresher {
 
 
     private void getWhims(boolean clear_cache) {
+        WhimManager whimManager = Whirldroid.getApi().getWhimManager();
+
+        if (clear_cache || whimManager.needToDownload()) {
+            if (!mSwipeRefreshLayout.isRefreshing()) {
+                loading.setVisibility(View.VISIBLE);
+            }
+        }
+
         task = new RetrieveWhimsTask(clear_cache); // start new thread to retrieve whims
         task.execute();
     }

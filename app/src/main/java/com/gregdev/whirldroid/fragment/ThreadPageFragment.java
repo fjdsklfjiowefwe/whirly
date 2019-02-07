@@ -89,14 +89,6 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
         @Override
         protected Thread doInBackground(String... params) {
             try {
-                getActivity().runOnUiThread(new Runnable() {
-                    public void run() {
-                        if (!mSwipeRefreshLayout.isRefreshing()) {
-                            loading.setVisibility(View.VISIBLE);
-                        }
-                    }
-                });
-
                 Thread thread = null;
                 try {
                     thread = Whirldroid.getApi().downloadThread(thread_id, thread_title, current_page, filter, filter_user_id);
@@ -120,55 +112,49 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
         @Override
         protected void onPostExecute(final Thread result) {
-            try {
-                getActivity().runOnUiThread(new Runnable() {
-                    public void run() {
-                        loading.setVisibility(View.GONE);
+            loading.setVisibility(View.GONE);
 
-                        if (mSwipeRefreshLayout.isRefreshing()) {
-                            mSwipeRefreshLayout.setRefreshing(false);
-                            Toast.makeText(getActivity(), "Page refreshed", Toast.LENGTH_SHORT).show();
-                        }
+            if (mSwipeRefreshLayout.isRefreshing()) {
+                mSwipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(getActivity(), "Page refreshed", Toast.LENGTH_SHORT).show();
+            }
 
-                        if (result != null) {
-                            last_updated    = System.currentTimeMillis() / 1000;
-                            page_count      = result.getPageCount();
-                            thread_title    = result.getTitle();
-                            thread          = result;
+            if (result != null) {
+                last_updated    = System.currentTimeMillis() / 1000;
+                page_count      = result.getPageCount();
+                thread_title    = result.getTitle();
+                thread          = result;
 
-                            if (current_page == -1) { // -1 indicates we're on the last page
-                                current_page = page_count;
-                            }
+                if (current_page == -1) { // -1 indicates we're on the last page
+                    current_page = page_count;
+                }
 
-                            if (parent != null) {
-                                ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setCount(page_count, thread_title);
-                            }
+                if (parent != null) {
+                    ((ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter()).setCount(page_count, thread_title);
+                }
 
-                            if (getParentFragment() != null) {
-                                if (filter != WhirlpoolApi.FILTER_NONE) {
-                                    ((ThreadViewFragment) getParentFragment()).hidePageSpinner();
-                                } else {
-                                    ((ThreadViewFragment) getParentFragment()).showPageSpinner();
-                                }
-                            }
-
-                            TextView noPosts = (TextView) rootView.findViewById(R.id.no_threads);
-
-                            if (result.getPosts().size() > 0) {
-                                noPosts.setVisibility(View.INVISIBLE);
-                            } else {
-                                noPosts.setText("No posts found");
-                                noPosts.setVisibility(View.VISIBLE);
-                            }
-
-                            setPosts(result.getPosts()); // display the posts in the list
-
-                        } else {
-                            Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
-                        }
+                if (getParentFragment() != null) {
+                    if (filter != WhirlpoolApi.FILTER_NONE) {
+                        ((ThreadViewFragment) getParentFragment()).hidePageSpinner();
+                    } else {
+                        ((ThreadViewFragment) getParentFragment()).showPageSpinner();
                     }
-                });
-            } catch (NullPointerException e) { }
+                }
+
+                TextView noPosts = (TextView) rootView.findViewById(R.id.no_threads);
+
+                if (result.getPosts().size() > 0) {
+                    noPosts.setVisibility(View.INVISIBLE);
+                } else {
+                    noPosts.setText("No posts found");
+                    noPosts.setVisibility(View.VISIBLE);
+                }
+
+                setPosts(result.getPosts()); // display the posts in the list
+
+            } else {
+                Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -558,6 +544,10 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
     }
 
     public void getThread() {
+        if (!mSwipeRefreshLayout.isRefreshing()) {
+            loading.setVisibility(View.VISIBLE);
+        }
+
         task = new RetrieveThreadTask(); // start new thread to retrieve posts
         task.execute();
     }

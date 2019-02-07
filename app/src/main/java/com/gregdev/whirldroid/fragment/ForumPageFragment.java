@@ -86,16 +86,6 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
         protected List<Thread> doInBackground(String... params) {
             if (clear_cache || Whirldroid.getApi().needToDownloadThreads(forum_id)) {
                 try {
-                    getActivity().runOnUiThread(new Runnable() {
-                        public void run() {
-                            if (!mSwipeRefreshLayout.isRefreshing()) {
-                                loading.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    });
-                } catch (NullPointerException e) { }
-
-                try {
                     switch (forum_id) {
                         case WhirlpoolApi.UNREAD_WATCHED_THREADS:
                             Whirldroid.getApi().getUnreadWatchedThreadsManager().download();
@@ -132,55 +122,49 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
 
         @Override
         protected void onPostExecute(final List<Thread> result) {
-            try {
-                getActivity().runOnUiThread(new Runnable() {
-                    public void run() {
-                        if (!mSwipeRefreshLayout.isRefreshing()) {
-                            loading.setVisibility(View.GONE);
+            if (!mSwipeRefreshLayout.isRefreshing()) {
+                loading.setVisibility(View.GONE);
+            }
+
+            mSwipeRefreshLayout.setRefreshing(false);
+
+            if (result != null) {
+                if (parent != null) {
+                    try {
+                        ThreadListFragment.ForumPageFragmentPagerAdapter pagerAdapter = (ThreadListFragment.ForumPageFragmentPagerAdapter) parent.getAdapter();
+
+                        if (pagerAdapter.getHeaderForum() == null) {
+                            pagerAdapter.setHeader(forum);
                         }
 
-                        mSwipeRefreshLayout.setRefreshing(false);
+                        pagerAdapter.setCount(forum.getPageCount());
+                    } catch (ClassCastException e) { } // must be viewing watched threads, which means we don't care about page counts
+                }
 
-                        if (result != null) {
-                            if (parent != null) {
-                                try {
-                                    ThreadListFragment.ForumPageFragmentPagerAdapter pagerAdapter = (ThreadListFragment.ForumPageFragmentPagerAdapter) parent.getAdapter();
+                getActivity().invalidateOptionsMenu();
 
-                                    if (pagerAdapter.getHeaderForum() == null) {
-                                        pagerAdapter.setHeader(forum);
-                                    }
-
-                                    pagerAdapter.setCount(forum.getPageCount());
-                                } catch (ClassCastException e) { } // must be viewing watched threads, which means we don't care about page counts
-                            }
-
-                            getActivity().invalidateOptionsMenu();
-
-                            if (thread_list != null && thread_list.size() == 0) {
-                                if (forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS) {
-                                    no_threads.setText(getActivity().getResources().getText(R.string.no_threads_unread));
-                                } else {
-                                    no_threads.setText(getActivity().getResources().getText(R.string.no_threads));
-                                }
-                                no_threads.setVisibility(View.VISIBLE);
-
-                            } else {
-                                no_threads.setVisibility(View.GONE);
-                            }
-
-                            if (!WhirlpoolApi.isActualForum(forum_id)) {
-                                setThreads(thread_list); // display the threads in the list
-                            } else if (WhirlpoolApi.isPublicForum(forum_id)) {
-                                setThreadsNoHeadings(thread_list);
-                            } else {
-                                setThreadsNoHeadings(thread_list);
-                            }
-                        } else {
-                            Toast.makeText(getActivity(), "Error downloading threads. Please try again", Toast.LENGTH_SHORT).show();
-                        }
+                if (thread_list != null && thread_list.size() == 0) {
+                    if (forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS) {
+                        no_threads.setText(getActivity().getResources().getText(R.string.no_threads_unread));
+                    } else {
+                        no_threads.setText(getActivity().getResources().getText(R.string.no_threads));
                     }
-                });
-            } catch (NullPointerException e) { }
+                    no_threads.setVisibility(View.VISIBLE);
+
+                } else {
+                    no_threads.setVisibility(View.GONE);
+                }
+
+                if (!WhirlpoolApi.isActualForum(forum_id)) {
+                    setThreads(thread_list); // display the threads in the list
+                } else if (WhirlpoolApi.isPublicForum(forum_id)) {
+                    setThreadsNoHeadings(thread_list);
+                } else {
+                    setThreadsNoHeadings(thread_list);
+                }
+            } else {
+                Toast.makeText(getActivity(), "Error downloading threads. Please try again", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -465,6 +449,10 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     }
 
     public void getThreads(boolean clear_cache) {
+        if (!mSwipeRefreshLayout.isRefreshing()) {
+            loading.setVisibility(View.VISIBLE);
+        }
+
         task = new RetrieveThreadsTask(clear_cache); // start new thread to retrieve threads
         task.execute();
     }

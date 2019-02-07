@@ -48,14 +48,6 @@ public class LoginFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(String... params) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    try {
-                        progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Verifying your API key...", true, true);
-                    } catch (WindowManager.BadTokenException e) {
-                    }
-                }
-            });
             try {
                 List<String> get = new ArrayList<String>();
                 get.add("forum");
@@ -76,64 +68,60 @@ public class LoginFragment extends Fragment {
 
         @Override
         protected void onPostExecute(final Boolean result) {
-            getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    if (progress_dialog != null) {
-                        try {
-                            progress_dialog.dismiss(); // hide the progress dialog
-                            progress_dialog = null;
-                        } catch (Exception e) {
-                        }
-                    }
-
-                    // got data, API key must be valid
-                    if (result) {
-                        if (Whirldroid.isGreg()) { // restore Greg's settings, because he's sick of doing it over and over and over again
-                            Toast.makeText(getActivity(), "Hi, Greg!", Toast.LENGTH_SHORT).show();
-
-                            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-                            SharedPreferences.Editor settingsEditor = settings.edit();
-                            settingsEditor.putBoolean("pref_watchedbacktolist"      , true      );
-                            settingsEditor.putBoolean("pref_watchedautomarkasread"  , true      );
-                            settingsEditor.putBoolean("pref_ignoreownreplies"       , true      );
-                            settingsEditor.putBoolean("pref_whimnotify"             , true      );
-                            settingsEditor.putBoolean("pref_watchednotify"          , true      );
-                            settingsEditor.putString("pref_notifyfreq", "15");
-                            settingsEditor.putString("pref_theme", "2");
-                            settingsEditor.putString ("pref_nightmodestart"         , "21:30"   );
-                            settingsEditor.putString ("pref_nightmodeend"           , "07:30"   );
-                            settingsEditor.commit();
-
-                            DatabaseHandler db = new DatabaseHandler(getActivity());
-                            db.addFavouriteForum(new Forum(138  , "Home"            , "Lounges"         ));
-                            db.addFavouriteForum(new Forum(126  , "Home theatre"    , "Entertainment"   ));
-                            db.addFavouriteForum(new Forum(71   , "Lifestyle"       , "Life"            ));
-                            db.addFavouriteForum(new Forum(63   , "Web development" , "IT Industry"     ));
-                        }
-
-                        ((MainActivity) getActivity()).switchFragment("ForumList", false);
-                    }
-
-                    // no data, API key is probably invalid (or error on Whirlpool side)
-                    else {
-                        // unset the API key setting
-                        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
-                        SharedPreferences.Editor settingsEditor = settings.edit();
-                        settingsEditor.putString("pref_apikey", null);
-                        settingsEditor.commit();
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setMessage("It looks like there might be a problem with your API key. Please check your key and remember to include dashes.")
-                                .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        dialog.cancel();
-                                    }
-                                });
-                        AlertDialog alert = builder.create();
-                        alert.show();
-                    }
+            if (progress_dialog != null) {
+                try {
+                    progress_dialog.dismiss(); // hide the progress dialog
+                    progress_dialog = null;
+                } catch (Exception e) {
                 }
-            });
+            }
+
+            // got data, API key must be valid
+            if (result) {
+                if (Whirldroid.isGreg()) { // restore Greg's settings, because he's sick of doing it over and over and over again
+                    Toast.makeText(getActivity(), "Hi, Greg!", Toast.LENGTH_SHORT).show();
+
+                    SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+                    SharedPreferences.Editor settingsEditor = settings.edit();
+                    settingsEditor.putBoolean("pref_watchedbacktolist"      , true      );
+                    settingsEditor.putBoolean("pref_watchedautomarkasread"  , true      );
+                    settingsEditor.putBoolean("pref_ignoreownreplies"       , true      );
+                    settingsEditor.putBoolean("pref_whimnotify"             , true      );
+                    settingsEditor.putBoolean("pref_watchednotify"          , true      );
+                    settingsEditor.putString("pref_notifyfreq", "15");
+                    settingsEditor.putString("pref_theme", "2");
+                    settingsEditor.putString ("pref_nightmodestart"         , "21:30"   );
+                    settingsEditor.putString ("pref_nightmodeend"           , "07:30"   );
+                    settingsEditor.commit();
+
+                    DatabaseHandler db = new DatabaseHandler(getActivity());
+                    db.addFavouriteForum(new Forum(138  , "Home"            , "Lounges"         ));
+                    db.addFavouriteForum(new Forum(126  , "Home theatre"    , "Entertainment"   ));
+                    db.addFavouriteForum(new Forum(71   , "Lifestyle"       , "Life"            ));
+                    db.addFavouriteForum(new Forum(63   , "Web development" , "IT Industry"     ));
+                }
+
+                ((MainActivity) getActivity()).switchFragment("ForumList", false);
+            }
+
+            // no data, API key is probably invalid (or error on Whirlpool side)
+            else {
+                // unset the API key setting
+                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+                SharedPreferences.Editor settingsEditor = settings.edit();
+                settingsEditor.putString("pref_apikey", null);
+                settingsEditor.commit();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("It looks like there might be a problem with your API key. Please check your key and remember to include dashes.")
+                        .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
         }
     }
 
@@ -166,6 +154,7 @@ public class LoginFragment extends Fragment {
                 settingsEditor.putString("pref_apikey", api_key);
                 settingsEditor.commit();
 
+                progress_dialog = ProgressDialog.show(getActivity(), "Just a sec...", "Verifying your API key...", true, true);
                 task = new RetrieveDataTask(); // start new thread to retrieve data
                 task.execute();
             }
