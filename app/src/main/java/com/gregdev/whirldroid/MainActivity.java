@@ -26,6 +26,8 @@ import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -248,16 +250,21 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         try {
             if (intent.getScheme().equals("whirldroid-thread")) {
-                int thread_id = Integer.parseInt(intent.getData().getQueryParameter("threadid"));
+                Pattern pattern = Pattern.compile("\\d+");
+                Matcher matcher = pattern.matcher(intent.getData().toString());
 
-                Bundle bundle = new Bundle();
-                bundle.putInt("thread_id", thread_id);
-                bundle.putString("thread_title", null);
-                bundle.putInt("page_number", 1);
-                bundle.putBoolean("bottom", false);
-                bundle.putInt("goto_num", 0);
+                if (matcher.find()) {
+                    int thread_id = Integer.parseInt(matcher.group());
 
-                switchFragment("ThreadView", true, bundle);
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("thread_id", thread_id);
+                    bundle.putString("thread_title", null);
+                    bundle.putInt("page_number", 1);
+                    bundle.putBoolean("bottom", false);
+                    bundle.putInt("goto_num", 0);
+
+                    switchFragment("ThreadView", true, bundle);
+                }
             }
 
         } catch (NullPointerException e) { }
