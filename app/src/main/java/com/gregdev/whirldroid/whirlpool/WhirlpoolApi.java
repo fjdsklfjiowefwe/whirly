@@ -91,10 +91,10 @@ public class WhirlpoolApi extends Activity {
     // will break if anything is changed on the Whirlpool side anyway
     public static final String POPULAR_URL      = "https://forums.whirlpool.net.au/forum/?action=popular_views";
     public static final String FORUM_URL        = "https://forums.whirlpool.net.au/forum/";
-    public static final String THREAD_URL       = "https://forums.whirlpool.net.au/forum-replies.cfm?t=";
-    public static final String REPLY_URL        = "https://forums.whirlpool.net.au/forum/index.cfm?action=reply&t=";
-    public static final String NEWTHREAD_URL    = "https://forums.whirlpool.net.au/forum/index.cfm?action=newthread&f=";
-    public static final String POST_URL         = "https://forums.whirlpool.net.au/forum-replies.cfm?r=";
+    public static final String THREAD_URL       = "https://forums.whirlpool.net.au/thread/";
+    public static final String REPLY_URL        = "https://forums.whirlpool.net.au/forum/?action=reply&t=";
+    public static final String NEWTHREAD_URL    = "https://forums.whirlpool.net.au/forum/?action=newthread&f=";
+    public static final String POST_URL         = "https://forums.whirlpool.net.au/forum/?action=replies&r=";
 
     // number of posts Whirlpool displays on each page
     public static final int POSTS_PER_PAGE = 20;
@@ -230,22 +230,22 @@ public class WhirlpoolApi extends Activity {
 
         switch (forum_id) {
             case RECENT_THREADS:
-                forum = new Forum(forum_id, "Recent Threads", 0, null);
+                forum = new Forum(forum_id, "Recent Threads", null);
                 forum.setThreads(getRecentThreadsManager().getItems());
                 return forum;
 
             case ALL_WATCHED_THREADS:
-                forum = new Forum(forum_id, "Watched Threads", 0, null);
+                forum = new Forum(forum_id, "Watched Threads", null);
                 forum.setThreads(getAllWatchedThreadsManager().getItems());
                 return forum;
 
             case UNREAD_WATCHED_THREADS:
-                forum = new Forum(forum_id, "Watched Threads", 0, null);
+                forum = new Forum(forum_id, "Watched Threads", null);
                 forum.setThreads(getUnreadWatchedThreadsManager().getItems());
                 return forum;
 
             case POPULAR_THREADS:
-                forum = new Forum(forum_id, "Popular Threads", 0, null);
+                forum = new Forum(forum_id, "Popular Threads", null);
                 forum.setThreads(getPopularThreadsManager().getItems());
                 return forum;
 
@@ -304,7 +304,7 @@ public class WhirlpoolApi extends Activity {
                     url = td.select("a").get(0).attr("href");
                 }
 
-                Pattern thread_id_regex = Pattern.compile("(t=([0-9]+))|(/archive/([0-9]+))");
+                Pattern thread_id_regex = Pattern.compile("(/thread/([0-9]+))|(/archive/([0-9]+))");
                 Matcher m = thread_id_regex.matcher(url);
                 while (m.find()) {
                     try {
@@ -447,7 +447,7 @@ public class WhirlpoolApi extends Activity {
             }
         }
 
-        Forum forum = new Forum(forum_id, forum_title, 0, null);
+        Forum forum = new Forum(forum_id, forum_title, null);
         forum.setPageCount(page_count);
         forum.setGroups(groups);
         forum.setThreads(threads);
@@ -497,7 +497,7 @@ public class WhirlpoolApi extends Activity {
             return null;
         }
 
-        Forum forum = new Forum(forum_id, "", 0, null);
+        Forum forum = new Forum(forum_id, "", null);
         forum.setThreads(forum_threads);
         return forum;
     }
@@ -571,7 +571,7 @@ public class WhirlpoolApi extends Activity {
 
         ArrayList<Post> posts = new ArrayList<>();
 
-        String thread_url = THREAD_URL + thread_id;
+        String thread_url = THREAD_URL + thread_id + "?";
 
         if (filter_user_id != null) {
             thread_url += "&ux=" + filter_user_id;
@@ -970,11 +970,10 @@ public class WhirlpoolApi extends Activity {
             JSONObject e = json_forums.getJSONObject(i);
 
             int id          = e.getInt("ID");
-            int sort        = e.getInt("SORT");
             String title    = e.getString("TITLE");
             String section  = e.getString("SECTION");
 
-            forums.add(new Forum(id, title, sort, section));
+            forums.add(new Forum(id, title, section));
         }
 
         return forums;

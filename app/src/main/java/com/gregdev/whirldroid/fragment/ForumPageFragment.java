@@ -110,7 +110,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
                             Whirldroid.getApi().getPopularThreadsManager().download();
                             break;
                         case WhirlpoolApi.SEARCH_RESULTS:
-                            forum = new Forum(forum_id, "Search Results", 0, null);
+                            forum = new Forum(forum_id, "Search Results", null);
                             thread_list = Whirldroid.getApi().searchThreads(search_forum, search_group, search_query);
                             return thread_list;
                     }
@@ -632,7 +632,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     }
 
     private void openThreadInBrowser(Thread thread, int page_number, boolean bottom, int goto_post) {
-        String thread_url = "https://forums.whirlpool.net.au/forum-replies.cfm?t=" + thread.getId();
+        String thread_url = "https://forums.whirlpool.net.au/thread/" + thread.getId();
 
         if (bottom) {
             thread_url += "&p=-1#bottom";
