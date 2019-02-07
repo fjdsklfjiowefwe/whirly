@@ -12,16 +12,14 @@ public class Forum implements Serializable {
 	
 	private int id;
 	private String title;
-	private int order;
 	private String section;
 	private int page_count;
 	private Map<String, Integer> groups;
 	private List<Thread> threads;
 
-	public Forum(int id, String title, int order, String section) {
+	public Forum(int id, String title, String section) {
 		this.id = id;
 		this.title = title;
-		this.order = order;
 		this.section = section;
 	}
 	
@@ -39,14 +37,6 @@ public class Forum implements Serializable {
 
 	public void setTitle(String title) {
 		this.title = title;
-	}
-
-	public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
 	}
 
 	public String getSection() {
