@@ -23,8 +23,12 @@
           }
         },
         {
-          "client_id": "53036791833-hrt4a0oedvtpni6g5naun9nhfa4nc61s.apps.googleusercontent.com",
-          "client_type": 3
+          "client_id": "53036791833-prlsg5fnaondhd29fsn4aj600vbce72j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gregdev.whirldroid",
+            "certificate_hash": "c81113a7e68c596fd60cb4194aa1cfbddb135aa2"
+          }
         },
         {
           "client_id": "53036791833-f1ohb97r6us4bo1hdstmg8v9os105h6r.apps.googleusercontent.com",

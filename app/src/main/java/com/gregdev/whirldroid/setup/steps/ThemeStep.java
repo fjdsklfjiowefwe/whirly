@@ -21,7 +21,7 @@ public class ThemeStep extends SetupStep {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
+        final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
 
         if (Integer.parseInt(settings.getString("pref_theme", "0")) == Whirldroid.DARK_THEME) {
             RadioButton light   = view.findViewById(R.id.theme_light);

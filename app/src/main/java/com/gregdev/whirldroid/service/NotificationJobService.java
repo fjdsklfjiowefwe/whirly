@@ -25,6 +25,7 @@ import com.gregdev.whirldroid.receiver.MarkWhimReadReceiver;
 import com.gregdev.whirldroid.receiver.UnwatchReceiver;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -78,7 +79,7 @@ public class NotificationJobService extends JobService {
                     params.put("watchedmode", "0");
                 }
 
-                Whirldroid.getApi().downloadData(get, params);
+                WhirlpoolApiFactory.getFactory().getApi(getBaseContext()).downloadData(get, params);
             }
             catch (WhirlpoolApiException e) {
                 return null;
@@ -94,7 +95,7 @@ public class NotificationJobService extends JobService {
                 ArrayList<NotificationCompat.Action> actions = new ArrayList<>();
                 ArrayList<Integer> threadIds = new ArrayList<>();
 
-                Forum forum = Whirldroid.getApi().getThreads(WhirlpoolApi.UNREAD_WATCHED_THREADS, 0, 0);
+                Forum forum = WhirlpoolApiFactory.getFactory().getApi(getBaseContext()).getThreads(WhirlpoolApi.UNREAD_WATCHED_THREADS, 0, 0);
                 List<Thread> watchedThreads = forum.getThreads();
 
                 int unreadThreadCount = 0;
@@ -108,7 +109,7 @@ public class NotificationJobService extends JobService {
                     for (Thread thread : watchedThreads) {
                         // check if this thread has any unread posts
                         if (thread.hasUnreadPosts()) {
-                            if (!ignoreOwnReplies || !thread.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId())) {
+                            if (!ignoreOwnReplies || !thread.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId(getBaseContext()))) {
                                 unreadThreadCount++;
                                 unreadReplyCount += thread.getUnread();
                                 threadIds.add(thread.getId());
@@ -173,8 +174,8 @@ public class NotificationJobService extends JobService {
                 String whimFrom         = "";
                 boolean needToNotify    = false;
 
-                if (Whirldroid.getApi().getWhimManager().getItems() != null) {
-                    for (Whim whim : Whirldroid.getApi().getWhimManager().getItems()) {
+                if (WhirlpoolApiFactory.getFactory().getApi(getBaseContext()).getWhimManager().getItems() != null) {
+                    for (Whim whim : WhirlpoolApiFactory.getFactory().getApi(getBaseContext()).getWhimManager().getItems()) {
                         // check if this whim has been read
                         if (!whim.isRead()) {
                             newWhimCount++;

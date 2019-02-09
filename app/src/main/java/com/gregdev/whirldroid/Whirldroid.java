@@ -40,11 +40,9 @@ import com.firebase.jobdispatcher.Trigger;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
 public class Whirldroid extends Application {
-
-    private static Context context;
-    private static WhirlpoolApi whirlpool_api;
 
     public static final int NEW_WHIM_NOTIFICATION_ID = 1;
     public static final int NEW_WATCHED_NOTIFICATION_ID = 2;
@@ -65,16 +63,10 @@ public class Whirldroid extends Application {
         super.onCreate();
         Fabric.with(this, new Crashlytics());
 
-        // get reference to context
-        context = getApplicationContext();
-
-        // set up Whirlpool API
-        whirlpool_api = new WhirlpoolApi();
-
         // set up analytics
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String themeName = "";
 
         switch (Integer.parseInt(settings.getString("pref_theme", LIGHT_THEME + ""))) {
@@ -111,22 +103,6 @@ public class Whirldroid extends Application {
     }
 
     /**
-     * Gets reference to application context
-     * @return context object
-     */
-    public static Context getContext() {
-        return context;
-    }
-
-    /**
-     * Gets reference to Whirlpool API
-     * @return Whirlpool API object
-     */
-    public static WhirlpoolApi getApi() {
-        return whirlpool_api;
-    }
-
-    /**
      * Logs something to the console; Greg's debugging
      */
     public static void log(String message) {
@@ -141,8 +117,8 @@ public class Whirldroid extends Application {
      * Gets the current theme
      * @return Current theme
      */
-    public static int getCurrentTheme() {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
+    public static int getCurrentTheme(Context context) {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 
         currentThemeId = Integer.parseInt(settings.getString("pref_theme", LIGHT_THEME + ""));
 
@@ -184,7 +160,7 @@ public class Whirldroid extends Application {
     /**
      * Get app user's Whirlpool ID from their API key
      */
-    public static String getOwnWhirlpoolId() {
+    public static String getOwnWhirlpoolId(Context context) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         String userId = settings.getString("user_id", null);
 
@@ -192,8 +168,8 @@ public class Whirldroid extends Application {
             return userId;
         }
 
-        String key_pieces[] = getApi().getApiKey().split("-");
-        return key_pieces[0];
+        String keyPieces[] = WhirlpoolApiFactory.getFactory().getApi(context).getApiKey().split("-");
+        return keyPieces[0];
     }
 
     /**
@@ -364,8 +340,8 @@ public class Whirldroid extends Application {
         return intList;
     }
 
-    public static boolean isGreg() {
-        return encryptPassword(getApi().getApiKey() + "whirldroid").equals("a4572bd46cd80bbc30bb29796244b04595673693");
+    public static boolean isGreg(Context context) {
+        return encryptPassword(WhirlpoolApiFactory.getFactory().getApi(context).getApiKey() + "whirldroid").equals("a4572bd46cd80bbc30bb29796244b04595673693");
     }
 
     private static String encryptPassword(String password) {
@@ -414,7 +390,7 @@ public class Whirldroid extends Application {
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, params);
     }
 
-    public static void startSchedule() {
+    public static void startSchedule(Context context) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 
         int interval = Integer.parseInt(settings.getString("pref_notifyfreq", "0"));

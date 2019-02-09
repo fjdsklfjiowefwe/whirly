@@ -17,7 +17,7 @@ public class StartupIntentReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		Whirldroid.log("StartupIntentReceiver onReceive");
 
-		Whirldroid.startSchedule();
+		Whirldroid.startSchedule(context);
 	}
 
 }

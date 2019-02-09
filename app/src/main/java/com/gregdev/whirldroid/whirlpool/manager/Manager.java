@@ -16,9 +16,14 @@ import java.util.ArrayList;
 public abstract class Manager<T> {
 
     protected ArrayList<T> items;
-    protected String cacheFileName;
-    protected long lastUpdated = 0;
-    protected int maxAge = 0;
+    String cacheFileName;
+    long lastUpdated = 0;
+    int maxAge = 0;
+    Context context;
+
+    public Manager(Context context) {
+        this.context = context;
+    }
 
     public ArrayList<T> getItems() {
         if (items == null || items.isEmpty()) { // no data in memory, get from cache file
@@ -62,8 +67,8 @@ public abstract class Manager<T> {
      * Returns the age of the cache file in milliseconds
      * @return file age in seconds
      */
-    protected long getCacheFileAge() {
-        File cacheFile = Whirldroid.getContext().getFileStreamPath(cacheFileName);
+    private long getCacheFileAge() {
+        File cacheFile = context.getFileStreamPath(cacheFileName);
         long now = System.currentTimeMillis();
         long fileLastModified = cacheFile.lastModified();
         lastUpdated = fileLastModified / 1000;
@@ -75,9 +80,9 @@ public abstract class Manager<T> {
         return diff / 1000;
     }
 
-    protected void writeToCacheFile(ArrayList<T> data) {
+    private void writeToCacheFile(ArrayList<T> data) {
         try {
-            FileOutputStream fos = Whirldroid.getContext().openFileOutput(cacheFileName, Context.MODE_PRIVATE);
+            FileOutputStream fos = context.openFileOutput(cacheFileName, Context.MODE_PRIVATE);
             ObjectOutputStream out = new ObjectOutputStream(fos);
             out.writeObject(data);
             out.close();
@@ -92,7 +97,7 @@ public abstract class Manager<T> {
         ArrayList<T> data = null;
 
         try {
-            FileInputStream fis = Whirldroid.getContext().openFileInput(cacheFileName);
+            FileInputStream fis = context.openFileInput(cacheFileName);
             ObjectInputStream in = new ObjectInputStream(fis);
             data = (ArrayList<T>) in.readObject();
             in.close();

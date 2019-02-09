@@ -1,11 +1,15 @@
 package com.gregdev.whirldroid.whirlpool.manager;
 
+import android.content.Context;
+
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 
 public class UnreadWatchedThreadsManager extends WatchedThreadsManager {
 
-    public UnreadWatchedThreadsManager() {
+    public UnreadWatchedThreadsManager(Context context) {
+        super(context);
+
         cacheFileName = "cache_unread_watched_threads.txt";
     }
 

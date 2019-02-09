@@ -31,6 +31,7 @@ import com.gregdev.whirldroid.layout.NewsAdapter;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.layout.SeparatedListAdapter;
 import com.gregdev.whirldroid.model.NewsArticle;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 import com.gregdev.whirldroid.whirlpool.manager.NewsManager;
 
 /**
@@ -62,7 +63,7 @@ public class NewsListFragment extends ListFragment implements Refresher {
 
         @Override
         protected ArrayList<NewsArticle> doInBackground(String... params) {
-            NewsManager newsManager = Whirldroid.getApi().getNewsManager();
+            NewsManager newsManager = WhirlpoolApiFactory.getFactory().getApi(getContext()).getNewsManager();
 
             if (clear_cache || newsManager.needToDownload()) {
                 try {
@@ -165,7 +166,7 @@ public class NewsListFragment extends ListFragment implements Refresher {
 
 
     private void getNews(boolean clear_cache) {
-        NewsManager newsManager = Whirldroid.getApi().getNewsManager();
+        NewsManager newsManager = WhirlpoolApiFactory.getFactory().getApi(getContext()).getNewsManager();
 
         if (clear_cache || newsManager.needToDownload()) {
             if (!mSwipeRefreshLayout.isRefreshing()) {

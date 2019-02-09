@@ -34,6 +34,7 @@ import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.model.Whim;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 import com.gregdev.whirldroid.whirlpool.manager.WhimManager;
 
 /**
@@ -62,7 +63,7 @@ public class WhimListFragment extends ListFragment implements Refresher {
         @Override
         protected Boolean doInBackground(String... params) {
             try {
-                Whirldroid.getApi().getWhimManager().download(whim.getId());
+                WhirlpoolApiFactory.getFactory().getApi(getContext()).getWhimManager().download(whim.getId());
                 return true;
 
             } catch (final WhirlpoolApiException e) {
@@ -101,11 +102,11 @@ public class WhimListFragment extends ListFragment implements Refresher {
 
         @Override
         protected ArrayList<Whim> doInBackground(String... params) {
-            WhimManager whimManager = Whirldroid.getApi().getWhimManager();
+            WhimManager whimManager = WhirlpoolApiFactory.getFactory().getApi(getContext()).getWhimManager();
 
             if (clear_cache || whimManager.needToDownload()) {
                 try {
-                    Whirldroid.getApi().getWhimManager().download();
+                    WhirlpoolApiFactory.getFactory().getApi(getContext()).getWhimManager().download();
 
                 } catch (final WhirlpoolApiException e) {
                     error_message = e.getMessage();
@@ -337,7 +338,7 @@ public class WhimListFragment extends ListFragment implements Refresher {
 
 
     private void getWhims(boolean clear_cache) {
-        WhimManager whimManager = Whirldroid.getApi().getWhimManager();
+        WhimManager whimManager = WhirlpoolApiFactory.getFactory().getApi(getContext()).getWhimManager();
 
         if (clear_cache || whimManager.needToDownload()) {
             if (!mSwipeRefreshLayout.isRefreshing()) {
@@ -354,7 +355,7 @@ public class WhimListFragment extends ListFragment implements Refresher {
      * @param whim_list Whims
      */
     private void setWhims(ArrayList<Whim> whim_list) {
-        long last_updated = System.currentTimeMillis() / 1000 - Whirldroid.getApi().getWhimManager().getLastUpdated();
+        long last_updated = System.currentTimeMillis() / 1000 - WhirlpoolApiFactory.getFactory().getApi(getContext()).getWhimManager().getLastUpdated();
 
         if (last_updated < 10) { // updated less than 10 seconds ago
             ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Updated just a moment ago");
@@ -403,7 +404,7 @@ public class WhimListFragment extends ListFragment implements Refresher {
             case R.id.menu_refresh:
                 long now = System.currentTimeMillis() / 1000;
                 // don't refresh too often
-                if (now - Whirldroid.getApi().getWhimManager().getLastUpdated() > WhirlpoolApi.REFRESH_INTERVAL) {
+                if (now - WhirlpoolApiFactory.getFactory().getApi(getContext()).getWhimManager().getLastUpdated() > WhirlpoolApi.REFRESH_INTERVAL) {
                     getWhims(true);
                 }
                 else {

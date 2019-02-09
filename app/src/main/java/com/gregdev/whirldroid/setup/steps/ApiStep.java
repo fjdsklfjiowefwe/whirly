@@ -30,6 +30,7 @@ import com.gregdev.whirldroid.setup.SteppedSetup;
 import com.gregdev.whirldroid.model.Forum;
 import com.gregdev.whirldroid.service.DatabaseHandler;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,7 +111,7 @@ public class ApiStep extends SetupStep {
             imm.hideSoftInputFromWindow(view.findViewById(R.id.scroller).getWindowToken(), 0);
 
             // store the API key
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
             SharedPreferences.Editor settingsEditor = settings.edit();
             settingsEditor.putString("pref_apikey", apiKey);
             settingsEditor.apply();
@@ -149,7 +150,7 @@ public class ApiStep extends SetupStep {
                 get.add("recent"    );
                 get.add("watched"   );
 
-                Whirldroid.getApi().downloadData(get, null);
+                WhirlpoolApiFactory.getFactory().getApi(getContext()).downloadData(get, null);
 
             } catch (final WhirlpoolApiException e) {
                 error_message = e.getMessage();
@@ -178,7 +179,7 @@ public class ApiStep extends SetupStep {
 
             // got data, API key must be valid
             if (result) {
-                if (Whirldroid.isGreg()) { // restore Greg's settings, because he's sick of doing it over and over and over again
+                if (Whirldroid.isGreg(getContext())) { // restore Greg's settings, because he's sick of doing it over and over and over again
                     Toast.makeText(getContext(), "Hi, Greg!", Toast.LENGTH_SHORT).show();
 
                     SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());

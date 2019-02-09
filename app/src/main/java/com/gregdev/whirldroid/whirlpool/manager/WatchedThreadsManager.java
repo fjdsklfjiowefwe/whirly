@@ -1,8 +1,11 @@
 package com.gregdev.whirldroid.whirlpool.manager;
 
+import android.content.Context;
+
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +15,9 @@ import java.util.Map;
 
 public abstract class WatchedThreadsManager extends Manager<Thread> {
 
-    public WatchedThreadsManager() {
+    public WatchedThreadsManager(Context context) {
+        super(context);
+
         maxAge = 10;
         items  = new ArrayList<>();
     }
@@ -36,7 +41,7 @@ public abstract class WatchedThreadsManager extends Manager<Thread> {
             params.put("watchedadd", watchId + "");
         }
 
-        Whirldroid.getApi().downloadData(get, params);
+        WhirlpoolApiFactory.getFactory().getApi(context).downloadData(get, params);
     }
 
     public void markRead(String ids) {

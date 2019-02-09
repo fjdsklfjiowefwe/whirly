@@ -7,15 +7,16 @@ import android.content.Intent;
 
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
 import java.util.ArrayList;
 
 public class MarkWhimReadReceiver extends BroadcastReceiver {
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
 
-        NotificationManager notificationManager = (NotificationManager) Whirldroid.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(Whirldroid.NEW_WHIM_NOTIFICATION_ID);
 
         final ArrayList<Integer> whimIds = intent.getExtras().getIntegerArrayList("ids");
@@ -25,7 +26,7 @@ public class MarkWhimReadReceiver extends BroadcastReceiver {
             public void run() {
                 try {
                     for (int whimId : whimIds) {
-                        Whirldroid.getApi().getWhimManager().download(whimId);
+                        WhirlpoolApiFactory.getFactory().getApi(context).getWhimManager().download(whimId);
                     }
                 } catch (WhirlpoolApiException e) { }
             }

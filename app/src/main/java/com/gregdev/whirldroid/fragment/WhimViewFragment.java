@@ -23,6 +23,7 @@ import com.gregdev.whirldroid.R;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.model.Whim;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
 public class WhimViewFragment extends Fragment {
     private TextView whimContent;
@@ -33,7 +34,7 @@ public class WhimViewFragment extends Fragment {
         @Override
         protected Integer doInBackground(Whim... whims) {
             try {
-                Whirldroid.getApi().getWhimManager().download(whims[0].getId());
+                WhirlpoolApiFactory.getFactory().getApi(getContext()).getWhimManager().download(whims[0].getId());
             }
             catch (WhirlpoolApiException e) {
                 // error marking whim as read, meh

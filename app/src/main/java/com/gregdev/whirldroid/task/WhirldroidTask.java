@@ -1,5 +1,6 @@
 package com.gregdev.whirldroid.task;
 
+import android.content.Context;
 import android.os.AsyncTask;
 
 public abstract class WhirldroidTask<T> extends AsyncTask<String, Void, Boolean> {
@@ -8,12 +9,14 @@ public abstract class WhirldroidTask<T> extends AsyncTask<String, Void, Boolean>
     public static final int TAG_THREAD_UNWATCH  = 1;
     public static final int TAG_THREAD_READ     = 2;
 
-    protected WhirldroidTaskOnCompletedListener listener = null;
-    protected int tag;
-    protected T subject;
+    WhirldroidTaskOnCompletedListener listener = null;
+    int tag;
+    T subject;
+    Context context;
 
-    public WhirldroidTask(T subject) {
+    public WhirldroidTask(T subject, Context context) {
         this.subject = subject;
+        this.context = context;
     }
 
     public void setOnCompletedListener(WhirldroidTaskOnCompletedListener listener) {

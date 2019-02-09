@@ -63,7 +63,7 @@ public class NotificationsStep extends SetupStep {
     public void onStepVisible() {
         super.onStepVisible();
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
 
         try {
             TextView loggedInAs = (TextView) getView().findViewById(R.id.logged_in_as);

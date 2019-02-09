@@ -43,6 +43,7 @@ import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.model.Post;
 import com.gregdev.whirldroid.model.Thread;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
 /**
  * Displays the latest Whirlpool whims in a nice list format
@@ -91,7 +92,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
             try {
                 Thread thread = null;
                 try {
-                    thread = Whirldroid.getApi().downloadThread(thread_id, thread_title, current_page, filter, filter_user_id);
+                    thread = WhirlpoolApiFactory.getFactory().getApi(getContext()).downloadThread(thread_id, thread_title, current_page, filter, filter_user_id);
                 } catch (final WhirlpoolApiException e) {
                     error_message = e.getMessage();
 
@@ -325,7 +326,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                         @Override
                         public void run() {
                             try {
-                                final Pair<Integer, Integer> postLocation = Whirldroid.getApi().getPostLocation(replyId);
+                                final Pair<Integer, Integer> postLocation = WhirlpoolApiFactory.getFactory().getApi(getContext()).getPostLocation(replyId);
 
                                 getActivity().runOnUiThread(new Runnable() {
                                     public void run() {
@@ -405,7 +406,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
             filter_user     = bundle.getString("filter_user", null);
             filter_user_id  = bundle.getString("filter_user_id", null);
 
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
             font_size_option = settings.getString("pref_postfontsize", "0");
         }
 
@@ -463,7 +464,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
         Post post = posts_adapter.getItem(postPosition);
 
-        if (post.getUser().getId().equals(Whirldroid.getOwnWhirlpoolId())) {
+        if (post.getUser().getId().equals(Whirldroid.getOwnWhirlpoolId(getContext()))) {
             menu.add(Menu.NONE, 4, 4, getResources().getText(R.string.ctxmenu_edit_post));
         }
     }

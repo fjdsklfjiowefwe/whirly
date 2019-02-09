@@ -153,7 +153,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
                     case R.id.menu_markread:
                         try {
-                            MarkThreadReadTask markReadTask = new MarkThreadReadTask(threadId + "");
+                            MarkThreadReadTask markReadTask = new MarkThreadReadTask(Integer.toString(threadId), getContext());
                             markReadTask.setOnCompletedListener(ThreadViewFragment.this);
                             markReadTask.execute();
 
@@ -296,7 +296,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     }
 
     public void watchThread(int threadId) {
-        WatchThreadTask watchTask = new WatchThreadTask(threadId);
+        WatchThreadTask watchTask = new WatchThreadTask(threadId, getContext());
         watchTask.setOnCompletedListener(this);
         watchTask.execute();
 
@@ -304,7 +304,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     }
 
     public void unwatchThread(int threadId) {
-        UnwatchThreadTask unwatchTask = new UnwatchThreadTask(threadId + "");
+        UnwatchThreadTask unwatchTask = new UnwatchThreadTask(Integer.toString(threadId), getContext());
         unwatchTask.setOnCompletedListener(this);
         unwatchTask.execute();
 

@@ -1,9 +1,12 @@
 package com.gregdev.whirldroid.whirlpool.manager;
 
+import android.content.Context;
+
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.model.Thread;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,7 +20,9 @@ import java.util.regex.Pattern;
 
 public class PopularThreadsManager extends Manager<Thread> {
 
-    public PopularThreadsManager() {
+    public PopularThreadsManager(Context context) {
+        super(context);
+
         cacheFileName   = "cache_popular_threads.txt";
         maxAge          = 10;
         items           = new ArrayList<>();
@@ -26,7 +31,7 @@ public class PopularThreadsManager extends Manager<Thread> {
     public void download() throws WhirlpoolApiException {
         ArrayList<Thread> threads = new ArrayList<Thread>();
 
-        Document doc = Whirldroid.getApi().downloadPage(WhirlpoolApi.POPULAR_URL);
+        Document doc = WhirlpoolApiFactory.getFactory().getApi(context).downloadPage(WhirlpoolApi.POPULAR_URL);
         if (doc == null) {
             return;
         }
@@ -56,7 +61,7 @@ public class PopularThreadsManager extends Manager<Thread> {
             else {
                 if (currentForum == null) continue;
 
-                Thread t = Whirldroid.getApi().getThreadFromTableRow(tr, currentForum, currentForumId);
+                Thread t = WhirlpoolApiFactory.getFactory().getApi(context).getThreadFromTableRow(tr, currentForum, currentForumId);
                 threads.add(t);
             }
         }

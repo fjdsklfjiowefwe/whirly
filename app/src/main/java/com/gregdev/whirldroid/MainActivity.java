@@ -22,6 +22,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 
 import com.gregdev.whirldroid.setup.SteppedSetup;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(Whirldroid.getCurrentTheme());
+        setTheme(Whirldroid.getCurrentTheme(this));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         // choose which fragment to display initially
-        if (Whirldroid.getApi().getApiKey() == null || Whirldroid.getApi().getApiKey().equals("")) {
+        if (WhirlpoolApiFactory.getFactory().getApi(this).getApiKey() == null || WhirlpoolApiFactory.getFactory().getApi(this).getApiKey().equals("")) {
             Intent setupIntent = new Intent(this, SteppedSetup.class);
             startActivity(setupIntent);
             finish();
@@ -147,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         } else {
             Bundle bundle;
 
-            switch (PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext()).getString("pref_homepage", "ForumList")) {
+            switch (PreferenceManager.getDefaultSharedPreferences(this).getString("pref_homepage", "ForumList")) {
                 case "NewsList":
                     switchFragment("NewsList", false);
                     break;
@@ -174,13 +175,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         }
 
-        Whirldroid.startSchedule();
+        Whirldroid.startSchedule(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        setTheme(Whirldroid.getCurrentTheme());
+        setTheme(Whirldroid.getCurrentTheme(this));
 
         try {
             Bundle bundle = getIntent().getExtras();

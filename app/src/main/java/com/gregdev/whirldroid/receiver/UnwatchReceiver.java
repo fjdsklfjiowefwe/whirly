@@ -8,15 +8,16 @@ import android.content.Intent;
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
 import java.util.ArrayList;
 
 public class UnwatchReceiver extends BroadcastReceiver {
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
 
-        NotificationManager notificationManager = (NotificationManager) Whirldroid.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(Whirldroid.NEW_WATCHED_NOTIFICATION_ID);
 
         ArrayList<Integer> threadIds = intent.getExtras().getIntegerArrayList("ids");
@@ -33,7 +34,7 @@ public class UnwatchReceiver extends BroadcastReceiver {
             @Override
             public void run() {
                 try {
-                    Whirldroid.getApi().getUnreadWatchedThreadsManager().download(null, finalUnwatchIds, 0);
+                    WhirlpoolApiFactory.getFactory().getApi(context).getUnreadWatchedThreadsManager().download(null, finalUnwatchIds, 0);
                 } catch (WhirlpoolApiException e) { }
             }
         });

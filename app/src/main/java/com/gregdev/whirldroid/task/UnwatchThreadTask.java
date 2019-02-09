@@ -1,23 +1,26 @@
 package com.gregdev.whirldroid.task;
 
+import android.content.Context;
+
 import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
 public class UnwatchThreadTask extends WhirldroidTask<String> {
 
-    public UnwatchThreadTask(String subject) {
-        super(subject);
+    public UnwatchThreadTask(String subject, Context context) {
+        super(subject, context);
         setTag(WhirldroidTask.TAG_THREAD_UNWATCH);
     }
 
     @Override
     protected Boolean doInBackground(String... params) {
-        Whirldroid.getApi().getUnreadWatchedThreadsManager().unwatch(subject);
-        Whirldroid.getApi().getAllWatchedThreadsManager().unwatch(subject);
+        WhirlpoolApiFactory.getFactory().getApi(context).getUnreadWatchedThreadsManager().unwatch(subject);
+        WhirlpoolApiFactory.getFactory().getApi(context).getAllWatchedThreadsManager().unwatch(subject);
 
         try {
-            Whirldroid.getApi().getUnreadWatchedThreadsManager().download(null, subject, 0);
+            WhirlpoolApiFactory.getFactory().getApi(context).getUnreadWatchedThreadsManager().download(null, subject, 0);
             return true;
 
         } catch (final WhirlpoolApiException e) {

@@ -2,10 +2,12 @@ package com.gregdev.whirldroid.model;
 
 import java.util.Map;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.gregdev.whirldroid.Whirldroid;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
 public class User implements Parcelable {
 	private String id;
@@ -83,8 +85,8 @@ public class User implements Parcelable {
 		this.quip = quip;
 	}
 	
-	public void downloadInfo() {
-		info = Whirldroid.getApi().scrapeUserInfo(id);
+	public void downloadInfo(Context context) {
+		info = WhirlpoolApiFactory.getFactory().getApi(context).scrapeUserInfo(id);
 	}
 	
 	public Map<String, String> getInfo() {

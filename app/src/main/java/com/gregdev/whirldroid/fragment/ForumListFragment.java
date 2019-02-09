@@ -33,6 +33,7 @@ import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.layout.SeparatedListAdapter;
 import com.gregdev.whirldroid.model.Forum;
 import com.gregdev.whirldroid.service.DatabaseHandler;
+import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 import com.gregdev.whirldroid.whirlpool.manager.ForumManager;
 
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class ForumListFragment extends ListFragment {
 
         @Override
         protected ArrayList<Forum> doInBackground(String... params) {
-            ForumManager forumManager = Whirldroid.getApi().getForumManager();
+            ForumManager forumManager = WhirlpoolApiFactory.getFactory().getApi(getContext()).getForumManager();
 
             if (clear_cache || forumManager.needToDownload()) {
                 try {

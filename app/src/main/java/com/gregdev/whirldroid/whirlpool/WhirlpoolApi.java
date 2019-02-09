@@ -24,6 +24,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Pair;
@@ -99,6 +100,8 @@ public class WhirlpoolApi extends Activity {
     // number of posts Whirlpool displays on each page
     public static final int POSTS_PER_PAGE = 20;
 
+    private Context context;
+
     private NewsManager                 newsManager                 ;
     private WhimManager                 whimManager                 ;
     private ForumManager                forumManager                ;
@@ -107,14 +110,16 @@ public class WhirlpoolApi extends Activity {
     private AllWatchedThreadsManager    allWatchedThreadsManager    ;
     private UnreadWatchedThreadsManager unreadWatchedThreadsManager ;
 
-    public WhirlpoolApi() {
-        settings = PreferenceManager.getDefaultSharedPreferences(Whirldroid.getContext());
+    public WhirlpoolApi(Context context) {
+        this.context = context;
+
+        settings = PreferenceManager.getDefaultSharedPreferences(context);
         http     = new HttpFetch();
     }
 
     public NewsManager getNewsManager() {
         if (newsManager == null) {
-            newsManager = new NewsManager();
+            newsManager = new NewsManager(context);
         }
 
         return newsManager;
@@ -122,7 +127,7 @@ public class WhirlpoolApi extends Activity {
 
     public WhimManager getWhimManager() {
         if (whimManager == null) {
-            whimManager = new WhimManager();
+            whimManager = new WhimManager(context);
         }
 
         return whimManager;
@@ -130,7 +135,7 @@ public class WhirlpoolApi extends Activity {
 
     public ForumManager getForumManager() {
         if (forumManager == null) {
-            forumManager = new ForumManager();
+            forumManager = new ForumManager(context);
         }
 
         return forumManager;
@@ -138,7 +143,7 @@ public class WhirlpoolApi extends Activity {
 
     public RecentThreadsManager getRecentThreadsManager() {
         if (recentThreadsManager == null) {
-            recentThreadsManager = new RecentThreadsManager();
+            recentThreadsManager = new RecentThreadsManager(context);
         }
 
         return recentThreadsManager;
@@ -146,7 +151,7 @@ public class WhirlpoolApi extends Activity {
 
     public PopularThreadsManager getPopularThreadsManager() {
         if (popularThreadsManager == null) {
-            popularThreadsManager = new PopularThreadsManager();
+            popularThreadsManager = new PopularThreadsManager(context);
         }
 
         return popularThreadsManager;
@@ -154,7 +159,7 @@ public class WhirlpoolApi extends Activity {
 
     public AllWatchedThreadsManager getAllWatchedThreadsManager() {
         if (allWatchedThreadsManager == null) {
-            allWatchedThreadsManager = new AllWatchedThreadsManager();
+            allWatchedThreadsManager = new AllWatchedThreadsManager(context);
         }
 
         return allWatchedThreadsManager;
@@ -162,7 +167,7 @@ public class WhirlpoolApi extends Activity {
 
     public UnreadWatchedThreadsManager getUnreadWatchedThreadsManager() {
         if (unreadWatchedThreadsManager == null) {
-            unreadWatchedThreadsManager = new UnreadWatchedThreadsManager();
+            unreadWatchedThreadsManager = new UnreadWatchedThreadsManager(context);
         }
 
         return unreadWatchedThreadsManager;
@@ -579,7 +584,7 @@ public class WhirlpoolApi extends Activity {
         } else if (filter != FILTER_NONE) {
             switch (filter) {
                 case FILTER_ME:
-                    thread_url += "&ux=" + Whirldroid.getOwnWhirlpoolId();
+                    thread_url += "&ux=" + Whirldroid.getOwnWhirlpoolId(context);
                     break;
 
                 case FILTER_MOD:

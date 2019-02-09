@@ -31,7 +31,7 @@ public class UserInfoFragment extends Fragment {
 
         @Override
         protected Void doInBackground(String... params) {
-            user.downloadInfo();
+            user.downloadInfo(getContext());
 
             return null;
         }
