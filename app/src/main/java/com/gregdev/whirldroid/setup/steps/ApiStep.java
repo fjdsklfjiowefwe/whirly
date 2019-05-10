@@ -94,10 +94,10 @@ public class ApiStep extends SetupStep {
     @Override
     public void onNext() {
         if (apiKeyEdit == null) {
-            apiKeyEdit = (EditText) view.findViewById(R.id.api_key_field);
+            apiKeyEdit = view.findViewById(R.id.api_key_field);
         }
 
-        String apiKey = apiKeyEdit.getText().toString();
+        String apiKey = apiKeyEdit.getText().toString().trim();
 
         if (!haveValidApiKey && apiKey.length() > 0) {
             try {
@@ -124,7 +124,7 @@ public class ApiStep extends SetupStep {
 
     @Override
     public boolean nextIf() {
-        EditText apiKeyField = (EditText) view.findViewById(R.id.api_key_field);
+        EditText apiKeyField = view.findViewById(R.id.api_key_field);
 
         return haveValidApiKey && apiKeyField.getText().length() > 0;
     }

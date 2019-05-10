@@ -55,7 +55,7 @@ import com.gregdev.whirldroid.whirlpool.manager.WhimManager;
  *
  * @author greg
  */
-public class WhirlpoolApi extends Activity {
+public class WhirlpoolApi {
 
     // minimum time in seconds between manual refreshes of data, to avoid hitting the Whirlpool servers too often
     public static final int REFRESH_INTERVAL = 10;
@@ -514,7 +514,6 @@ public class WhirlpoolApi extends Activity {
         } catch (URISyntaxException e) {
             return null;
         }
-        Whirldroid.log(uri.toASCIIString());
 
         return uri.toASCIIString();
     }

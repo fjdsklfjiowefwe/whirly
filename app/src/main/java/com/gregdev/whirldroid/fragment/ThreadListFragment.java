@@ -434,7 +434,7 @@ public class ThreadListFragment extends Fragment implements AdapterView.OnItemSe
             pages.add("Page " + page + " of " + pageCount);
         }
 
-        pageSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, pages));
+        pageSpinner.setAdapter(new ArrayAdapter<>(pageSpinner.getContext(), R.layout.spinner_dropdown_item, pages));
         pageSpinner.setSelection(viewPager.getCurrentItem());
     }
 

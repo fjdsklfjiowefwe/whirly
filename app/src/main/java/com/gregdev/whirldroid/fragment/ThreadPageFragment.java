@@ -66,7 +66,6 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
     private int filter = 0;
     private String filter_user = null;
     private String filter_user_id = null;
-    private boolean pages_loaded = false;
     private boolean no_page_select = true;
     private String font_size_option = "0";
     private ProgressBar loading;
@@ -142,7 +141,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                     }
                 }
 
-                TextView noPosts = (TextView) rootView.findViewById(R.id.no_threads);
+                TextView noPosts = rootView.findViewById(R.id.no_threads);
 
                 if (result.getPosts().size() > 0) {
                     noPosts.setVisibility(View.INVISIBLE);
@@ -154,7 +153,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                 setPosts(result.getPosts()); // display the posts in the list
 
             } else {
-                Toast.makeText(getActivity(), error_message, Toast.LENGTH_LONG).show();
+                Toast.makeText(loading.getContext(), error_message, Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -379,6 +378,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         rootView = inflater.inflate(R.layout.thread_list, container, false);
 
         try {
@@ -393,6 +393,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         Bundle bundle = getArguments();
 
@@ -416,7 +417,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
 
         registerForContextMenu(getListView());
 
-        loading = (ProgressBar) view.findViewById(R.id.loading);
+        loading = view.findViewById(R.id.loading);
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -597,7 +598,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
             }
         } catch (Exception e) { }
 
-        posts_adapter = new PostsAdapter(getActivity(), R.layout.list_row_post, posts);
+        posts_adapter = new PostsAdapter(getListView().getContext(), R.layout.list_row_post, posts);
         setListAdapter(posts_adapter);
 
         // scroll to the last post?

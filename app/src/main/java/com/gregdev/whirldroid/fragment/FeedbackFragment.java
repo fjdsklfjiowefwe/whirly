@@ -60,7 +60,7 @@ public class FeedbackFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("market://details?id=" + getActivity().getPackageName()));
+                intent.setData(Uri.parse("market://details?id=" + v.getContext().getPackageName()));
                 startActivity(intent);
             }
         });

@@ -81,12 +81,12 @@ public class ForumListFragment extends ListFragment {
             try {
                 if (result != null) {
                     if (mSwipeRefreshLayout.isRefreshing()) {
-                        Toast.makeText(getActivity(), "Forums refreshed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mSwipeRefreshLayout.getContext(), "Forums refreshed", Toast.LENGTH_SHORT).show();
                     }
 
                     setForums(forum_list); // display the forums in the list
                 } else {
-                    Toast.makeText(getActivity(), "Error: " + error_message, Toast.LENGTH_LONG).show();
+                    Toast.makeText(mSwipeRefreshLayout.getContext(), "Error: " + error_message, Toast.LENGTH_LONG).show();
                 }
 
                 mSwipeRefreshLayout.setRefreshing(false);
@@ -106,14 +106,14 @@ public class ForumListFragment extends ListFragment {
             return;
         }
 
-        forum_adapter = new SeparatedListAdapter(getActivity());
+        forum_adapter = new SeparatedListAdapter(getListView().getContext());
 
         // get favourite forums
-        DatabaseHandler db = new DatabaseHandler(getActivity());
+        DatabaseHandler db = new DatabaseHandler(getListView().getContext());
         ArrayList<Forum> favourites = db.getFavouriteForums();
 
         if (favourites.size() > 0) {
-            ForumAdapter fa = new ForumAdapter(getActivity(), android.R.layout.simple_list_item_1, favourites);
+            ForumAdapter fa = new ForumAdapter(getListView().getContext(), android.R.layout.simple_list_item_1, favourites);
             forum_adapter.addSection("Favourites", fa);
         }
 
@@ -124,7 +124,7 @@ public class ForumListFragment extends ListFragment {
         for (Forum f : forum_list) {
             if (!f.getSection().equals(current_section)) { // we've reached a new section
                 if (!forums.isEmpty()) { // there are items from a previous section
-                    ForumAdapter fa = new ForumAdapter(getActivity(), android.R.layout.simple_list_item_1, forums);
+                    ForumAdapter fa = new ForumAdapter(getListView().getContext(), android.R.layout.simple_list_item_1, forums);
                     forum_adapter.addSection(current_section, fa);
                     //articles.clear();
                     forums = new ArrayList<Forum>();
@@ -135,7 +135,7 @@ public class ForumListFragment extends ListFragment {
         }
         // if we have forums to display
         if (!forums.isEmpty()) {
-            ForumAdapter fa = new ForumAdapter(getActivity(), android.R.layout.simple_list_item_1, forums);
+            ForumAdapter fa = new ForumAdapter(getListView().getContext(), android.R.layout.simple_list_item_1, forums);
             forum_adapter.addSection(current_section, fa);
         }
 
@@ -153,31 +153,33 @@ public class ForumListFragment extends ListFragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            super.getView(position, convertView, parent);
+
             final Forum forum = forum_items.get(position);
             View v = convertView;
 
             if (v == null) {
-                LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater vi = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 v = vi.inflate(R.layout.list_row_single, null);
             }
 
             if (forum != null) {
-                TextView tt = (TextView) v.findViewById(R.id.top_text);
+                TextView tt = v.findViewById(R.id.top_text);
                 if (tt != null) {
                     tt.setText(forum.getTitle());
                 }
             }
 
-            ImageButton btn = (ImageButton) v.findViewById(R.id.menu_button);
+            final ImageButton btn = v.findViewById(R.id.menu_button);
             registerForContextMenu(btn);
 
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    PopupMenu popupMenu = new PopupMenu(getContext(), v);
+                    final PopupMenu popupMenu = new PopupMenu(btn.getContext(), v);
                     popupMenu.inflate(R.menu.forum_list_item);
 
-                    DatabaseHandler db = new DatabaseHandler(getActivity());
+                    DatabaseHandler db = new DatabaseHandler(btn.getContext());
 
                     if (db.isInFavourites(forum)) {
                         popupMenu.getMenu().findItem(R.id.menu_add_favourite).setVisible(false);
@@ -187,7 +189,7 @@ public class ForumListFragment extends ListFragment {
                     popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
-                            DatabaseHandler db = new DatabaseHandler(getActivity());
+                            DatabaseHandler db = new DatabaseHandler(btn.getContext());
                             switch (item.getItemId()) {
                                 case R.id.menu_add_favourite:
                                     db.addFavouriteForum(forum);
@@ -233,6 +235,7 @@ public class ForumListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         container.removeAllViews();
         rootView = inflater.inflate(R.layout.forum_list, container, false);
         ((MainActivity) getActivity()).selectMenuItem("ForumList");
@@ -245,6 +248,7 @@ public class ForumListFragment extends ListFragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         forum_listview = getListView();
 
         forum_listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -312,8 +316,8 @@ public class ForumListFragment extends ListFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.refresh, menu);
         super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.refresh, menu);
         //Create the search view
         SearchView search_view = new SearchView(((MainActivity) getActivity()).getSupportActionBar().getThemedContext());
         search_view.setQueryHint("Search for threads…");

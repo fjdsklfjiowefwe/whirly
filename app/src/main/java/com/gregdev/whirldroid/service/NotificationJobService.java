@@ -7,12 +7,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.text.Html;
 
+import com.crashlytics.android.Crashlytics;
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 import com.gregdev.whirldroid.R;
@@ -47,7 +47,9 @@ public class NotificationJobService extends JobService {
     @Override
     public boolean onStartJob(JobParameters job) {
         this.job = job;
-        new PollTask().execute();
+
+        new java.lang.Thread(new PollTask()).start();
+
         return false;
     }
 
@@ -56,12 +58,14 @@ public class NotificationJobService extends JobService {
         return false;
     }
 
-    private class PollTask extends AsyncTask<Void, Void, Void> {
+    class PollTask implements Runnable {
         /**
          * Thread to check for new Whims or new replies to watched threads
          */
+
         @Override
-        protected Void doInBackground(Void... parameters) {
+        public void run() {
+            Whirldroid.log("checking...");
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
             whimNotify      = settings.getBoolean("pref_whimnotify"     , false);
             watchedNotify   = settings.getBoolean("pref_watchednotify"  , false);
@@ -79,17 +83,12 @@ public class NotificationJobService extends JobService {
                     params.put("watchedmode", "0");
                 }
 
-                WhirlpoolApiFactory.getFactory().getApi(getBaseContext()).downloadData(get, params);
+                WhirlpoolApiFactory.getFactory().getApi(getApplicationContext()).downloadData(get, params);
             }
             catch (WhirlpoolApiException e) {
-                return null;
+                Crashlytics.logException(e);
             }
 
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
             if (watchedNotify) {
                 NotificationCompat.InboxStyle watchedInboxStyle = new NotificationCompat.InboxStyle();
                 ArrayList<NotificationCompat.Action> actions = new ArrayList<>();
@@ -102,7 +101,6 @@ public class NotificationJobService extends JobService {
                 int unreadReplyCount  = 0;
                 boolean needToNotify  = false;
 
-                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                 boolean ignoreOwnReplies = settings.getBoolean("pref_ignoreownreplies", false);
 
                 if (watchedThreads != null) {
@@ -224,8 +222,6 @@ public class NotificationJobService extends JobService {
                     nm.cancel(Whirldroid.NEW_WHIM_NOTIFICATION_ID);
                 }
             }
-
-            jobFinished(job, false);
         }
     }
 

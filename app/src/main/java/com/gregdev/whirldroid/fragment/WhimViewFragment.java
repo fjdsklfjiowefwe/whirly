@@ -61,12 +61,12 @@ public class WhimViewFragment extends Fragment {
             whim = bundle.getParcelable("whim");
         }
 
-        whimContent = (TextView) rootView.findViewById(R.id.whim_content);
+        whimContent = rootView.findViewById(R.id.whim_content);
         whimContent.setText(whim.getContent());
 
         ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("From " + whim.getFromName());
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(rootView.getContext());
 
         // if then whim is unread and the option to auto mark as read is selected
         if (!whim.isRead() && settings.getBoolean("pref_whimautomarkasread", true)) {

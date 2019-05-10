@@ -22,6 +22,8 @@
         <item name="ThreadIcon">@drawable/ic_chat_white_24dp</item>
         <item name="EmailIcon">@drawable/ic_email_white_24dp</item>
         <item name="StarIcon">@drawable/ic_star_white_24dp</item>
+
+        <color name="cardLayoutBackground">#f4f4f4</color>
     </style>
 
     <style name="WhirldroidLightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -50,6 +52,8 @@
         <item name="ThreadIcon">@drawable/ic_chat_black_24dp</item>
         <item name="EmailIcon">@drawable/ic_email_black_24dp</item>
         <item name="StarIcon">@drawable/ic_star_black_24dp</item>
+
+        <color name="cardLayoutBackground">#f4f4f4</color>
     </style>
 
     <style name="WhirldroidBottomMenu" parent="Theme.AppCompat">

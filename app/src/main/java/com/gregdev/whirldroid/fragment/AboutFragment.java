@@ -34,15 +34,15 @@ public class AboutFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        TextView version_info = (TextView) view.findViewById(R.id.version_info);
-        TextView gregdev_url = (TextView) view.findViewById(R.id.gregdev_web);
+        TextView version_info   = view.findViewById(R.id.version_info);
+        TextView gregdev_url    = view.findViewById(R.id.gregdev_web);
 
         Pattern p_url = Pattern.compile("https://gregdev.com.au");
         Linkify.addLinks(gregdev_url, p_url, "https://");
 
         String version = null;
         try {
-            version = getActivity().getPackageManager().getPackageInfo("com.gregdev.whirldroid", 0).versionName;
+            version = view.getContext().getPackageManager().getPackageInfo("com.gregdev.whirldroid", 0).versionName;
             version_info.setText(String.format(getString(R.string.version_info), version));
         }
         catch (NameNotFoundException e) { }
