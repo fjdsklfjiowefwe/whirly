@@ -22,7 +22,7 @@ public abstract class WatchedThreadsManager extends Manager<Thread> {
         items  = new ArrayList<>();
     }
 
-    public void download(int mode, String markAsReadIds, String unwatchIds, int watchId) throws WhirlpoolApiException {
+    public void download(int mode, String markAsReadIds, String unwatchIds, String watchId) throws WhirlpoolApiException {
         List<String> get = new ArrayList<>();
         Map<String, String> params = new HashMap<>();
 
@@ -37,7 +37,7 @@ public abstract class WatchedThreadsManager extends Manager<Thread> {
             params.put("watchedremove", unwatchIds);
         }
 
-        if (watchId != 0) {
+        if (watchId != "") {
             params.put("watchedadd", watchId + "");
         }
 
@@ -45,7 +45,7 @@ public abstract class WatchedThreadsManager extends Manager<Thread> {
     }
 
     public void markRead(String ids) {
-        ArrayList<Integer> threadIds = Whirldroid.stringToInts(ids);
+        List<String> threadIds = Arrays.asList(ids.split(","));
 
         for (Thread thread : items) {
             if (threadIds.contains(thread.getId())) {

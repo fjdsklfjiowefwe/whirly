@@ -279,7 +279,7 @@ public class WhirlpoolApi {
     }
 
     public Thread getThreadFromTableRow(Element tr, String forum, int forum_id) {
-        int id = 0;
+        String id = "";
         String title = "";
         String last_poster = "";
         String last_post_date = "";
@@ -309,15 +309,10 @@ public class WhirlpoolApi {
                     url = td.select("a").get(0).attr("href");
                 }
 
-                Pattern thread_id_regex = Pattern.compile("(/thread/([0-9]+))|(/archive/([0-9]+))");
+                Pattern thread_id_regex = Pattern.compile("/(thread|archive)/((\\d|[a-z])+)");
                 Matcher m = thread_id_regex.matcher(url);
                 while (m.find()) {
-                    try {
-                        id = Integer.parseInt(m.group(2));
-                    }
-                    catch (NumberFormatException e) {
-                        id = Integer.parseInt(m.group(4));
-                    }
+                    id = m.group(2);
                 }
 
                 // get thread page count
@@ -563,15 +558,15 @@ public class WhirlpoolApi {
         return threads;
     }
 
-    public Thread downloadThread(int thread_id, String thread_title) throws WhirlpoolApiException {
+    public Thread downloadThread(String thread_id, String thread_title) throws WhirlpoolApiException {
         return downloadThread(thread_id, thread_title, 1, FILTER_NONE, null);
     }
 
-    public Thread downloadThread(int thread_id, String thread_title, int page) throws WhirlpoolApiException {
+    public Thread downloadThread(String thread_id, String thread_title, int page) throws WhirlpoolApiException {
         return downloadThread(thread_id, thread_title, page, FILTER_NONE, null);
     }
 
-    public Thread downloadThread(int thread_id, String thread_title, int page, int filter, String filter_user_id) throws WhirlpoolApiException {
+    public Thread downloadThread(String thread_id, String thread_title, int page, int filter, String filter_user_id) throws WhirlpoolApiException {
 
         ArrayList<Post> posts = new ArrayList<>();
 
@@ -718,10 +713,10 @@ public class WhirlpoolApi {
         return thread;
     }
 
-    public Pair<Integer, Integer> getPostLocation(String postId) throws WhirlpoolApiException {
+    public Pair<String, Integer> getPostLocation(String postId) throws WhirlpoolApiException {
         String postUrl = POST_URL + postId;
         int pageNumber  = 1;
-        int threadId    = 0;
+        String threadId = "";
         Document doc    = downloadPage(postUrl);
 
         Elements currentPageElement = doc.select("#top_pagination li.current");
@@ -730,10 +725,10 @@ public class WhirlpoolApi {
             pageNumber = Integer.parseInt(currentPageElement.text().replace("\u00a0", ""));
         } catch (NumberFormatException e) { }
 
-        String archiveUrl = doc.select(".buttons.bfoot a").first().attr("href");
+        String archiveUrl = doc.select(".buttons").last().select(".blink").attr("href");
 
         try {
-            threadId = Integer.parseInt(archiveUrl.replace("/archive/", ""));
+            threadId = archiveUrl.replace("/archive/", "");
         } catch (NumberFormatException e) { }
 
         return new Pair<>(threadId, pageNumber);
@@ -925,7 +920,7 @@ public class WhirlpoolApi {
             JSONObject e    = json_threads.getJSONObject(i);
             JSONObject last = e.getJSONObject("LAST");
 
-            int id                  = e.getInt("ID");
+            String id               = e.getString("ID");
             String title            = e.getString("TITLE");
             String dateTime         = e.getString("LAST_DATE");
             String last_poster      = last.getString("NAME");

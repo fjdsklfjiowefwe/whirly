@@ -34,7 +34,7 @@ public class UnwatchReceiver extends BroadcastReceiver {
             @Override
             public void run() {
                 try {
-                    WhirlpoolApiFactory.getFactory().getApi(context).getUnreadWatchedThreadsManager().download(null, finalUnwatchIds, 0);
+                    WhirlpoolApiFactory.getFactory().getApi(context).getUnreadWatchedThreadsManager().download(null, finalUnwatchIds, "");
                 } catch (WhirlpoolApiException e) { }
             }
         });

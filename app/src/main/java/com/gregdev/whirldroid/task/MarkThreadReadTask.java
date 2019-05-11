@@ -20,7 +20,7 @@ public class MarkThreadReadTask extends WhirldroidTask<String> {
         WhirlpoolApiFactory.getFactory().getApi(context).getAllWatchedThreadsManager().markRead(subject);
 
         try {
-            WhirlpoolApiFactory.getFactory().getApi(context).getUnreadWatchedThreadsManager().download(subject, null, 0);
+            WhirlpoolApiFactory.getFactory().getApi(context).getUnreadWatchedThreadsManager().download(subject, null, "");
             return true;
 
         } catch (final WhirlpoolApiException e) {

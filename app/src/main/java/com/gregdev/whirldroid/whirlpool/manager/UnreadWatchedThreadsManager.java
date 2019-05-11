@@ -14,10 +14,10 @@ public class UnreadWatchedThreadsManager extends WatchedThreadsManager {
     }
 
     public void download() throws WhirlpoolApiException {
-        download(null, null, 0);
+        download(null, null, "");
     }
 
-    public void download(String markAsReadIds, String unwatchIds, int watchId) throws WhirlpoolApiException {
+    public void download(String markAsReadIds, String unwatchIds, String watchId) throws WhirlpoolApiException {
         download(WhirlpoolApi.WATCHMODE_UNREAD, markAsReadIds, unwatchIds, watchId);
     }
 

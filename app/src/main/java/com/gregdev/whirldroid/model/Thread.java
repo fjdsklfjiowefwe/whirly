@@ -8,7 +8,7 @@ import com.gregdev.whirldroid.Whirldroid;
 
 public class Thread implements Comparable<Thread>, Serializable {
     private static final long serialVersionUID = 6143751282281390955L;
-    private int    id;
+    private String id;
     private String title;
     private Date   last_date;
     private String last_poster;
@@ -34,7 +34,7 @@ public class Thread implements Comparable<Thread>, Serializable {
     private int page_count;
     
     
-    public Thread(int id, String title, Date last_date, String last_poster, String forum, int forum_id) {
+    public Thread(String id, String title, Date last_date, String last_poster, String forum, int forum_id) {
         this.id          = id;
         this.title       = Whirldroid.removeCommonHtmlChars(title);
         this.last_date   = last_date;
@@ -43,14 +43,14 @@ public class Thread implements Comparable<Thread>, Serializable {
         this.forum_id    = forum_id;
     }
     
-    public Thread(int id, String title, Date last_date, String last_poster, String forum, int forum_id, int unread, int last_page, int last_post) {
+    public Thread(String id, String title, Date last_date, String last_poster, String forum, int forum_id, int unread, int last_page, int last_post) {
         this(id, title, last_date, last_poster, forum, forum_id);
         this.unread = unread;
         this.last_page = last_page;
         this.last_post = last_post;
     }
     
-    public int getId() {
+    public String getId() {
         return id;
     }
     

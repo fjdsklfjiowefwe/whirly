@@ -7,9 +7,9 @@ import com.gregdev.whirldroid.whirlpool.WhirlpoolApi;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 
-public class WatchThreadTask extends WhirldroidTask<Integer> {
+public class WatchThreadTask extends WhirldroidTask<String> {
 
-    public WatchThreadTask(int subject, Context context) {
+    public WatchThreadTask(String subject, Context context) {
         super(subject, context);
         setTag(WhirldroidTask.TAG_THREAD_WATCH);
     }

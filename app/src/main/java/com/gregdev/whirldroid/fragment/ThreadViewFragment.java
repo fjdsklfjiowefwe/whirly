@@ -46,7 +46,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
     private View rootView;
     private ViewPager viewPager;
     private int fromForum;
-    private int threadId;
+    private String threadId;
     private int initialPage;
     private int pageCount = 0;
     private int gotoNum = 0;
@@ -75,7 +75,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         rootView = inflater.inflate(R.layout.view_pager, container, false);
 
         fromForum   = getArguments().getInt("from_forum");
-        threadId    = getArguments().getInt("thread_id");
+        threadId    = getArguments().getString("thread_id");
         initialPage = getArguments().getInt("page_number");
         pageCount   = getArguments().getInt("page_count");
         gotoNum     = getArguments().getInt("goto_num");
@@ -153,7 +153,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
 
                     case R.id.menu_markread:
                         try {
-                            MarkThreadReadTask markReadTask = new MarkThreadReadTask(Integer.toString(threadId), getContext());
+                            MarkThreadReadTask markReadTask = new MarkThreadReadTask(threadId, getContext());
                             markReadTask.setOnCompletedListener(ThreadViewFragment.this);
                             markReadTask.execute();
 
@@ -274,7 +274,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
                 Bundle bundle = new Bundle();
 
                 bundle.putString("thread_title" , threadTitle);
-                bundle.putInt("thread_id"       , threadId);
+                bundle.putString("thread_id"    , threadId);
                 bundle.putInt("page_number"     , position + 1);
                 bundle.putInt("page_count"      , pageCount);
                 bundle.putInt("filter"          , currentFilter);
@@ -295,7 +295,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         }
     }
 
-    public void watchThread(int threadId) {
+    public void watchThread(String threadId) {
         WatchThreadTask watchTask = new WatchThreadTask(threadId, getContext());
         watchTask.setOnCompletedListener(this);
         watchTask.execute();
@@ -303,8 +303,8 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         progressDialog = ProgressDialog.show(getActivity(), "Just a sec...", "Adding thread to watch list", true, true);
     }
 
-    public void unwatchThread(int threadId) {
-        UnwatchThreadTask unwatchTask = new UnwatchThreadTask(Integer.toString(threadId), getContext());
+    public void unwatchThread(String threadId) {
+        UnwatchThreadTask unwatchTask = new UnwatchThreadTask(threadId, getContext());
         unwatchTask.setOnCompletedListener(this);
         unwatchTask.execute();
 
@@ -332,7 +332,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         Bundle bundle = new Bundle();
 
         bundle.putString("thread_title"     , threadTitle);
-        bundle.putInt("thread_id", threadId);
+        bundle.putString("thread_id"        , threadId);
         bundle.putInt("page_number"         , 1);
         bundle.putInt("page_count"          , 1);
         bundle.putString("filter_user_id"   , userId);
@@ -385,7 +385,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
                                 @Override
                                 public void onClick(View view) {
                                     watchedSnackbar.dismiss();
-                                    unwatchThread(Integer.parseInt(task.getSubject() + ""));
+                                    unwatchThread(task.getSubject() + "");
                                 }
                             });
 
@@ -399,7 +399,7 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
                                 @Override
                                 public void onClick(View view) {
                                     unwatchedSnackbar.dismiss();
-                                    watchThread(Integer.parseInt(task.getSubject() + ""));
+                                    watchThread(task.getSubject() + "");
                                 }
                             });
 

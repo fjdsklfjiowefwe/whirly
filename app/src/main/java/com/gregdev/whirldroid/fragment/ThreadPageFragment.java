@@ -55,7 +55,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
     private View rootView;
     private ArrayAdapter<Post> posts_adapter;
     private RetrieveThreadTask task;
-    private int thread_id;
+    private String thread_id;
     private String thread_title;
     private Thread thread = null;
     private long last_updated = 0;
@@ -325,21 +325,21 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                         @Override
                         public void run() {
                             try {
-                                final Pair<Integer, Integer> postLocation = WhirlpoolApiFactory.getFactory().getApi(getContext()).getPostLocation(replyId);
+                                final Pair<String, Integer> postLocation = WhirlpoolApiFactory.getFactory().getApi(getContext()).getPostLocation(replyId);
 
                                 getActivity().runOnUiThread(new Runnable() {
                                     public void run() {
                                         progressDialog.hide();
                                         ThreadViewFragment.ThreadPageFragmentPagerAdapter adapter = (ThreadViewFragment.ThreadPageFragmentPagerAdapter) parent.getAdapter();
 
-                                        if ((postLocation.first == thread_id || thread_id == 0) && adapter.getFilter() == 0) { // same thread
+                                        if ((postLocation.first.equals(thread_id) || thread_id.equals("")) && adapter.getFilter() == 0) { // same thread
                                             adapter.setScrollToReply(replyId);
                                             parent.setCurrentItem(postLocation.second - 1);
 
                                         } else { // post is in a different thread
                                             Bundle bundle = new Bundle();
 
-                                            bundle.putInt("thread_id"           , postLocation.first    );
+                                            bundle.putString("thread_id"        , postLocation.first    );
                                             bundle.putInt("page_number"         , postLocation.second   );
                                             bundle.putString("scroll_to_post"   , replyId               );
 
@@ -398,7 +398,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
         Bundle bundle = getArguments();
 
         if (bundle != null) {
-            thread_id       = bundle.getInt("thread_id");
+            thread_id       = bundle.getString("thread_id");
             thread_title    = bundle.getString("thread_title");
             current_page    = bundle.getInt("page_number");
             bottom          = bundle.getBoolean("bottom");
@@ -598,7 +598,7 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
             }
         } catch (Exception e) { }
 
-        posts_adapter = new PostsAdapter(getListView().getContext(), R.layout.list_row_post, posts);
+        posts_adapter = new PostsAdapter(getContext(), R.layout.list_row_post, posts);
         setListAdapter(posts_adapter);
 
         // scroll to the last post?

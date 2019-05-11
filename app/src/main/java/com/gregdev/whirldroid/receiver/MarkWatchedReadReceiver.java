@@ -33,7 +33,7 @@ public class MarkWatchedReadReceiver extends BroadcastReceiver {
             @Override
             public void run() {
                 try {
-                    WhirlpoolApiFactory.getFactory().getApi(context).getUnreadWatchedThreadsManager().download(finalMarkReadIds, null, 0);
+                    WhirlpoolApiFactory.getFactory().getApi(context).getUnreadWatchedThreadsManager().download(finalMarkReadIds, null, "");
                 } catch (WhirlpoolApiException e) { }
             }
         });

@@ -20,7 +20,7 @@ public class UnwatchThreadTask extends WhirldroidTask<String> {
         WhirlpoolApiFactory.getFactory().getApi(context).getAllWatchedThreadsManager().unwatch(subject);
 
         try {
-            WhirlpoolApiFactory.getFactory().getApi(context).getUnreadWatchedThreadsManager().download(null, subject, 0);
+            WhirlpoolApiFactory.getFactory().getApi(context).getUnreadWatchedThreadsManager().download(null, subject, "");
             return true;
 
         } catch (final WhirlpoolApiException e) {

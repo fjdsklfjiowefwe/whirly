@@ -92,7 +92,7 @@ public class NotificationJobService extends JobService {
             if (watchedNotify) {
                 NotificationCompat.InboxStyle watchedInboxStyle = new NotificationCompat.InboxStyle();
                 ArrayList<NotificationCompat.Action> actions = new ArrayList<>();
-                ArrayList<Integer> threadIds = new ArrayList<>();
+                ArrayList<String> threadIds = new ArrayList<>();
 
                 Forum forum = WhirlpoolApiFactory.getFactory().getApi(getBaseContext()).getThreads(WhirlpoolApi.UNREAD_WATCHED_THREADS, 0, 0);
                 List<Thread> watchedThreads = forum.getThreads();
@@ -166,7 +166,7 @@ public class NotificationJobService extends JobService {
             if (whimNotify) {
                 NotificationCompat.InboxStyle whimInboxStyle = new NotificationCompat.InboxStyle();
                 ArrayList<NotificationCompat.Action> actions = new ArrayList<>();
-                ArrayList<Integer> whimIds = new ArrayList<>();
+                ArrayList<String> whimIds = new ArrayList<>();
 
                 int newWhimCount        = 0;
                 String whimFrom         = "";
@@ -177,7 +177,7 @@ public class NotificationJobService extends JobService {
                         // check if this whim has been read
                         if (!whim.isRead()) {
                             newWhimCount++;
-                            whimIds.add(whim.getId());
+                            whimIds.add(whim.getId() + "");
                             whimFrom = whim.getFromName();
 
                             // check if we have already sent a notification for this whim
@@ -241,7 +241,7 @@ public class NotificationJobService extends JobService {
         return (date.getTime() <= lastNotifiedTime);
     }
 
-    private void sendNotification(String title, String text, int notificationType, int icon, NotificationCompat.InboxStyle inboxLayout, ArrayList<NotificationCompat.Action> actions, ArrayList<Integer> actionItemIds) {
+    private void sendNotification(String title, String text, int notificationType, int icon, NotificationCompat.InboxStyle inboxLayout, ArrayList<NotificationCompat.Action> actions, ArrayList<String> actionItemIds) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         SharedPreferences.Editor editor = settings.edit();
 
