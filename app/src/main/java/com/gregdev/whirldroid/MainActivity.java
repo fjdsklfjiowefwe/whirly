@@ -251,14 +251,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         try {
             if (intent.getScheme().equals("whirldroid-thread")) {
-                Pattern pattern = Pattern.compile("\\d+");
+                Pattern pattern = Pattern.compile("threadid=((\\d|[a-z])+)");
                 Matcher matcher = pattern.matcher(intent.getData().toString());
 
                 if (matcher.find()) {
-                    int thread_id = Integer.parseInt(matcher.group());
+                    String thread_id = matcher.group(1);
 
                     Bundle bundle = new Bundle();
-                    bundle.putInt("thread_id", thread_id);
+                    bundle.putString("thread_id", thread_id);
                     bundle.putString("thread_title", null);
                     bundle.putInt("page_number", 1);
                     bundle.putBoolean("bottom", false);
