@@ -598,8 +598,10 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
             }
         } catch (Exception e) { }
 
-        posts_adapter = new PostsAdapter(getContext(), R.layout.list_row_post, posts);
-        setListAdapter(posts_adapter);
+        try {
+            posts_adapter = new PostsAdapter(getContext(), R.layout.list_row_post, posts);
+            setListAdapter(posts_adapter);
+        } catch (Exception e) { }
 
         // scroll to the last post?
         if (bottom) {
