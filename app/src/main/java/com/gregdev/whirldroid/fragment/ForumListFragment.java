@@ -153,7 +153,9 @@ public class ForumListFragment extends ListFragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            super.getView(position, convertView, parent);
+            try {
+                super.getView(position, convertView, parent);
+            } catch (IllegalStateException e) {}
 
             final Forum forum = forum_items.get(position);
             View v = convertView;
