@@ -153,7 +153,9 @@ public class ThreadPageFragment extends ListFragment implements Refresher {
                 setPosts(result.getPosts()); // display the posts in the list
 
             } else {
-                Toast.makeText(loading.getContext(), error_message, Toast.LENGTH_LONG).show();
+                try {
+                    Toast.makeText(loading.getContext(), error_message, Toast.LENGTH_LONG).show();
+                } catch (NullPointerException e) { } // don't really care if this fails
             }
         }
     }
