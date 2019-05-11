@@ -319,10 +319,10 @@ public class WhirlpoolApi {
                 try {
                     Element page_element = td.select("script").get(0);
 
-                    Pattern page_count_regex = Pattern.compile("([0-9]+),([0-9]+)");
+                    Pattern page_count_regex = Pattern.compile(",(\\d+)");
                     Matcher page_matcher = page_count_regex.matcher(page_element.html());
                     while (page_matcher.find()) {
-                        page_count = Integer.parseInt(page_matcher.group(2));
+                        page_count = Integer.parseInt(page_matcher.group(1));
                     }
 
                     //page_count = Integer.parseInt(page_element.text().replace(" ", ""));
