@@ -2,6 +2,7 @@ package com.gregdev.whirldroid.fragment;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import android.support.v4.app.ListFragment;
 import android.app.ProgressDialog;
@@ -45,13 +46,14 @@ import com.gregdev.whirldroid.whirlpool.manager.WhimManager;
 public class WhimListFragment extends ListFragment implements Refresher {
 
     private ArrayAdapter<Whim> whim_adapter;
-    private ArrayList<Whim> whim_list;
+    private List<Whim> whim_list;
     private ProgressDialog progress_dialog;
     private RetrieveWhimsTask task;
     private TextView no_whims;
     private ProgressBar loading;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private boolean showUnreadOnly = false;
+    private ListView listView;
 
     private class MarkWhimAsReadTask extends AsyncTask<String, Void, Boolean> {
         private Whim whim;
@@ -91,7 +93,7 @@ public class WhimListFragment extends ListFragment implements Refresher {
      * @author Greg
      *
      */
-    private class RetrieveWhimsTask extends AsyncTask<String, Void, ArrayList<Whim>> {
+    private class RetrieveWhimsTask extends AsyncTask<String, Void, List<Whim>> {
 
         private boolean clear_cache = false;
         private String error_message = "";
@@ -103,7 +105,7 @@ public class WhimListFragment extends ListFragment implements Refresher {
         }
 
         @Override
-        protected ArrayList<Whim> doInBackground(String... params) {
+        protected List<Whim> doInBackground(String... params) {
             WhimManager whimManager = WhirlpoolApiFactory.getFactory().getApi(context).getWhimManager();
 
             if (clear_cache || whimManager.needToDownload()) {
@@ -121,7 +123,7 @@ public class WhimListFragment extends ListFragment implements Refresher {
         }
 
         @Override
-        protected void onPostExecute(final ArrayList<Whim> result) {
+        protected void onPostExecute(final List<Whim> result) {
             if (mSwipeRefreshLayout.isRefreshing()) {
                 mSwipeRefreshLayout.setRefreshing(false);
 
@@ -146,9 +148,9 @@ public class WhimListFragment extends ListFragment implements Refresher {
      */
     public class WhimAdapter extends ArrayAdapter<Whim> {
 
-        private ArrayList<Whim> whim_items;
+        private List<Whim> whim_items;
 
-        public WhimAdapter(Context context, int textViewResourceId, ArrayList<Whim> whim_items) {
+        public WhimAdapter(Context context, int textViewResourceId, List<Whim> whim_items) {
             super(context, textViewResourceId, whim_items);
             this.whim_items = whim_items;
         }
@@ -249,7 +251,8 @@ public class WhimListFragment extends ListFragment implements Refresher {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        registerForContextMenu(getListView());
+        listView = getListView();
+        registerForContextMenu(listView);
         getWhims(false);
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -340,7 +343,7 @@ public class WhimListFragment extends ListFragment implements Refresher {
 
 
     private void getWhims(boolean clear_cache) {
-        WhimManager whimManager = WhirlpoolApiFactory.getFactory().getApi(getListView().getContext()).getWhimManager();
+        WhimManager whimManager = WhirlpoolApiFactory.getFactory().getApi(listView.getContext()).getWhimManager();
 
         if (clear_cache || whimManager.needToDownload()) {
             if (!mSwipeRefreshLayout.isRefreshing()) {
@@ -348,7 +351,7 @@ public class WhimListFragment extends ListFragment implements Refresher {
             }
         }
 
-        task = new RetrieveWhimsTask(getListView().getContext(), clear_cache); // start new thread to retrieve whims
+        task = new RetrieveWhimsTask(listView.getContext(), clear_cache); // start new thread to retrieve whims
         task.execute();
     }
 
@@ -356,8 +359,8 @@ public class WhimListFragment extends ListFragment implements Refresher {
      * Loads the whims into the list
      * @param whim_list Whims
      */
-    private void setWhims(ArrayList<Whim> whim_list) {
-        long last_updated = System.currentTimeMillis() / 1000 - WhirlpoolApiFactory.getFactory().getApi(getListView().getContext()).getWhimManager().getLastUpdated();
+    private void setWhims(List<Whim> whim_list) {
+        long last_updated = System.currentTimeMillis() / 1000 - WhirlpoolApiFactory.getFactory().getApi(listView.getContext()).getWhimManager().getLastUpdated();
 
         if (last_updated < 10) { // updated less than 10 seconds ago
             ((MainActivity) getActivity()).getSupportActionBar().setSubtitle("Updated just a moment ago");
@@ -372,7 +375,7 @@ public class WhimListFragment extends ListFragment implements Refresher {
         }
 
         if (showUnreadOnly) {
-            ArrayList<Whim> whim_list_clone = new ArrayList<>();
+            List<Whim> whim_list_clone = new ArrayList<>();
 
             for (Whim whim : whim_list) {
                 if (!whim.isRead()) {
@@ -406,7 +409,7 @@ public class WhimListFragment extends ListFragment implements Refresher {
             case R.id.menu_refresh:
                 long now = System.currentTimeMillis() / 1000;
                 // don't refresh too often
-                if (now - WhirlpoolApiFactory.getFactory().getApi(getListView().getContext()).getWhimManager().getLastUpdated() > WhirlpoolApi.REFRESH_INTERVAL) {
+                if (now - WhirlpoolApiFactory.getFactory().getApi(listView.getContext()).getWhimManager().getLastUpdated() > WhirlpoolApi.REFRESH_INTERVAL) {
                     getWhims(true);
                 }
                 else {

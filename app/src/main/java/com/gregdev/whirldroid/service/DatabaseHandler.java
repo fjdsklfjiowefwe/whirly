@@ -1,6 +1,7 @@
 package com.gregdev.whirldroid.service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -55,7 +56,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
     
-    public ArrayList<Forum> getFavouriteForums() {
+    public List<Forum> getFavouriteForums() {
         ArrayList<Forum> forums = new ArrayList<Forum>();
         
         String query = "SELECT * FROM " + TBL_FAVOURITE_FORUMS;

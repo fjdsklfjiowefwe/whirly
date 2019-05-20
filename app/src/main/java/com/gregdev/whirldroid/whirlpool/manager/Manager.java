@@ -12,10 +12,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Manager<T> {
 
-    protected ArrayList<T> items;
+    protected List<T> items;
     String cacheFileName;
     long lastUpdated = 0;
     int maxAge = 0;
@@ -25,7 +26,7 @@ public abstract class Manager<T> {
         this.context = context;
     }
 
-    public ArrayList<T> getItems() {
+    public List<T> getItems() {
         if (items == null || items.isEmpty()) { // no data in memory, get from cache file
             items = readFromCacheFile();
         }
@@ -33,7 +34,7 @@ public abstract class Manager<T> {
         return items;
     }
 
-    public void setItems(ArrayList<T> items) {
+    public void setItems(List<T> items) {
         lastUpdated = System.currentTimeMillis() / 1000;
         writeToCacheFile(items);
         this.items = items;
@@ -80,7 +81,7 @@ public abstract class Manager<T> {
         return diff / 1000;
     }
 
-    private void writeToCacheFile(ArrayList<T> data) {
+    private void writeToCacheFile(List<T> data) {
         try {
             FileOutputStream fos = context.openFileOutput(cacheFileName, Context.MODE_PRIVATE);
             ObjectOutputStream out = new ObjectOutputStream(fos);

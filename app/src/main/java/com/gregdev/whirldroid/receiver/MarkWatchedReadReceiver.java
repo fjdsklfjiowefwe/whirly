@@ -19,10 +19,10 @@ public class MarkWatchedReadReceiver extends BroadcastReceiver {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(Whirldroid.NEW_WATCHED_NOTIFICATION_ID);
 
-        ArrayList<Integer> threadIds = intent.getExtras().getIntegerArrayList("ids");
+        ArrayList<String> threadIds = intent.getExtras().getStringArrayList("ids");
         String markReadIds = "";
 
-        for (int threadId : threadIds) {
+        for (String threadId : threadIds) {
             if (!markReadIds.equals("")) markReadIds += ",";
             markReadIds += threadId;
         }

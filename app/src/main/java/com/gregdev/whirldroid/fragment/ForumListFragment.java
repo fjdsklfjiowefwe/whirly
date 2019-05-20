@@ -37,11 +37,12 @@ import com.gregdev.whirldroid.whirlpool.WhirlpoolApiFactory;
 import com.gregdev.whirldroid.whirlpool.manager.ForumManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ForumListFragment extends ListFragment {
 
     private SeparatedListAdapter forum_adapter;
-    private ArrayList<Forum> forum_list;
+    private List<Forum> forum_list;
     private RetrieveForumsTask task;
     private ListView forum_listview;
     private View rootView;
@@ -49,7 +50,7 @@ public class ForumListFragment extends ListFragment {
 
     private int listIndex = -1;
 
-    private class RetrieveForumsTask extends AsyncTask<String, Void, ArrayList<Forum>> {
+    private class RetrieveForumsTask extends AsyncTask<String, Void, List<Forum>> {
 
         private boolean clear_cache = false;
         private String error_message = "";
@@ -59,7 +60,7 @@ public class ForumListFragment extends ListFragment {
         }
 
         @Override
-        protected ArrayList<Forum> doInBackground(String... params) {
+        protected List<Forum> doInBackground(String... params) {
             ForumManager forumManager = WhirlpoolApiFactory.getFactory().getApi(getContext()).getForumManager();
 
             if (clear_cache || forumManager.needToDownload()) {
@@ -77,7 +78,7 @@ public class ForumListFragment extends ListFragment {
         }
 
         @Override
-        protected void onPostExecute(final ArrayList<Forum> result) {
+        protected void onPostExecute(final List<Forum> result) {
             try {
                 if (result != null) {
                     if (mSwipeRefreshLayout.isRefreshing()) {
@@ -101,7 +102,7 @@ public class ForumListFragment extends ListFragment {
         task.execute();
     }
 
-    private void setForums(ArrayList<Forum> forum_list) {
+    private void setForums(List<Forum> forum_list) {
         if (forum_list == null || forum_list.size() == 0) { // no forums found
             return;
         }
@@ -110,7 +111,7 @@ public class ForumListFragment extends ListFragment {
 
         // get favourite forums
         DatabaseHandler db = new DatabaseHandler(forum_listview.getContext());
-        ArrayList<Forum> favourites = db.getFavouriteForums();
+        List<Forum> favourites = db.getFavouriteForums();
 
         if (favourites.size() > 0) {
             ForumAdapter fa = new ForumAdapter(forum_listview.getContext(), android.R.layout.simple_list_item_1, favourites);
@@ -124,7 +125,7 @@ public class ForumListFragment extends ListFragment {
         for (Forum f : forum_list) {
             if (!f.getSection().equals(current_section)) { // we've reached a new section
                 if (!forums.isEmpty()) { // there are items from a previous section
-                    ForumAdapter fa = new ForumAdapter(getListView().getContext(), android.R.layout.simple_list_item_1, forums);
+                    ForumAdapter fa = new ForumAdapter(forum_listview.getContext(), android.R.layout.simple_list_item_1, forums);
                     forum_adapter.addSection(current_section, fa);
                     //articles.clear();
                     forums = new ArrayList<Forum>();
@@ -135,7 +136,7 @@ public class ForumListFragment extends ListFragment {
         }
         // if we have forums to display
         if (!forums.isEmpty()) {
-            ForumAdapter fa = new ForumAdapter(getListView().getContext(), android.R.layout.simple_list_item_1, forums);
+            ForumAdapter fa = new ForumAdapter(forum_listview.getContext(), android.R.layout.simple_list_item_1, forums);
             forum_adapter.addSection(current_section, fa);
         }
 
@@ -144,9 +145,9 @@ public class ForumListFragment extends ListFragment {
 
     public class ForumAdapter extends ArrayAdapter<Forum> {
 
-        private ArrayList<Forum> forum_items;
+        private List<Forum> forum_items;
 
-        public ForumAdapter(Context context, int textViewResourceId, ArrayList<Forum> forum_items) {
+        public ForumAdapter(Context context, int textViewResourceId, List<Forum> forum_items) {
             super(context, textViewResourceId, forum_items);
             this.forum_items = forum_items;
         }

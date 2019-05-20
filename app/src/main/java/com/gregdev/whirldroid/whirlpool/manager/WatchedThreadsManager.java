@@ -55,8 +55,8 @@ public abstract class WatchedThreadsManager extends Manager<Thread> {
     }
 
     public void unwatch(String ids) {
-        ArrayList<Integer> threadIds = Whirldroid.stringToInts(ids);
-        ArrayList<Thread>  newItems  = new ArrayList<>();
+        List<String> threadIds = Arrays.asList(ids.split(","));
+        List<Thread> newItems  = new ArrayList<>();
 
         for (Thread thread : items) {
             if (!threadIds.contains(thread.getId())) {

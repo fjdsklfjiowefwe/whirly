@@ -24,13 +24,13 @@ public class RecentThreadsManager extends Manager<Thread> {
         items           = new ArrayList<>();
     }
 
-    public ArrayList<Thread> getItems() {
+    public List<Thread> getItems() {
         super.getItems();
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         boolean ignoreOwn = settings.getBoolean("pref_ignoreownrepliesrecent", false);
 
-        ArrayList<Thread> itemsClone = new ArrayList<>();
+        List<Thread> itemsClone = new ArrayList<>();
 
         for (Thread t : items) {
             if (!ignoreOwn || !t.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId(context))) {

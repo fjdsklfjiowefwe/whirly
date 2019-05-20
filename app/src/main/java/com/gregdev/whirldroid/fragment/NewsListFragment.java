@@ -3,6 +3,7 @@ package com.gregdev.whirldroid.fragment;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import android.support.v4.app.ListFragment;
 import android.content.Intent;
@@ -42,7 +43,7 @@ import com.gregdev.whirldroid.whirlpool.manager.NewsManager;
 public class NewsListFragment extends ListFragment implements Refresher {
 
     private SeparatedListAdapter sla;
-    private ArrayList<NewsArticle> newsList;
+    private List<NewsArticle> newsList;
     private View rootView;
     private ProgressBar loading;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -52,7 +53,7 @@ public class NewsListFragment extends ListFragment implements Refresher {
      * @author Greg
      *
      */
-    private class RetrieveNewsTask extends AsyncTask<String, Void, ArrayList<NewsArticle>> {
+    private class RetrieveNewsTask extends AsyncTask<String, Void, List<NewsArticle>> {
 
         private boolean clear_cache = false;
         private String error_message = "";
@@ -62,7 +63,7 @@ public class NewsListFragment extends ListFragment implements Refresher {
         }
 
         @Override
-        protected ArrayList<NewsArticle> doInBackground(String... params) {
+        protected List<NewsArticle> doInBackground(String... params) {
             NewsManager newsManager = WhirlpoolApiFactory.getFactory().getApi(getContext()).getNewsManager();
 
             if (clear_cache || newsManager.needToDownload()) {
@@ -80,7 +81,7 @@ public class NewsListFragment extends ListFragment implements Refresher {
         }
 
         @Override
-        protected void onPostExecute(final ArrayList<NewsArticle> result) {
+        protected void onPostExecute(final List<NewsArticle> result) {
             if (mSwipeRefreshLayout.isRefreshing()) {
                 mSwipeRefreshLayout.setRefreshing(false);
 
@@ -182,7 +183,7 @@ public class NewsListFragment extends ListFragment implements Refresher {
      * Loads the news items into the list
      * @param news_list News items
      */
-    private void setNews(ArrayList<NewsArticle> news_list) {
+    private void setNews(List<NewsArticle> news_list) {
         if (news_list == null || news_list.size() == 0) { // no news found
             return;
         }
@@ -191,7 +192,7 @@ public class NewsListFragment extends ListFragment implements Refresher {
 
         int current_day = -1;
         String current_day_name = null;
-        ArrayList<NewsArticle> articles = new ArrayList<>();
+        List<NewsArticle> articles = new ArrayList<>();
 
         for (NewsArticle article : news_list) {
             Date article_date = article.getDate();

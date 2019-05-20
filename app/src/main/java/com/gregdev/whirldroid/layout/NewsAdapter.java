@@ -12,13 +12,14 @@ import com.gregdev.whirldroid.Whirldroid;
 import com.gregdev.whirldroid.model.NewsArticle;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NewsAdapter extends ArrayAdapter<NewsArticle> {
 
-    private ArrayList<NewsArticle> newsArticles;
+    private List<NewsArticle> newsArticles;
     private Context context;
 
-    public NewsAdapter(Context context, ArrayList<NewsArticle> newsItems) {
+    public NewsAdapter(Context context, List<NewsArticle> newsItems) {
         super(context, android.R.layout.simple_list_item_1, newsItems);
         this.newsArticles   = newsItems;
         this.context        = context;
