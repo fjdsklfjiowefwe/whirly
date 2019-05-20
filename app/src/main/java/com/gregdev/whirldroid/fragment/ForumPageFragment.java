@@ -348,14 +348,14 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     }
 
     public void unwatchThread(String threadId) {
-        progressDialog = ProgressDialog.show(getListView().getContext(), "Just a sec...", "Removing thread from watch list...", true, true);
+        progressDialog = ProgressDialog.show(thread_listview.getContext(), "Just a sec...", "Removing thread from watch list...", true, true);
         UnwatchThreadTask unwatchTask = new UnwatchThreadTask(threadId, progressDialog.getContext());
         unwatchTask.setOnCompletedListener(ForumPageFragment.this);
         unwatchTask.execute();
     }
 
     public void watchThread(String threadId) {
-        progressDialog = ProgressDialog.show(getListView().getContext(), "Just a sec...", "Adding thread to watch list...", true, true);
+        progressDialog = ProgressDialog.show(thread_listview.getContext(), "Just a sec...", "Adding thread to watch list...", true, true);
         WatchThreadTask watchTask = new WatchThreadTask(threadId, progressDialog.getContext());
         watchTask.setOnCompletedListener(ForumPageFragment.this);
         watchTask.execute();
@@ -465,7 +465,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
             return;
         }
 
-        threads_adapter_no_headings = new ThreadAdapter(getListView().getContext(), R.layout.list_row, thread_list);
+        threads_adapter_no_headings = new ThreadAdapter(thread_listview.getContext(), R.layout.list_row, thread_list);
         setListAdapter(threads_adapter_no_headings);
     }
 
@@ -477,16 +477,16 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
         long last_updated = System.currentTimeMillis() / 1000;
         switch (forum_id) {
             case WhirlpoolApi.RECENT_THREADS:
-                last_updated -= WhirlpoolApiFactory.getFactory().getApi(getListView().getContext()).getRecentThreadsManager().getLastUpdated();
+                last_updated -= WhirlpoolApiFactory.getFactory().getApi(thread_listview.getContext()).getRecentThreadsManager().getLastUpdated();
                 break;
             case WhirlpoolApi.UNREAD_WATCHED_THREADS:
-                last_updated -= WhirlpoolApiFactory.getFactory().getApi(getListView().getContext()).getUnreadWatchedThreadsManager().getLastUpdated();
+                last_updated -= WhirlpoolApiFactory.getFactory().getApi(thread_listview.getContext()).getUnreadWatchedThreadsManager().getLastUpdated();
                 break;
             case WhirlpoolApi.ALL_WATCHED_THREADS:
-                last_updated -= WhirlpoolApiFactory.getFactory().getApi(getListView().getContext()).getAllWatchedThreadsManager().getLastUpdated();
+                last_updated -= WhirlpoolApiFactory.getFactory().getApi(thread_listview.getContext()).getAllWatchedThreadsManager().getLastUpdated();
                 break;
             case WhirlpoolApi.POPULAR_THREADS:
-                last_updated -= WhirlpoolApiFactory.getFactory().getApi(getContext()).getPopularThreadsManager().getLastUpdated();
+                last_updated -= WhirlpoolApiFactory.getFactory().getApi(thread_listview.getContext()).getPopularThreadsManager().getLastUpdated();
                 break;
         }
 
@@ -505,12 +505,12 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
         }
 
         if (forum_id == WhirlpoolApi.UNREAD_WATCHED_THREADS) {
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getListView().getContext());
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(thread_listview.getContext());
             Boolean ignore_own = settings.getBoolean("pref_ignoreownreplies", false);
             List<Thread> copy = new ArrayList<Thread>(thread_list);
 
             for (Thread thread : thread_list) {
-                if (!thread.hasUnreadPosts() || (ignore_own && thread.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId(getListView().getContext())))) {
+                if (!thread.hasUnreadPosts() || (ignore_own && thread.getLastPosterId().equals(Whirldroid.getOwnWhirlpoolId(thread_listview.getContext())))) {
                     copy.remove(thread);
                 }
             }
@@ -526,14 +526,14 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
             }
         }
 
-        threads_adapter = new SeparatedListAdapter(getListView().getContext(), true);
+        threads_adapter = new SeparatedListAdapter(thread_listview.getContext(), true);
 
         sorted_threads = Whirldroid.groupThreadsByForum(thread_list);
 
         for (Map.Entry<String, List<Thread>> entry : sorted_threads.entrySet()) {
             String forum_name = entry.getKey();
             List<Thread> threads = entry.getValue();
-            ThreadAdapter ta = new ThreadAdapter(getListView().getContext(), android.R.layout.simple_list_item_1, threads);
+            ThreadAdapter ta = new ThreadAdapter(thread_listview.getContext(), android.R.layout.simple_list_item_1, threads);
             threads_adapter.addSection(forum_name, ta);
         }
 
@@ -545,7 +545,7 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
     }
 
     private void openThread(Thread thread, int pageNumber, boolean bottom, boolean forceBrowser) {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getListView().getContext());
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(thread_listview.getContext());
 
         boolean loadInBrowser       = settings.getBoolean("pref_openthreadsinbrowser"   , false);
         boolean loadRecentAtTop     = settings.getBoolean("pref_loadattop"              , false);
@@ -732,12 +732,12 @@ public class ForumPageFragment extends ListFragment implements WhirldroidTaskOnC
                             break;
 
                         case WhirldroidTask.TAG_THREAD_READ:
-                            Toast.makeText(getListView().getContext(), "Thread marked as read", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(thread_listview.getContext(), "Thread marked as read", Toast.LENGTH_SHORT).show();
                             getThreads(false);
                             break;
                     }
                 } else {
-                    Toast.makeText(getListView().getContext(), "Error downloading data", Toast.LENGTH_LONG).show();
+                    Toast.makeText(thread_listview.getContext(), "Error downloading data", Toast.LENGTH_LONG).show();
                 }
             }
         });

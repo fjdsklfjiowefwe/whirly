@@ -106,14 +106,14 @@ public class ForumListFragment extends ListFragment {
             return;
         }
 
-        forum_adapter = new SeparatedListAdapter(getListView().getContext());
+        forum_adapter = new SeparatedListAdapter(forum_listview.getContext());
 
         // get favourite forums
-        DatabaseHandler db = new DatabaseHandler(getListView().getContext());
+        DatabaseHandler db = new DatabaseHandler(forum_listview.getContext());
         ArrayList<Forum> favourites = db.getFavouriteForums();
 
         if (favourites.size() > 0) {
-            ForumAdapter fa = new ForumAdapter(getListView().getContext(), android.R.layout.simple_list_item_1, favourites);
+            ForumAdapter fa = new ForumAdapter(forum_listview.getContext(), android.R.layout.simple_list_item_1, favourites);
             forum_adapter.addSection("Favourites", fa);
         }
 
