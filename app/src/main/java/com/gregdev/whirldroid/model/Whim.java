@@ -34,7 +34,7 @@ public class Whim implements Parcelable, Serializable {
 		from_name = in.readString();
 		viewed    = in.readInt();
 		replied   = in.readInt();
-		date      = (Date) in.readValue(null);
+		date      = (Date) in.readValue(getClass().getClassLoader());
 		content   = in.readString();
 	}
 	
