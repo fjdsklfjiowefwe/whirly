@@ -94,6 +94,7 @@ public abstract class Manager<T> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected ArrayList<T> readFromCacheFile() {
         ArrayList<T> data = null;
 

@@ -244,6 +244,10 @@ public class ThreadViewFragment extends Fragment implements AdapterView.OnItemSe
         }
 
         public void setCount(int count, String threadTitle) {
+            if (count == 1 && pageCount > 1) {
+                return;
+            }
+
             if (count != pageCount) { // count has changed, let's do some things
                 pageCount = count;
                 populatePageSpinner();
