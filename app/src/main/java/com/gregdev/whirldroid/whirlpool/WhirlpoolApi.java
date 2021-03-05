@@ -621,12 +621,12 @@ public class WhirlpoolApi {
         // get notebar (thread header that mods put there sometimes)
         String notebar = null;
         try {
-            notebar = doc.select(".notebar").get(0).html();
+            notebar = doc.select("#top_notebar_public").get(0).html();
         } catch (IndexOutOfBoundsException e) {
             // no notebar
         }
 
-        Elements replies = doc.select("#replylist > div");
+        Elements replies = doc.select("#replylist > div.replyblock");
 
         for (Element reply : replies) {
             String id           = "";
