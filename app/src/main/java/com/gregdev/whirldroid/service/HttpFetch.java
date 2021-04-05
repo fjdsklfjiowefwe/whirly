@@ -8,8 +8,10 @@ import com.gregdev.whirldroid.whirlpool.WhirlpoolApiException;
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.client.ClientProtocolException;
+import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.methods.HttpGet;
 import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
+import cz.msebera.android.httpclient.impl.client.HttpClients;
 import cz.msebera.android.httpclient.util.EntityUtils;
 
 /**
@@ -31,12 +33,15 @@ public class HttpFetch {
 
 		// fetch data from URL
 		try {
-			DefaultHttpClient client = new DefaultHttpClient();
+			HttpClient client = HttpClients.custom()
+									.setUserAgent("Whirldroid")
+									.build();
+
 			HttpGet getRequest = new HttpGet(url);
-			getRequest.setHeader("User-Agent", "Whirldroid");
 			HttpResponse getResponse = client.execute(getRequest);
 
 			status_code = getResponse.getStatusLine().getStatusCode();
+
 			if (status_code != 200) {
 				switch (status_code) {
 					case 401:

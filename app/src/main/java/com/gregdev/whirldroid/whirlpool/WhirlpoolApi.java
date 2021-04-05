@@ -983,8 +983,12 @@ public class WhirlpoolApi {
 
         while (connection_attempts > 0) {
             try {
-                return Jsoup.connect(url).timeout(7000).get();
+                return Jsoup.connect(url)
+                            .userAgent("Whirldroid")
+                            .timeout(7000)
+                            .get();
             } catch (IOException e) {
+                Whirldroid.log(e.toString());
                 // error connecting, try again
             }
 
